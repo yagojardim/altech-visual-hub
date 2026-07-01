@@ -15,6 +15,7 @@ import { Route as WorkspaceRouteImport } from './routes/_workspace'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WorkspaceDashboardRouteImport } from './routes/_workspace.dashboard'
 import { Route as WorkspaceBoardsRouteImport } from './routes/_workspace.boards'
+import { Route as WorkspaceWorkItemsItemIdRouteImport } from './routes/_workspace.work-items.$itemId'
 import { Route as WorkspaceProjectsProjectIdRouteImport } from './routes/_workspace.projects.$projectId'
 
 const UnauthorizedRoute = UnauthorizedRouteImport.update({
@@ -46,6 +47,12 @@ const WorkspaceBoardsRoute = WorkspaceBoardsRouteImport.update({
   path: '/boards',
   getParentRoute: () => WorkspaceRoute,
 } as any)
+const WorkspaceWorkItemsItemIdRoute =
+  WorkspaceWorkItemsItemIdRouteImport.update({
+    id: '/work-items/$itemId',
+    path: '/work-items/$itemId',
+    getParentRoute: () => WorkspaceRoute,
+  } as any)
 const WorkspaceProjectsProjectIdRoute =
   WorkspaceProjectsProjectIdRouteImport.update({
     id: '/projects/$projectId',
@@ -60,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/boards': typeof WorkspaceBoardsRoute
   '/dashboard': typeof WorkspaceDashboardRoute
   '/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
+  '/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -68,6 +76,7 @@ export interface FileRoutesByTo {
   '/boards': typeof WorkspaceBoardsRoute
   '/dashboard': typeof WorkspaceDashboardRoute
   '/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
+  '/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -78,6 +87,7 @@ export interface FileRoutesById {
   '/_workspace/boards': typeof WorkspaceBoardsRoute
   '/_workspace/dashboard': typeof WorkspaceDashboardRoute
   '/_workspace/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
+  '/_workspace/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -88,6 +98,7 @@ export interface FileRouteTypes {
     | '/boards'
     | '/dashboard'
     | '/projects/$projectId'
+    | '/work-items/$itemId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -96,6 +107,7 @@ export interface FileRouteTypes {
     | '/boards'
     | '/dashboard'
     | '/projects/$projectId'
+    | '/work-items/$itemId'
   id:
     | '__root__'
     | '/'
@@ -105,6 +117,7 @@ export interface FileRouteTypes {
     | '/_workspace/boards'
     | '/_workspace/dashboard'
     | '/_workspace/projects/$projectId'
+    | '/_workspace/work-items/$itemId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceBoardsRouteImport
       parentRoute: typeof WorkspaceRoute
     }
+    '/_workspace/work-items/$itemId': {
+      id: '/_workspace/work-items/$itemId'
+      path: '/work-items/$itemId'
+      fullPath: '/work-items/$itemId'
+      preLoaderRoute: typeof WorkspaceWorkItemsItemIdRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
     '/_workspace/projects/$projectId': {
       id: '/_workspace/projects/$projectId'
       path: '/projects/$projectId'
@@ -172,12 +192,14 @@ interface WorkspaceRouteChildren {
   WorkspaceBoardsRoute: typeof WorkspaceBoardsRoute
   WorkspaceDashboardRoute: typeof WorkspaceDashboardRoute
   WorkspaceProjectsProjectIdRoute: typeof WorkspaceProjectsProjectIdRoute
+  WorkspaceWorkItemsItemIdRoute: typeof WorkspaceWorkItemsItemIdRoute
 }
 
 const WorkspaceRouteChildren: WorkspaceRouteChildren = {
   WorkspaceBoardsRoute: WorkspaceBoardsRoute,
   WorkspaceDashboardRoute: WorkspaceDashboardRoute,
   WorkspaceProjectsProjectIdRoute: WorkspaceProjectsProjectIdRoute,
+  WorkspaceWorkItemsItemIdRoute: WorkspaceWorkItemsItemIdRoute,
 }
 
 const WorkspaceRouteWithChildren = WorkspaceRoute._addFileChildren(
