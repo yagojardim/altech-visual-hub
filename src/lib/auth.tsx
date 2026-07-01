@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 
 /**
  * Altech Auth + Permissions
@@ -70,21 +70,20 @@ function loadSession(): AltechUser | null {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AltechUser | null>(null);
-  const [status, setStatus] = useState<AuthContextValue["status"]>("loading");
-
-  useEffect(() => {
-    const existing = loadSession();
-    setUser(existing);
-    setStatus(existing ? "authenticated" : "unauthenticated");
-  }, []);
+  // Lazy init — resolve session synchronously on first client render
+  // to evitar ficar preso em "loading" quando não há sessão.
+  const [user, setUser] = useState<AltechUser | null>(() => loadSession());
+  const [status, setStatus] = useState<AuthContextValue["status"]>(() =>
+    typeof window === "undefined" ? "loading" : loadSession() ? "authenticated" : "unauthenticated",
+  );
 
   const value = useMemo<AuthContextValue>(() => ({
     user,
     status,
     signIn: async (email) => {
       // TODO(supabase): substitute for supabase.auth.signInWithPassword
-      await new Promise((r) => setTimeout(r, 400));
+      // Protótipo visual: aceita qualquer senha.
+      await new Promise((r) => setTimeout(r, 300));
       const role: Role = email.startsWith("admin") ? "admin" : "member";
       const next: AltechUser = {
         id: crypto.randomUUID(),
