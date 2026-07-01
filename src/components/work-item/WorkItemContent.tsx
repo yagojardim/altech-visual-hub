@@ -1,4 +1,4 @@
-import { CalendarClock, User2, Tag } from "lucide-react";
+import { CalendarClock, User2, Tag, FileText } from "lucide-react";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
 import { Separator } from "@/components/ui/separator";
