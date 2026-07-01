@@ -3,11 +3,13 @@ import type { ReactNode } from "react";
 export function ViewContainer({
   header,
   toolbar,
+  empty,
   children,
 }: {
   header?: ReactNode;
   toolbar?: ReactNode;
-  children: ReactNode;
+  empty?: ReactNode;
+  children?: ReactNode;
 }) {
   return (
     <section className="flex min-h-[60vh] flex-col overflow-hidden rounded-xl border border-border bg-panel">
@@ -17,7 +19,15 @@ export function ViewContainer({
           {toolbar}
         </div>
       )}
-      <div className="flex-1 overflow-auto p-4">{children}</div>
+      <div className="flex-1 overflow-auto p-4">
+        {children != null ? (
+          children
+        ) : empty ? (
+          <div className="flex h-full items-center justify-center">
+            {empty}
+          </div>
+        ) : null}
+      </div>
     </section>
   );
 }
