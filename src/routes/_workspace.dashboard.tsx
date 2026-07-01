@@ -40,7 +40,7 @@ function DashboardPage() {
           <span className="h-1.5 w-1.5 rounded-full bg-primary" />
           {current ? `${current.name} · ${current.plan}` : "Workspace ativo"}
         </div>
-        <h1 className="text-3xl font-semibold tracking-tight">Bem-vindo, {user?.name}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Bem-vindo, {user?.name}</h1>
         <p className="text-sm text-muted-foreground">
           Visão geral do seu workspace Altech. Use{" "}
           <kbd className="rounded border border-border bg-panel px-1 py-0.5 text-[10px] font-mono">
