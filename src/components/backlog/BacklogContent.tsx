@@ -1,7 +1,7 @@
 import { Filter, Layers } from "lucide-react";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
-import { EmptyState } from "@/components/states";
+import { BacklogList } from "./BacklogList";
 
 const TYPES = ["Épicos", "Features", "Histórias", "Tasks", "Bugs"];
 
@@ -26,11 +26,7 @@ export function BacklogContent() {
             <span>Listagem de itens</span>
           </div>
           <div className="p-4">
-            <EmptyState
-              title="Backlog vazio"
-              description="Nenhum item foi adicionado ao backlog ainda."
-              icon={<Layers className="h-5 w-5" />}
-            />
+            <BacklogList />
           </div>
         </div>
       </div>
