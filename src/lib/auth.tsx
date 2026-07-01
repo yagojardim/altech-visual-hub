@@ -59,7 +59,25 @@ const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
 
 const STORAGE_KEY = "altech.session";
 
+/**
+ * DEV_MODE
+ * -------------------------------------------------------------
+ * Quando true, ignora a obrigatoriedade de login e injeta uma
+ * sessão mock (User/Tenant/Workspace/Permission Contexts).
+ * A tela /login continua existindo, mas não bloqueia o acesso.
+ */
+export const DEV_MODE = true;
+
+const DEV_USER: AltechUser = {
+  id: "dev-user",
+  name: "Dev Altech",
+  email: "dev@altech.io",
+  role: "admin",
+  permissions: ROLE_PERMISSIONS.admin,
+};
+
 function loadSession(): AltechUser | null {
+  if (DEV_MODE) return DEV_USER;
   if (typeof window === "undefined") return null;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -70,16 +88,19 @@ function loadSession(): AltechUser | null {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // Start as "loading" to match SSR output; reconcile on client mount
-  // to avoid hydration mismatch keeping the app stuck on "Carregando…".
-  const [user, setUser] = useState<AltechUser | null>(null);
-  const [status, setStatus] = useState<AuthContextValue["status"]>("loading");
+  // Em DEV_MODE resolvemos síncrono para nunca ficar preso em "Carregando…".
+  const [user, setUser] = useState<AltechUser | null>(() => (DEV_MODE ? DEV_USER : null));
+  const [status, setStatus] = useState<AuthContextValue["status"]>(
+    DEV_MODE ? "authenticated" : "loading",
+  );
 
   useEffect(() => {
+    if (DEV_MODE) return;
     const session = loadSession();
     setUser(session);
     setStatus(session ? "authenticated" : "unauthenticated");
   }, []);
+
 
   const value = useMemo<AuthContextValue>(() => ({
     user,
