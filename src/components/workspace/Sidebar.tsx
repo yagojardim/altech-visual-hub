@@ -28,7 +28,7 @@ export function Sidebar() {
     <aside className="hidden md:flex w-60 shrink-0 flex-col gap-2 border-r border-border bg-sidebar p-3">
       <Link to="/dashboard" className="flex items-center gap-2 px-2 py-3">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg altech-gradient">
-          <Check className="h-4 w-4 text-white" strokeWidth={3} />
+          <Check className="h-4 w-4 text-primary-foreground" strokeWidth={3} />
         </div>
         <div className="leading-tight">
           <div className="text-sm font-semibold tracking-tight">Altech</div>

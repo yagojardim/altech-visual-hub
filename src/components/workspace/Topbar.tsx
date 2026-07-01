@@ -29,7 +29,7 @@ export function Topbar({ onOpenPalette }: { onOpenPalette: () => void }) {
 
         {user && (
           <div className="flex items-center gap-2 pl-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full altech-gradient text-[11px] font-medium text-white">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full altech-gradient text-[11px] font-medium text-primary-foreground">
               {user.name[0]?.toUpperCase()}
             </div>
             <div className="hidden sm:block leading-tight">

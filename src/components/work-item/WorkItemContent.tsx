@@ -1,4 +1,4 @@
-import { CalendarClock, User2, Tag } from "lucide-react";
+import { CalendarClock, User2, Tag, FileText } from "lucide-react";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
 import { Separator } from "@/components/ui/separator";
@@ -46,17 +46,17 @@ export function WorkItemContent({
   return (
     <div className={cn("grid gap-6 lg:grid-cols-[1fr_280px]", className)}>
       <article className="space-y-6">
-        <section className="space-y-2">
-          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-            Descrição
-          </h2>
+        <section className="space-y-3">
+          <WidgetHeader
+            title="Descrição"
+            icon={FileText}
+            description="Contexto e objetivo do work item"
+          />
           <div className="rounded-xl border border-border bg-panel p-5 text-sm leading-relaxed text-foreground/90">
             {description ? (
               <p>{description}</p>
             ) : (
-              <p className="text-muted-foreground italic">
-                Nenhuma descrição fornecida.
-              </p>
+              <p className="italic text-muted-foreground">Nenhuma descrição fornecida.</p>
             )}
           </div>
         </section>

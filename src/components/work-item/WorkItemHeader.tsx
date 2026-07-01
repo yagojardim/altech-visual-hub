@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 import { useCan } from "@/lib/auth";
-import { Can } from "@/components/Can";
 import { Button } from "@/components/ui/button";
 
 export interface WorkItemHeaderProps {
@@ -42,16 +41,14 @@ export function WorkItemHeader({
         </div>
       </div>
 
-      <Can permission="workitem.manage">
-        {canManage && (
-          <div className="flex flex-wrap gap-2">
-            <Button size="sm">Atualizar status</Button>
-            <Button variant="outline" size="sm">
-              Adicionar comentário
-            </Button>
-          </div>
-        )}
-      </Can>
+      {canManage && (
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm">Atualizar status</Button>
+          <Button variant="outline" size="sm">
+            Adicionar comentário
+          </Button>
+        </div>
+      )}
     </header>
   );
 }
