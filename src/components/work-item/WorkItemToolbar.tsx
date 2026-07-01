@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { Filter, ArrowUpDown, Group, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export interface WorkItemToolbarProps {
@@ -30,6 +32,34 @@ export function WorkItemToolbar({
           {selection}
         </div>
       )}
+    </div>
+  );
+}
+
+export interface WorkItemOrganizationProps {
+  className?: string;
+}
+
+/** Organization controls for the Work Item toolbar — visual placeholders. */
+export function WorkItemOrganization({ className }: WorkItemOrganizationProps) {
+  return (
+    <div className={cn("flex flex-wrap items-center gap-2", className)}>
+      <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" disabled>
+        <Filter className="mr-1 h-3.5 w-3.5" />
+        Filtro
+      </Button>
+      <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" disabled>
+        <ArrowUpDown className="mr-1 h-3.5 w-3.5" />
+        Ordenação
+      </Button>
+      <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" disabled>
+        <Group className="mr-1 h-3.5 w-3.5" />
+        Agrupamento
+      </Button>
+      <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" disabled>
+        <RefreshCw className="mr-1 h-3.5 w-3.5" />
+        Atualizar
+      </Button>
     </div>
   );
 }
