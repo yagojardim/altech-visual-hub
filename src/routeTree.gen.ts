@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as WorkspaceRouteImport } from './routes/_workspace'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WorkspaceDashboardRouteImport } from './routes/_workspace.dashboard'
+import { Route as WorkspaceBoardsRouteImport } from './routes/_workspace.boards'
 
 const UnauthorizedRoute = UnauthorizedRouteImport.update({
   id: '/unauthorized',
@@ -39,17 +40,24 @@ const WorkspaceDashboardRoute = WorkspaceDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => WorkspaceRoute,
 } as any)
+const WorkspaceBoardsRoute = WorkspaceBoardsRouteImport.update({
+  id: '/boards',
+  path: '/boards',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
+  '/boards': typeof WorkspaceBoardsRoute
   '/dashboard': typeof WorkspaceDashboardRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
+  '/boards': typeof WorkspaceBoardsRoute
   '/dashboard': typeof WorkspaceDashboardRoute
 }
 export interface FileRoutesById {
@@ -58,19 +66,21 @@ export interface FileRoutesById {
   '/_workspace': typeof WorkspaceRouteWithChildren
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
+  '/_workspace/boards': typeof WorkspaceBoardsRoute
   '/_workspace/dashboard': typeof WorkspaceDashboardRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/unauthorized' | '/dashboard'
+  fullPaths: '/' | '/login' | '/unauthorized' | '/boards' | '/dashboard'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/unauthorized' | '/dashboard'
+  to: '/' | '/login' | '/unauthorized' | '/boards' | '/dashboard'
   id:
     | '__root__'
     | '/'
     | '/_workspace'
     | '/login'
     | '/unauthorized'
+    | '/_workspace/boards'
     | '/_workspace/dashboard'
   fileRoutesById: FileRoutesById
 }
@@ -118,14 +128,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceDashboardRouteImport
       parentRoute: typeof WorkspaceRoute
     }
+    '/_workspace/boards': {
+      id: '/_workspace/boards'
+      path: '/boards'
+      fullPath: '/boards'
+      preLoaderRoute: typeof WorkspaceBoardsRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
   }
 }
 
 interface WorkspaceRouteChildren {
+  WorkspaceBoardsRoute: typeof WorkspaceBoardsRoute
   WorkspaceDashboardRoute: typeof WorkspaceDashboardRoute
 }
 
 const WorkspaceRouteChildren: WorkspaceRouteChildren = {
+  WorkspaceBoardsRoute: WorkspaceBoardsRoute,
   WorkspaceDashboardRoute: WorkspaceDashboardRoute,
 }
 
