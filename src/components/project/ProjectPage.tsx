@@ -4,7 +4,7 @@ import { BoardPage } from "@/components/board/BoardPage";
 import { ProjectDashboardPage } from "./ProjectDashboardPage";
 import { ProjectHeader } from "./ProjectHeader";
 import { ProjectNavigation } from "./ProjectNavigation";
-import { ProjectOverview } from "./ProjectOverview";
+import { ProjectOverviewPage } from "./ProjectOverviewPage";
 import { ViewContainer } from "@/components/views/ViewContainer";
 
 const TAB_LABELS: Record<string, string> = {
@@ -23,7 +23,7 @@ export function ProjectPage({ projectId }: { projectId: string }) {
       <ProjectHeader projectId={projectId} />
 
       <ViewContainer header={<ProjectNavigation value={activeTab} onChange={setActiveTab} />}>
-        {activeTab === "overview" && <ProjectOverview />}
+        {activeTab === "overview" && <ProjectOverviewPage projectId={projectId} />}
         {activeTab === "backlog" && <BacklogPage projectId={projectId} />}
         {activeTab === "board" && <BoardPage projectId={projectId} />}
         {activeTab === "dashboard" && <ProjectDashboardPage projectId={projectId} />}
