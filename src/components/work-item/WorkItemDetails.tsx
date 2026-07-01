@@ -3,6 +3,10 @@ import { UnauthorizedState, LoadingState, ErrorState } from "@/components/states
 import { WorkItemHeader, type WorkItemHeaderProps } from "./WorkItemHeader";
 import { WorkItemContent, type WorkItemContentProps } from "./WorkItemContent";
 import { WorkItemFooter, type WorkItemFooterProps } from "./WorkItemFooter";
+import { WorkItemChecklist } from "./WorkItemChecklist";
+import { WorkItemComments } from "./WorkItemComments";
+import { WorkItemAttachments } from "./WorkItemAttachments";
+import { WorkItemHistory } from "./WorkItemHistory";
 import { cn } from "@/lib/utils";
 
 export interface WorkItemDetailsProps
@@ -53,6 +57,10 @@ export function WorkItemDetails({
         dueDate={dueDate}
         type={type}
       />
+      <WorkItemChecklist />
+      <WorkItemComments />
+      <WorkItemAttachments />
+      <WorkItemHistory />
       <WorkItemFooter onSave={onSave} onCancel={onCancel} />
     </div>
   );

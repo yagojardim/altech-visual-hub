@@ -39,11 +39,24 @@ export function WorkItemCard({
   return (
     <article
       onClick={disabled ? undefined : onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick && !disabled ? 0 : undefined}
+      onKeyDown={
+        onClick && !disabled
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
       className={cn(
         "group relative flex flex-col gap-3 rounded-xl border bg-panel p-4 shadow-sm transition-colors",
         "border-border",
         !disabled && "hover:border-primary/40 hover:bg-panel-elevated",
-        selected && "border-primary ring-1 ring-primary/30",
+        onClick && !disabled && "cursor-pointer",
+        selected && "border-primary ring-1 ring-primary/30 bg-primary/5",
         disabled && "cursor-not-allowed opacity-60",
         className,
       )}
