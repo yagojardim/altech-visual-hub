@@ -86,3 +86,26 @@ export function UnauthorizedState({
     </div>
   );
 }
+
+export function NoResultsState({
+  title = "Nenhum resultado encontrado",
+  description = "Tente ajustar os filtros ou revisar a busca.",
+  action,
+}: {
+  title?: string;
+  description?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-border bg-panel/40 py-16 px-6 text-center">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-panel text-muted-foreground">
+        <SearchX className="h-5 w-5" />
+      </div>
+      <div className="space-y-1">
+        <h3 className="text-base font-medium text-foreground">{title}</h3>
+        <p className="text-sm text-muted-foreground max-w-md">{description}</p>
+      </div>
+      {action}
+    </div>
+  );
+}
