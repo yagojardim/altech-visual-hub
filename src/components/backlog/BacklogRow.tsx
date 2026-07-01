@@ -5,6 +5,7 @@ export interface BacklogRowProps {
   title?: string;
   selected?: boolean;
   active?: boolean;
+  onClick?: () => void;
   className?: string;
 }
 
@@ -13,6 +14,7 @@ export function BacklogRow({
   title = "Título do work item",
   selected,
   active,
+  onClick,
   className,
 }: BacklogRowProps) {
   return (
@@ -20,6 +22,7 @@ export function BacklogRow({
       type={type}
       title={title}
       selected={selected}
+      onClick={onClick}
       className={className}
     />
   );
