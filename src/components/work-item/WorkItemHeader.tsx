@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 import { useCan } from "@/lib/auth";
-import { Can } from "@/components/Can";
 import { Button } from "@/components/ui/button";
 
 export interface WorkItemHeaderProps {
