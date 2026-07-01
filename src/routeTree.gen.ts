@@ -9,38 +9,147 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as WorkspaceRouteImport } from './routes/_workspace'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WorkspaceDashboardRouteImport } from './routes/_workspace.dashboard'
+import { Route as WorkspaceBoardsRouteImport } from './routes/_workspace.boards'
+import { Route as WorkspaceWorkItemsItemIdRouteImport } from './routes/_workspace.work-items.$itemId'
+import { Route as WorkspaceProjectsProjectIdRouteImport } from './routes/_workspace.projects.$projectId'
 
+const UnauthorizedRoute = UnauthorizedRouteImport.update({
+  id: '/unauthorized',
+  path: '/unauthorized',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkspaceRoute = WorkspaceRouteImport.update({
+  id: '/_workspace',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkspaceDashboardRoute = WorkspaceDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
+const WorkspaceBoardsRoute = WorkspaceBoardsRouteImport.update({
+  id: '/boards',
+  path: '/boards',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
+const WorkspaceWorkItemsItemIdRoute =
+  WorkspaceWorkItemsItemIdRouteImport.update({
+    id: '/work-items/$itemId',
+    path: '/work-items/$itemId',
+    getParentRoute: () => WorkspaceRoute,
+  } as any)
+const WorkspaceProjectsProjectIdRoute =
+  WorkspaceProjectsProjectIdRouteImport.update({
+    id: '/projects/$projectId',
+    path: '/projects/$projectId',
+    getParentRoute: () => WorkspaceRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/unauthorized': typeof UnauthorizedRoute
+  '/boards': typeof WorkspaceBoardsRoute
+  '/dashboard': typeof WorkspaceDashboardRoute
+  '/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
+  '/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/unauthorized': typeof UnauthorizedRoute
+  '/boards': typeof WorkspaceBoardsRoute
+  '/dashboard': typeof WorkspaceDashboardRoute
+  '/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
+  '/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_workspace': typeof WorkspaceRouteWithChildren
+  '/login': typeof LoginRoute
+  '/unauthorized': typeof UnauthorizedRoute
+  '/_workspace/boards': typeof WorkspaceBoardsRoute
+  '/_workspace/dashboard': typeof WorkspaceDashboardRoute
+  '/_workspace/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
+  '/_workspace/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/unauthorized'
+    | '/boards'
+    | '/dashboard'
+    | '/projects/$projectId'
+    | '/work-items/$itemId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/login'
+    | '/unauthorized'
+    | '/boards'
+    | '/dashboard'
+    | '/projects/$projectId'
+    | '/work-items/$itemId'
+  id:
+    | '__root__'
+    | '/'
+    | '/_workspace'
+    | '/login'
+    | '/unauthorized'
+    | '/_workspace/boards'
+    | '/_workspace/dashboard'
+    | '/_workspace/projects/$projectId'
+    | '/_workspace/work-items/$itemId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  WorkspaceRoute: typeof WorkspaceRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  UnauthorizedRoute: typeof UnauthorizedRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/unauthorized': {
+      id: '/unauthorized'
+      path: '/unauthorized'
+      fullPath: '/unauthorized'
+      preLoaderRoute: typeof UnauthorizedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_workspace': {
+      id: '/_workspace'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof WorkspaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +157,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_workspace/dashboard': {
+      id: '/_workspace/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof WorkspaceDashboardRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/_workspace/boards': {
+      id: '/_workspace/boards'
+      path: '/boards'
+      fullPath: '/boards'
+      preLoaderRoute: typeof WorkspaceBoardsRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/_workspace/work-items/$itemId': {
+      id: '/_workspace/work-items/$itemId'
+      path: '/work-items/$itemId'
+      fullPath: '/work-items/$itemId'
+      preLoaderRoute: typeof WorkspaceWorkItemsItemIdRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/_workspace/projects/$projectId': {
+      id: '/_workspace/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/projects/$projectId'
+      preLoaderRoute: typeof WorkspaceProjectsProjectIdRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
   }
 }
 
+interface WorkspaceRouteChildren {
+  WorkspaceBoardsRoute: typeof WorkspaceBoardsRoute
+  WorkspaceDashboardRoute: typeof WorkspaceDashboardRoute
+  WorkspaceProjectsProjectIdRoute: typeof WorkspaceProjectsProjectIdRoute
+  WorkspaceWorkItemsItemIdRoute: typeof WorkspaceWorkItemsItemIdRoute
+}
+
+const WorkspaceRouteChildren: WorkspaceRouteChildren = {
+  WorkspaceBoardsRoute: WorkspaceBoardsRoute,
+  WorkspaceDashboardRoute: WorkspaceDashboardRoute,
+  WorkspaceProjectsProjectIdRoute: WorkspaceProjectsProjectIdRoute,
+  WorkspaceWorkItemsItemIdRoute: WorkspaceWorkItemsItemIdRoute,
+}
+
+const WorkspaceRouteWithChildren = WorkspaceRoute._addFileChildren(
+  WorkspaceRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  WorkspaceRoute: WorkspaceRouteWithChildren,
+  LoginRoute: LoginRoute,
+  UnauthorizedRoute: UnauthorizedRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
