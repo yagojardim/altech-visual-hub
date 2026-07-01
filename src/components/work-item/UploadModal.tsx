@@ -97,8 +97,8 @@ export function UploadModal({ trigger }: UploadModalProps) {
           </div>
 
           {/* Success state */}
-          <div className="flex items-start gap-2 rounded-xl border border-success/30 bg-success/5 p-3 text-sm">
-            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+          <div className="flex items-start gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm">
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
             <div>
               <p className="font-medium text-foreground">Upload concluído</p>
               <p className="text-xs text-muted-foreground">
