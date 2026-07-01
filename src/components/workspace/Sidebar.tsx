@@ -64,8 +64,10 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
       className={cn(
         "flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/80 transition-colors",
         "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+        "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
         active && "bg-sidebar-accent text-sidebar-accent-foreground",
       )}
+      aria-current={active ? "page" : undefined}
     >
       <Icon className={cn("h-4 w-4", active && "text-primary")} />
       <span className="truncate">{item.label}</span>

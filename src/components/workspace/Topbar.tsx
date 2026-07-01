@@ -16,12 +16,22 @@ export function Topbar({ onOpenPalette }: { onOpenPalette: () => void }) {
       <div className="ml-auto flex items-center gap-2">
         <button
           onClick={onOpenPalette}
-          className="group flex items-center gap-2 rounded-md border border-border bg-panel px-2.5 py-1.5 text-xs text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors"
+          className="group hidden sm:flex items-center gap-2 rounded-md border border-border bg-panel px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          aria-label="Abrir busca (Ctrl+K)"
         >
           <Search className="h-3.5 w-3.5" />
           <span>Buscar…</span>
           <kbd className="ml-6 rounded border border-border bg-background px-1.5 py-0.5 text-[10px] font-mono">⌘K</kbd>
         </button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 sm:hidden"
+          onClick={onOpenPalette}
+          aria-label="Abrir busca"
+        >
+          <Search className="h-4 w-4" />
+        </Button>
 
         <Button variant="ghost" size="icon" className="h-8 w-8">
           <Bell className="h-4 w-4" />
