@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { BacklogPage } from "@/components/backlog/BacklogPage";
 import { BoardPage } from "@/components/board/BoardPage";
+import { SprintPage } from "@/components/sprint/SprintPage";
 import { ProjectDashboardPage } from "./ProjectDashboardPage";
 import { ProjectHeader } from "./ProjectHeader";
 import { ProjectNavigation } from "./ProjectNavigation";
@@ -26,10 +27,12 @@ export function ProjectPage({ projectId }: { projectId: string }) {
         {activeTab === "overview" && <ProjectOverviewPage projectId={projectId} />}
         {activeTab === "backlog" && <BacklogPage projectId={projectId} />}
         {activeTab === "board" && <BoardPage projectId={projectId} />}
+        {activeTab === "sprints" && <SprintPage projectId={projectId} />}
         {activeTab === "dashboard" && <ProjectDashboardPage projectId={projectId} />}
         {activeTab !== "overview" &&
           activeTab !== "backlog" &&
           activeTab !== "board" &&
+          activeTab !== "sprints" &&
           activeTab !== "dashboard" && (
             <div className="flex h-64 items-center justify-center rounded-lg border border-dashed border-border bg-panel/40">
               <p className="text-sm text-muted-foreground">{TAB_LABELS[activeTab]} em construção</p>
