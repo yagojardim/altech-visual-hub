@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, KanbanSquare, FolderKanban, Users, Activity } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { useWorkspace } from "@/lib/workspace";
 import { Can } from "@/components/Can";
 
 export const Route = createFileRoute("/_workspace/dashboard")({
