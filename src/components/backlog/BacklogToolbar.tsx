@@ -1,13 +1,18 @@
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { WorkItemToolbar } from "@/components/work-item/WorkItemToolbar";
+import { WorkItemToolbar, WorkItemOrganization } from "@/components/work-item/WorkItemToolbar";
 import { WorkItemActions } from "@/components/work-item/WorkItemActions";
-import { WorkItemOrganization } from "@/components/work-item/WorkItemToolbar";
+import { CreateWorkItemModal } from "@/components/work-item/CreateWorkItemModal";
 
 export function BacklogToolbar() {
   return (
     <WorkItemToolbar
-      actions={<WorkItemActions />}
+      actions={
+        <div className="flex flex-wrap items-center gap-2">
+          <CreateWorkItemModal />
+          <WorkItemActions />
+        </div>
+      }
       organization={
         <div className="flex flex-wrap items-center gap-2">
           <WorkItemOrganization />
@@ -20,4 +25,3 @@ export function BacklogToolbar() {
     />
   );
 }
-
