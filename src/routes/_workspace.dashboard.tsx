@@ -19,13 +19,14 @@ const STATS = [
 
 function DashboardPage() {
   const { user } = useAuth();
+  const { current } = useWorkspace();
 
   return (
     <div className="space-y-8">
       <header className="space-y-1">
         <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] uppercase tracking-wider text-primary">
           <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-          Workspace ativo
+          {current ? `${current.name} · ${current.plan}` : "Workspace ativo"}
         </div>
         <h1 className="text-3xl font-semibold tracking-tight">Bem-vindo, {user?.name}</h1>
         <p className="text-sm text-muted-foreground">
