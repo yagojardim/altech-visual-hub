@@ -12,17 +12,17 @@ export interface WorkItemAttachmentsProps {
 export function WorkItemAttachments({ loading, className }: WorkItemAttachmentsProps) {
   return (
     <section className={cn("space-y-3", className)}>
-      <div className="flex items-start justify-between gap-3">
-        <WidgetHeader
-          title="Anexos"
-          icon={Paperclip}
-          description="Arquivos relacionados"
-        />
-        <Button variant="outline" size="sm" disabled>
-          <Upload className="h-3.5 w-3.5" />
-          Enviar arquivo
-        </Button>
-      </div>
+      <WidgetHeader
+        title="Anexos"
+        icon={Paperclip}
+        description="Arquivos relacionados"
+        action={
+          <Button variant="outline" size="sm" disabled>
+            <Upload className="h-3.5 w-3.5" />
+            Enviar arquivo
+          </Button>
+        }
+      />
       {loading ? (
         <div className="h-24 animate-pulse rounded-xl border border-border bg-panel/40" />
       ) : (

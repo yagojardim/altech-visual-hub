@@ -12,17 +12,17 @@ export interface WorkItemChecklistProps {
 export function WorkItemChecklist({ loading, className }: WorkItemChecklistProps) {
   return (
     <section className={cn("space-y-3", className)}>
-      <div className="flex items-start justify-between gap-3">
-        <WidgetHeader
-          title="Checklist"
-          icon={CheckSquare}
-          description="Itens de acompanhamento"
-        />
-        <Button variant="outline" size="sm" disabled>
-          <Plus className="h-3.5 w-3.5" />
-          Adicionar item
-        </Button>
-      </div>
+      <WidgetHeader
+        title="Checklist"
+        icon={CheckSquare}
+        description="Itens de acompanhamento"
+        action={
+          <Button variant="outline" size="sm" disabled>
+            <Plus className="h-3.5 w-3.5" />
+            Adicionar item
+          </Button>
+        }
+      />
       {loading ? (
         <div className="h-24 animate-pulse rounded-xl border border-border bg-panel/40" />
       ) : (
