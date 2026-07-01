@@ -1,24 +1,24 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { KanbanSquare, Plus } from "lucide-react";
-import { EmptyState } from "@/components/states";
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { Filter, Plus, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Can } from "@/components/Can";
 import { useCan } from "@/lib/auth";
 import { UnauthorizedState } from "@/components/states";
+import { ViewContainer } from "@/components/views/ViewContainer";
+import { ViewHeader } from "@/components/views/ViewHeader";
+import { ViewSwitcher, type ViewKey } from "@/components/views/ViewSwitcher";
+import { KanbanViewPlaceholder } from "@/components/views/KanbanViewPlaceholder";
 
 export const Route = createFileRoute("/_workspace/boards")({
   head: () => ({ meta: [{ title: "Boards · Altech" }] }),
   component: BoardsPage,
 });
 
-const BOARDS = [
-  { id: "b1", name: "Roadmap 2026", items: 42, color: "from-accent to-primary" },
-  { id: "b2", name: "Discovery Backlog", items: 18, color: "from-primary to-warning" },
-  { id: "b3", name: "Bug Tracker", items: 24, color: "from-warning to-accent" },
-];
-
 function BoardsPage() {
   const canView = useCan("board.view");
+  const [activeView, setActiveView] = useState<ViewKey>("kanban");
+
   if (!canView) return <UnauthorizedState />;
 
   return (
@@ -27,7 +27,7 @@ function BoardsPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Boards</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Container de boards do workspace. A visualização kanban virá em uma etapa futura.
+            Container de boards do workspace. Estrutura preparada para múltiplas Views.
           </p>
         </div>
         <Can permission="board.manage">
@@ -37,32 +37,30 @@ function BoardsPage() {
         </Can>
       </header>
 
-      {BOARDS.length === 0 ? (
-        <EmptyState
-          title="Nenhum board ainda"
-          description="Crie seu primeiro board para organizar work items."
-          icon={<KanbanSquare className="h-5 w-5" />}
-        />
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {BOARDS.map((b) => (
-            <Link
-              key={b.id}
-              to="/projects/altech-core"
-              className="group overflow-hidden rounded-xl border border-border bg-panel transition-all hover:border-primary/40"
-            >
-              <div className={`h-24 bg-gradient-to-br ${b.color} opacity-80`} />
-              <div className="p-4">
-                <div className="flex items-center gap-2">
-                  <KanbanSquare className="h-4 w-4 text-primary" />
-                  <h3 className="text-sm font-medium">{b.name}</h3>
-                </div>
-                <p className="mt-2 text-xs text-muted-foreground">{b.items} work items</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
+      <ViewContainer
+        header={
+          <ViewHeader
+            title="Roadmap 2026"
+            description="Board principal · view engine foundation"
+            actions={<ViewSwitcher value={activeView} onChange={setActiveView} />}
+          />
+        }
+        toolbar={
+          <>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
+                <Filter className="mr-1 h-3.5 w-3.5" /> Filtros
+              </Button>
+              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
+                <SlidersHorizontal className="mr-1 h-3.5 w-3.5" /> Agrupar
+              </Button>
+            </div>
+            <span className="text-[11px] text-muted-foreground">View ativa: {activeView}</span>
+          </>
+        }
+      >
+        {activeView === "kanban" && <KanbanViewPlaceholder />}
+      </ViewContainer>
     </div>
   );
 }
