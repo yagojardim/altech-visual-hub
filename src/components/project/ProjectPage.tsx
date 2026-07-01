@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { BacklogPage } from "@/components/backlog/BacklogPage";
 import { ProjectHeader } from "./ProjectHeader";
 import { ProjectNavigation } from "./ProjectNavigation";
 import { ProjectOverview } from "./ProjectOverview";
