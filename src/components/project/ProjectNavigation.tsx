@@ -14,7 +14,7 @@ const TABS = [
 export function ProjectNavigation({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
     <Tabs value={value} onValueChange={onChange}>
-      <TabsList className="h-auto w-full justify-start rounded-none bg-transparent p-0">
+      <TabsList className="h-auto w-full justify-start overflow-x-auto rounded-none border-b border-border bg-transparent p-0">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const active = tab.key === value;
@@ -23,8 +23,10 @@ export function ProjectNavigation({ value, onChange }: { value: string; onChange
               key={tab.key}
               value={tab.key}
               className={cn(
-                "gap-2 rounded-none border-b-2 border-transparent px-3 py-2.5 text-sm data-[state=active]:bg-transparent data-[state=active]:shadow-none",
-                active ? "border-primary text-foreground" : "text-muted-foreground hover:text-foreground",
+                "gap-2 rounded-none border-b-2 border-transparent px-3 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring data-[state=active]:bg-transparent data-[state=active]:shadow-none",
+                active
+                  ? "border-primary text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               <Icon className="h-4 w-4" />

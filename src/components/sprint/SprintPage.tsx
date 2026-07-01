@@ -26,7 +26,7 @@ export function SprintPage({ projectId }: { projectId?: string } = {}) {
       <SprintHeader projectId={projectId} />
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
-        <TabsList className="h-auto w-full justify-start rounded-none border-b border-border bg-transparent p-0">
+        <TabsList className="h-auto w-full justify-start overflow-x-auto rounded-none border-b border-border bg-transparent p-0">
           {SPRINT_TABS.map((t) => {
             const Icon = t.icon;
             const active = t.key === tab;
@@ -35,7 +35,7 @@ export function SprintPage({ projectId }: { projectId?: string } = {}) {
                 key={t.key}
                 value={t.key}
                 className={cn(
-                  "gap-2 rounded-none border-b-2 border-transparent px-3 py-2.5 text-sm data-[state=active]:bg-transparent data-[state=active]:shadow-none",
+                  "gap-2 rounded-none border-b-2 border-transparent px-3 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring data-[state=active]:bg-transparent data-[state=active]:shadow-none",
                   active
                     ? "border-primary text-foreground"
                     : "text-muted-foreground hover:text-foreground",
