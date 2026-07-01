@@ -99,7 +99,7 @@ function DashboardPage() {
 function QuickCard({ title, description, href }: { title: string; description: string; href: string }) {
   return (
     <Link to={href}>
-      <WidgetCard hover className="h-full">
+      <WidgetCard hover className="group h-full">
         <WidgetHeader
           title={title}
           description={description}
