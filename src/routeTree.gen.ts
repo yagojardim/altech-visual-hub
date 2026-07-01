@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as WorkspaceDashboardRouteImport } from './routes/_workspace.dashboard'
 import { Route as WorkspaceBoardsRouteImport } from './routes/_workspace.boards'
 import { Route as WorkspaceAutomationRouteImport } from './routes/_workspace.automation'
+import { Route as WorkspaceProjectsIndexRouteImport } from './routes/_workspace.projects.index'
 import { Route as WorkspaceWorkItemsItemIdRouteImport } from './routes/_workspace.work-items.$itemId'
 import { Route as WorkspaceProjectsProjectIdRouteImport } from './routes/_workspace.projects.$projectId'
 
@@ -53,6 +54,11 @@ const WorkspaceAutomationRoute = WorkspaceAutomationRouteImport.update({
   path: '/automation',
   getParentRoute: () => WorkspaceRoute,
 } as any)
+const WorkspaceProjectsIndexRoute = WorkspaceProjectsIndexRouteImport.update({
+  id: '/projects/',
+  path: '/projects/',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
 const WorkspaceWorkItemsItemIdRoute =
   WorkspaceWorkItemsItemIdRouteImport.update({
     id: '/work-items/$itemId',
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof WorkspaceDashboardRoute
   '/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
   '/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
+  '/projects/': typeof WorkspaceProjectsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof WorkspaceDashboardRoute
   '/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
   '/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
+  '/projects': typeof WorkspaceProjectsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/_workspace/dashboard': typeof WorkspaceDashboardRoute
   '/_workspace/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
   '/_workspace/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
+  '/_workspace/projects/': typeof WorkspaceProjectsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/projects/$projectId'
     | '/work-items/$itemId'
+    | '/projects/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/projects/$projectId'
     | '/work-items/$itemId'
+    | '/projects'
   id:
     | '__root__'
     | '/'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/_workspace/dashboard'
     | '/_workspace/projects/$projectId'
     | '/_workspace/work-items/$itemId'
+    | '/_workspace/projects/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -190,6 +202,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceAutomationRouteImport
       parentRoute: typeof WorkspaceRoute
     }
+    '/_workspace/projects/': {
+      id: '/_workspace/projects/'
+      path: '/projects'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof WorkspaceProjectsIndexRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
     '/_workspace/work-items/$itemId': {
       id: '/_workspace/work-items/$itemId'
       path: '/work-items/$itemId'
@@ -213,6 +232,7 @@ interface WorkspaceRouteChildren {
   WorkspaceDashboardRoute: typeof WorkspaceDashboardRoute
   WorkspaceProjectsProjectIdRoute: typeof WorkspaceProjectsProjectIdRoute
   WorkspaceWorkItemsItemIdRoute: typeof WorkspaceWorkItemsItemIdRoute
+  WorkspaceProjectsIndexRoute: typeof WorkspaceProjectsIndexRoute
 }
 
 const WorkspaceRouteChildren: WorkspaceRouteChildren = {
@@ -221,6 +241,7 @@ const WorkspaceRouteChildren: WorkspaceRouteChildren = {
   WorkspaceDashboardRoute: WorkspaceDashboardRoute,
   WorkspaceProjectsProjectIdRoute: WorkspaceProjectsProjectIdRoute,
   WorkspaceWorkItemsItemIdRoute: WorkspaceWorkItemsItemIdRoute,
+  WorkspaceProjectsIndexRoute: WorkspaceProjectsIndexRoute,
 }
 
 const WorkspaceRouteWithChildren = WorkspaceRoute._addFileChildren(
