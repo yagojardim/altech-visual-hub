@@ -70,12 +70,16 @@ function loadSession(): AltechUser | null {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // Lazy init — resolve session synchronously on first client render
-  // to evitar ficar preso em "loading" quando não há sessão.
-  const [user, setUser] = useState<AltechUser | null>(() => loadSession());
-  const [status, setStatus] = useState<AuthContextValue["status"]>(() =>
-    typeof window === "undefined" ? "loading" : loadSession() ? "authenticated" : "unauthenticated",
-  );
+  // Start as "loading" to match SSR output; reconcile on client mount
+  // to avoid hydration mismatch keeping the app stuck on "Carregando…".
+  const [user, setUser] = useState<AltechUser | null>(null);
+  const [status, setStatus] = useState<AuthContextValue["status"]>("loading");
+
+  useEffect(() => {
+    const session = loadSession();
+    setUser(session);
+    setStatus(session ? "authenticated" : "unauthenticated");
+  }, []);
 
   const value = useMemo<AuthContextValue>(() => ({
     user,
