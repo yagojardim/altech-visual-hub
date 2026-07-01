@@ -15,6 +15,7 @@ import { Route as WorkspaceRouteImport } from './routes/_workspace'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WorkspaceDashboardRouteImport } from './routes/_workspace.dashboard'
 import { Route as WorkspaceBoardsRouteImport } from './routes/_workspace.boards'
+import { Route as WorkspaceAutomationRouteImport } from './routes/_workspace.automation'
 import { Route as WorkspaceWorkItemsItemIdRouteImport } from './routes/_workspace.work-items.$itemId'
 import { Route as WorkspaceProjectsProjectIdRouteImport } from './routes/_workspace.projects.$projectId'
 
@@ -47,6 +48,11 @@ const WorkspaceBoardsRoute = WorkspaceBoardsRouteImport.update({
   path: '/boards',
   getParentRoute: () => WorkspaceRoute,
 } as any)
+const WorkspaceAutomationRoute = WorkspaceAutomationRouteImport.update({
+  id: '/automation',
+  path: '/automation',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
 const WorkspaceWorkItemsItemIdRoute =
   WorkspaceWorkItemsItemIdRouteImport.update({
     id: '/work-items/$itemId',
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
+  '/automation': typeof WorkspaceAutomationRoute
   '/boards': typeof WorkspaceBoardsRoute
   '/dashboard': typeof WorkspaceDashboardRoute
   '/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
+  '/automation': typeof WorkspaceAutomationRoute
   '/boards': typeof WorkspaceBoardsRoute
   '/dashboard': typeof WorkspaceDashboardRoute
   '/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/_workspace': typeof WorkspaceRouteWithChildren
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
+  '/_workspace/automation': typeof WorkspaceAutomationRoute
   '/_workspace/boards': typeof WorkspaceBoardsRoute
   '/_workspace/dashboard': typeof WorkspaceDashboardRoute
   '/_workspace/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/unauthorized'
+    | '/automation'
     | '/boards'
     | '/dashboard'
     | '/projects/$projectId'
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/unauthorized'
+    | '/automation'
     | '/boards'
     | '/dashboard'
     | '/projects/$projectId'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
     | '/_workspace'
     | '/login'
     | '/unauthorized'
+    | '/_workspace/automation'
     | '/_workspace/boards'
     | '/_workspace/dashboard'
     | '/_workspace/projects/$projectId'
@@ -171,6 +183,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceBoardsRouteImport
       parentRoute: typeof WorkspaceRoute
     }
+    '/_workspace/automation': {
+      id: '/_workspace/automation'
+      path: '/automation'
+      fullPath: '/automation'
+      preLoaderRoute: typeof WorkspaceAutomationRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
     '/_workspace/work-items/$itemId': {
       id: '/_workspace/work-items/$itemId'
       path: '/work-items/$itemId'
@@ -189,6 +208,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface WorkspaceRouteChildren {
+  WorkspaceAutomationRoute: typeof WorkspaceAutomationRoute
   WorkspaceBoardsRoute: typeof WorkspaceBoardsRoute
   WorkspaceDashboardRoute: typeof WorkspaceDashboardRoute
   WorkspaceProjectsProjectIdRoute: typeof WorkspaceProjectsProjectIdRoute
@@ -196,6 +216,7 @@ interface WorkspaceRouteChildren {
 }
 
 const WorkspaceRouteChildren: WorkspaceRouteChildren = {
+  WorkspaceAutomationRoute: WorkspaceAutomationRoute,
   WorkspaceBoardsRoute: WorkspaceBoardsRoute,
   WorkspaceDashboardRoute: WorkspaceDashboardRoute,
   WorkspaceProjectsProjectIdRoute: WorkspaceProjectsProjectIdRoute,
@@ -215,3 +236,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
