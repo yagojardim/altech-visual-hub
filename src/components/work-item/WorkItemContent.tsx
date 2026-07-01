@@ -1,8 +1,12 @@
-import { CalendarClock, User2, Tag, Paperclip, CheckSquare, MessageSquare } from "lucide-react";
+import { CalendarClock, User2, Tag } from "lucide-react";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
-import { EmptyState } from "@/components/states";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { WorkItemChecklist } from "./WorkItemChecklist";
+import { WorkItemComments } from "./WorkItemComments";
+import { WorkItemAttachments } from "./WorkItemAttachments";
+import { WorkItemHistory } from "./WorkItemHistory";
 
 export interface WorkItemContentProps {
   description?: string;
@@ -57,53 +61,22 @@ export function WorkItemContent({
           </div>
         </section>
 
-        <section className="space-y-3">
-          <WidgetHeader
-            title="Checklist"
-            icon={CheckSquare}
-            description="Itens de acompanhamento"
-          />
-          <EmptyState
-            title="Sem itens de checklist"
-            description="Os itens de checklist aparecerão aqui."
-            icon={<CheckSquare className="h-5 w-5" />}
-          />
-        </section>
+        <Separator />
+        <WorkItemChecklist />
 
-        <section className="space-y-3">
-          <WidgetHeader
-            title="Comentários"
-            icon={MessageSquare}
-            description="Discussões sobre este work item"
-          />
-          <EmptyState
-            title="Sem comentários"
-            description="Os comentários aparecerão aqui."
-            icon={<MessageSquare className="h-5 w-5" />}
-          />
-        </section>
+        <Separator />
+        <WorkItemComments />
 
-        <section className="space-y-3">
-          <WidgetHeader
-            title="Anexos"
-            icon={Paperclip}
-            description="Arquivos relacionados"
-          />
-          <EmptyState
-            title="Sem anexos"
-            description="Os arquivos anexados aparecerão aqui."
-            icon={<Paperclip className="h-5 w-5" />}
-          />
-        </section>
+        <Separator />
+        <WorkItemAttachments />
+
+        <Separator />
+        <WorkItemHistory />
       </article>
 
       <aside className="space-y-3">
         <WidgetCard>
-          <WidgetHeader
-            title="Detalhes"
-            icon={Tag}
-            className="mb-3"
-          />
+          <WidgetHeader title="Detalhes" icon={Tag} className="mb-3" />
           <ul className="space-y-3 text-sm">
             <Detail icon={User2} label="Owner" value={owner} />
             <Detail icon={CalendarClock} label="Prazo" value={dueDate} />
