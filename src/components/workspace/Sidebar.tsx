@@ -13,7 +13,7 @@ interface NavItem {
 const NAV: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, permission: "workspace.view" },
   { to: "/boards", label: "Boards", icon: KanbanSquare, permission: "board.view" },
-  { to: "/projects/altech-core", label: "Projeto Altech", icon: FolderKanban, permission: "project.view" },
+  { to: "/projects", label: "Projetos", icon: FolderKanban, permission: "project.view" },
 ];
 
 const SECONDARY: NavItem[] = [

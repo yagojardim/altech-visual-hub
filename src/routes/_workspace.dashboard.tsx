@@ -73,9 +73,9 @@ function DashboardPage() {
         </Can>
         <Can permission="project.view">
           <QuickCard
-            title="Projeto Altech Core"
-            description="Overview do projeto principal e seus work items."
-            href="/projects/altech-core"
+            title="Projetos"
+            description="Lista de projetos do workspace e ponto de entrada da jornada."
+            href="/projects"
           />
         </Can>
         <Can permission="workitem.view">
