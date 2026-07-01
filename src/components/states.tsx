@@ -1,4 +1,4 @@
-import { Loader2, Inbox, AlertTriangle, ShieldOff } from "lucide-react";
+import { Loader2, Inbox, AlertTriangle, ShieldOff, SearchX } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
