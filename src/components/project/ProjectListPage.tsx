@@ -4,46 +4,7 @@ import { UnauthorizedState, EmptyState } from "@/components/states";
 import { ProjectCard } from "./ProjectCard";
 import { ProjectToolbar } from "./ProjectToolbar";
 import { CreateProjectModal } from "./CreateProjectModal";
-
-interface ProjectSummary {
-  projectId: string;
-  name: string;
-  client: string;
-  owner: string;
-  status: string;
-  dueDate: string;
-  description: string;
-}
-
-const MOCK_PROJECTS: ProjectSummary[] = [
-  {
-    projectId: "altech-core",
-    name: "Altech Core",
-    client: "Altech",
-    owner: "Ana Silva",
-    status: "Em progresso",
-    dueDate: "31/03/2026",
-    description: "Projeto principal da plataforma. Estrutura visual do MVP.",
-  },
-  {
-    projectId: "altech-labs",
-    name: "Altech Labs",
-    client: "Altech Labs",
-    owner: "Bruno Costa",
-    status: "Planejamento",
-    dueDate: "15/06/2026",
-    description: "Iniciativa de exploração de novas capacidades da plataforma.",
-  },
-  {
-    projectId: "altech-launch",
-    name: "Altech Launch",
-    client: "Altech",
-    owner: "Camila Rocha",
-    status: "Em progresso",
-    dueDate: "30/04/2026",
-    description: "Preparação do go-to-market da primeira release pública.",
-  },
-];
+import { MOCK_PROJECTS } from "@/lib/mock-projects";
 
 export function ProjectListPage() {
   const canView = useCan("project.view");
