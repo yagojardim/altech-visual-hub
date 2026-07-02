@@ -5,7 +5,7 @@ import { BacklogList } from "./BacklogList";
 
 const TYPES = ["Épicos", "Features", "Histórias", "Tasks", "Bugs"];
 
-export function BacklogContent() {
+export function BacklogContent({ projectId }: { projectId?: string } = {}) {
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_16rem]">
       <div className="space-y-4">
@@ -26,7 +26,7 @@ export function BacklogContent() {
             <span>Listagem de itens</span>
           </div>
           <div className="p-4">
-            <BacklogList />
+            <BacklogList projectId={projectId} />
           </div>
         </div>
       </div>
