@@ -7,7 +7,7 @@ export function BacklogPage({ projectId }: { projectId?: string } = {}) {
     <div className="space-y-4">
       <BacklogHeader projectId={projectId} />
       <BacklogToolbar />
-      <BacklogContent />
+      <BacklogContent projectId={projectId} />
     </div>
   );
 }
