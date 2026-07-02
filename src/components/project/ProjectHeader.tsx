@@ -16,7 +16,10 @@ import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
+import { getProjectById } from "@/lib/mock-projects";
+
 export function ProjectHeader({ projectId }: { projectId: string }) {
+  const project = getProjectById(projectId);
   return (
     <div className="space-y-6">
       <header className="space-y-2">
