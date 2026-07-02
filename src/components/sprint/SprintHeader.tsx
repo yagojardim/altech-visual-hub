@@ -42,9 +42,9 @@ export function SprintHeader({ projectId }: { projectId?: string }) {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0 space-y-1">
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Sprint 3</h1>
+              <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">{sprint.name}</h1>
               <span className="inline-flex rounded-full border border-accent/30 bg-accent/15 px-2 py-0.5 text-[11px] text-accent">
-                Ativa
+                {sprint.status}
               </span>
             </div>
             <p className="text-sm text-muted-foreground">
