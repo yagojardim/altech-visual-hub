@@ -15,8 +15,11 @@ import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
 import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getProjectById } from "@/lib/mock-projects";
 
 export function SprintHeader({ projectId }: { projectId?: string }) {
+  const project = getProjectById(projectId);
+  const sprint = project.sprint;
   return (
     <div className="space-y-6">
       <header className="space-y-2">
