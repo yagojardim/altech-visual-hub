@@ -16,5 +16,5 @@ function ProjectPageRoute() {
 
   if (!canView) return <UnauthorizedState />;
 
-  return <ProjectPage projectId={projectId} />;
+  return <ProjectPage key={projectId} projectId={projectId} />;
 }
