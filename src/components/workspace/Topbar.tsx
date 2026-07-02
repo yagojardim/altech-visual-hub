@@ -33,7 +33,7 @@ export function Topbar({ onOpenPalette }: { onOpenPalette: () => void }) {
           <Search className="h-4 w-4" />
         </Button>
 
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Notificações">
           <Bell className="h-4 w-4" />
         </Button>
 
@@ -50,6 +50,7 @@ export function Topbar({ onOpenPalette }: { onOpenPalette: () => void }) {
               variant="ghost"
               size="icon"
               className="h-8 w-8"
+              aria-label="Sair"
               onClick={async () => {
                 await signOut();
                 navigate({ to: "/login" });
