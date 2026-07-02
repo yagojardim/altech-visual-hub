@@ -69,7 +69,7 @@ export function ProjectHeader({ projectId }: { projectId: string }) {
             title="Status"
             description="Estado atual do projeto"
             icon={Activity}
-            action={<Badge>Em progresso</Badge>}
+            action={<Badge>{project.status}</Badge>}
           />
         </WidgetCard>
         <WidgetCard>
@@ -77,7 +77,7 @@ export function ProjectHeader({ projectId }: { projectId: string }) {
             title="Cliente"
             description="Organização contratante"
             icon={Building2}
-            action={<span className="text-sm font-medium text-foreground">Altech</span>}
+            action={<span className="text-sm font-medium text-foreground">{project.client}</span>}
           />
         </WidgetCard>
         <WidgetCard>
@@ -85,7 +85,7 @@ export function ProjectHeader({ projectId }: { projectId: string }) {
             title="Responsável"
             description="Gestor do projeto"
             icon={User}
-            action={<span className="text-sm font-medium text-foreground">Ana Silva</span>}
+            action={<span className="text-sm font-medium text-foreground">{project.owner}</span>}
           />
         </WidgetCard>
         <WidgetCard>
