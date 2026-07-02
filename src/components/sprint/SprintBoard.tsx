@@ -113,12 +113,12 @@ export function SprintBoard({ className, projectId }: { className?: string; proj
                 itemId={selected.itemId}
                 title={selected.title}
                 type={selected.type}
-                project="Altech Core"
+                project={project.name}
                 status={selected.status}
                 priority="Média"
                 description="Descrição placeholder do work item."
-                owner="Ana Silva"
-                dueDate="29/01/2026"
+                owner={project.owner}
+                dueDate={project.dueDate}
               />
             </div>
           )}
