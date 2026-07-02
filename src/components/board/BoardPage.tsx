@@ -11,7 +11,7 @@ export function BoardPage({ projectId }: { projectId?: string } = {}) {
         projectId={projectId}
       />
       <BoardToolbar />
-      <BoardContent />
+      <BoardContent projectId={projectId} />
     </div>
   );
 }
