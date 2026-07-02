@@ -44,11 +44,12 @@ function PlaceholderBox() {
   );
 }
 
-export function ProjectOverviewGrid() {
+export function ProjectOverviewGrid({ projectId }: { projectId?: string } = {}) {
+  const summary = buildSummary(projectId);
   return (
     <div className="space-y-6">
       <WidgetGrid columns={4}>
-        {SUMMARY.map((item) => (
+        {summary.map((item) => (
           <WidgetCard key={item.title}>
             <WidgetHeader
               title={item.title}
