@@ -16,7 +16,10 @@ import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
+import { getProjectById } from "@/lib/mock-projects";
+
 export function ProjectHeader({ projectId }: { projectId: string }) {
+  const project = getProjectById(projectId);
   return (
     <div className="space-y-6">
       <header className="space-y-2">
@@ -31,13 +34,13 @@ export function ProjectHeader({ projectId }: { projectId: string }) {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0 space-y-1">
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Altech Core</h1>
+              <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">{project.name}</h1>
               <span className="inline-flex rounded-full border border-accent/30 bg-accent/15 px-2 py-0.5 text-[11px] text-accent">
                 Projeto
               </span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Projeto principal da plataforma. Estrutura visual preparada para o MVP.
+              {project.description}
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -66,7 +69,7 @@ export function ProjectHeader({ projectId }: { projectId: string }) {
             title="Status"
             description="Estado atual do projeto"
             icon={Activity}
-            action={<Badge>Em progresso</Badge>}
+            action={<Badge>{project.status}</Badge>}
           />
         </WidgetCard>
         <WidgetCard>
@@ -74,7 +77,7 @@ export function ProjectHeader({ projectId }: { projectId: string }) {
             title="Cliente"
             description="Organização contratante"
             icon={Building2}
-            action={<span className="text-sm font-medium text-foreground">Altech</span>}
+            action={<span className="text-sm font-medium text-foreground">{project.client}</span>}
           />
         </WidgetCard>
         <WidgetCard>
@@ -82,7 +85,7 @@ export function ProjectHeader({ projectId }: { projectId: string }) {
             title="Responsável"
             description="Gestor do projeto"
             icon={User}
-            action={<span className="text-sm font-medium text-foreground">Ana Silva</span>}
+            action={<span className="text-sm font-medium text-foreground">{project.owner}</span>}
           />
         </WidgetCard>
         <WidgetCard>
@@ -90,7 +93,7 @@ export function ProjectHeader({ projectId }: { projectId: string }) {
             title="Datas"
             description="Prazo do projeto"
             icon={Calendar}
-            action={<span className="text-sm font-medium text-foreground">01/01 – 31/03/2026</span>}
+            action={<span className="text-sm font-medium text-foreground">{project.dueDate}</span>}
           />
         </WidgetCard>
       </WidgetGrid>

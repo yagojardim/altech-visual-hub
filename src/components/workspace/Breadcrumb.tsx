@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronRight, Home } from "lucide-react";
+import { MOCK_PROJECTS } from "@/lib/mock-projects";
 
 const LABELS: Record<string, string> = {
   dashboard: "Dashboard",
@@ -7,7 +8,7 @@ const LABELS: Record<string, string> = {
   projects: "Projetos",
   "work-items": "Work Items",
   automation: "Automação",
-  "altech-core": "Altech Core",
+  ...Object.fromEntries(MOCK_PROJECTS.map((p) => [p.projectId, p.name])),
 };
 
 function formatSegment(segment: string) {
