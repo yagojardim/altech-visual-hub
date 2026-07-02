@@ -30,7 +30,8 @@ const SAMPLE_ITEMS: Record<string, { title: string; type: string }[]> = {
   done: [{ title: "Ajuste concluído", type: "Bug" }],
 };
 
-export function BoardContent({ className }: { className?: string }) {
+export function BoardContent({ className, projectId }: { className?: string; projectId?: string }) {
+  const project = getProjectById(projectId);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
   const selectedItem = (() => {
