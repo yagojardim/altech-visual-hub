@@ -37,56 +37,35 @@ const MOCK_WORKSPACES: Workspace[] = [
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const { status: authStatus } = useAuth();
-  const [status, setStatus] = useState<WorkspaceStatus>("loading");
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [currentId, setCurrentId] = useState<string | null>(null);
+  // Inspection Mode: workspace is fully mocked and available synchronously,
+  // so the UI never gets stuck on "Carregando workspace…" during SSR or
+  // hydration. Replace with a real fetch when Supabase-backed workspaces
+  // are wired in.
+  const [workspaces] = useState<Workspace[]>(MOCK_WORKSPACES);
+  const [currentId, setCurrentId] = useState<string | null>(MOCK_WORKSPACES[0]?.id ?? null);
   const [error, setError] = useState<string | null>(null);
-  const [tick, setTick] = useState(0);
+  const [status, setStatus] = useState<WorkspaceStatus>(
+    MOCK_WORKSPACES.length === 0 ? "empty" : "ready",
+  );
 
   useEffect(() => {
-    if (authStatus !== "authenticated") {
-      setStatus("loading");
-      return;
-    }
-    let cancelled = false;
-    setStatus("loading");
+    if (authStatus === "unauthenticated") return;
     setError(null);
-
-    // TODO(supabase): substituir por fetch real dos workspaces do usuário.
-    const t = setTimeout(() => {
-      if (cancelled) return;
-      try {
-        const list = MOCK_WORKSPACES;
-        setWorkspaces(list);
-        if (list.length === 0) {
-          setStatus("empty");
-        } else {
-          setCurrentId((prev) => prev ?? list[0].id);
-          setStatus("ready");
-        }
-      } catch (e) {
-        setError((e as Error).message);
-        setStatus("error");
-      }
-    }, 200);
-
-    return () => {
-      cancelled = true;
-      clearTimeout(t);
-    };
-  }, [authStatus, tick]);
+    setStatus(workspaces.length === 0 ? "empty" : "ready");
+  }, [authStatus, workspaces]);
 
   const value = useMemo<WorkspaceContextValue>(() => ({
     status,
     workspaces,
-    current: workspaces.find((w) => w.id === currentId) ?? null,
+    current: workspaces.find((w) => w.id === currentId) ?? workspaces[0] ?? null,
     error,
-    retry: () => setTick((n) => n + 1),
+    retry: () => setStatus(workspaces.length === 0 ? "empty" : "ready"),
     setCurrent: (id) => setCurrentId(id),
   }), [status, workspaces, currentId, error]);
 
   return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>;
 }
+
 
 export function useWorkspace() {
   const ctx = useContext(WorkspaceContext);
