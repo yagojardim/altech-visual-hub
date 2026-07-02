@@ -93,7 +93,7 @@ export function ProjectHeader({ projectId }: { projectId: string }) {
             title="Datas"
             description="Prazo do projeto"
             icon={Calendar}
-            action={<span className="text-sm font-medium text-foreground">01/01 – 31/03/2026</span>}
+            action={<span className="text-sm font-medium text-foreground">{project.dueDate}</span>}
           />
         </WidgetCard>
       </WidgetGrid>
