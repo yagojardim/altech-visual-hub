@@ -4,7 +4,7 @@ import { Sidebar } from "@/components/workspace/Sidebar";
 import { Topbar } from "@/components/workspace/Topbar";
 import { CommandPalette } from "@/components/workspace/CommandPalette";
 import { LoadingState, ErrorState, EmptyState, UnauthorizedState } from "@/components/states";
-import { useAuth, useCan } from "@/lib/auth";
+import { DEV_MODE, useAuth, useCan } from "@/lib/auth";
 import { WorkspaceProvider, useWorkspace } from "@/lib/workspace";
 
 export const Route = createFileRoute("/_workspace")({
