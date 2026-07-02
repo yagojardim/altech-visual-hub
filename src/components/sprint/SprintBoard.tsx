@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/sheet";
 import { WorkItemCard } from "@/components/work-item/WorkItemCard";
 import { WorkItemDetails } from "@/components/work-item/WorkItemDetails";
+import { getProjectById } from "@/lib/mock-projects";
 import { cn } from "@/lib/utils";
 
 const COLUMNS = [
