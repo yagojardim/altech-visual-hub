@@ -50,7 +50,7 @@ function WorkspaceLayout() {
           <div className="mx-auto w-full max-w-7xl p-6">
             {!canView ? (
               <UnauthorizedState />
-            ) : ws.status === "loading" ? (
+            ) : !DEV_MODE && ws.status === "loading" ? (
               <LoadingState label="Carregando workspace…" />
             ) : ws.status === "error" ? (
               <ErrorState
