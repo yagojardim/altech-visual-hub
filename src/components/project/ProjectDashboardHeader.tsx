@@ -25,7 +25,7 @@ export function ProjectDashboardHeader({ projectId }: { projectId?: string } = {
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Dashboard do Projeto</h1>
             <span className="inline-flex rounded-full border border-accent/30 bg-accent/15 px-2 py-0.5 text-[11px] text-accent">
-              Em progresso
+              {project.status}
             </span>
           </div>
           <p className="text-sm text-muted-foreground">
