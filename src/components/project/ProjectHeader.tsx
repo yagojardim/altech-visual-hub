@@ -34,13 +34,13 @@ export function ProjectHeader({ projectId }: { projectId: string }) {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0 space-y-1">
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Altech Core</h1>
+              <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">{project.name}</h1>
               <span className="inline-flex rounded-full border border-accent/30 bg-accent/15 px-2 py-0.5 text-[11px] text-accent">
                 Projeto
               </span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Projeto principal da plataforma. Estrutura visual preparada para o MVP.
+              {project.description}
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
