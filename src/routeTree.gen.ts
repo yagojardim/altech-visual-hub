@@ -13,6 +13,7 @@ import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as WorkspaceRouteImport } from './routes/_workspace'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WorkspaceSupportRouteImport } from './routes/_workspace.support'
 import { Route as WorkspaceSprintsRouteImport } from './routes/_workspace.sprints'
 import { Route as WorkspaceSettingsRouteImport } from './routes/_workspace.settings'
 import { Route as WorkspaceDashboardRouteImport } from './routes/_workspace.dashboard'
@@ -41,6 +42,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const WorkspaceSupportRoute = WorkspaceSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => WorkspaceRoute,
 } as any)
 const WorkspaceSprintsRoute = WorkspaceSprintsRouteImport.update({
   id: '/sprints',
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof WorkspaceDashboardRoute
   '/settings': typeof WorkspaceSettingsRoute
   '/sprints': typeof WorkspaceSprintsRoute
+  '/support': typeof WorkspaceSupportRoute
   '/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
   '/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
   '/projects/': typeof WorkspaceProjectsIndexRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof WorkspaceDashboardRoute
   '/settings': typeof WorkspaceSettingsRoute
   '/sprints': typeof WorkspaceSprintsRoute
+  '/support': typeof WorkspaceSupportRoute
   '/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
   '/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
   '/projects': typeof WorkspaceProjectsIndexRoute
@@ -130,6 +138,7 @@ export interface FileRoutesById {
   '/_workspace/dashboard': typeof WorkspaceDashboardRoute
   '/_workspace/settings': typeof WorkspaceSettingsRoute
   '/_workspace/sprints': typeof WorkspaceSprintsRoute
+  '/_workspace/support': typeof WorkspaceSupportRoute
   '/_workspace/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
   '/_workspace/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
   '/_workspace/projects/': typeof WorkspaceProjectsIndexRoute
@@ -146,6 +155,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/settings'
     | '/sprints'
+    | '/support'
     | '/projects/$projectId'
     | '/work-items/$itemId'
     | '/projects/'
@@ -160,6 +170,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/settings'
     | '/sprints'
+    | '/support'
     | '/projects/$projectId'
     | '/work-items/$itemId'
     | '/projects'
@@ -175,6 +186,7 @@ export interface FileRouteTypes {
     | '/_workspace/dashboard'
     | '/_workspace/settings'
     | '/_workspace/sprints'
+    | '/_workspace/support'
     | '/_workspace/projects/$projectId'
     | '/_workspace/work-items/$itemId'
     | '/_workspace/projects/'
@@ -216,6 +228,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_workspace/support': {
+      id: '/_workspace/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof WorkspaceSupportRouteImport
+      parentRoute: typeof WorkspaceRoute
     }
     '/_workspace/sprints': {
       id: '/_workspace/sprints'
@@ -290,6 +309,7 @@ interface WorkspaceRouteChildren {
   WorkspaceDashboardRoute: typeof WorkspaceDashboardRoute
   WorkspaceSettingsRoute: typeof WorkspaceSettingsRoute
   WorkspaceSprintsRoute: typeof WorkspaceSprintsRoute
+  WorkspaceSupportRoute: typeof WorkspaceSupportRoute
   WorkspaceProjectsProjectIdRoute: typeof WorkspaceProjectsProjectIdRoute
   WorkspaceWorkItemsItemIdRoute: typeof WorkspaceWorkItemsItemIdRoute
   WorkspaceProjectsIndexRoute: typeof WorkspaceProjectsIndexRoute
@@ -302,6 +322,7 @@ const WorkspaceRouteChildren: WorkspaceRouteChildren = {
   WorkspaceDashboardRoute: WorkspaceDashboardRoute,
   WorkspaceSettingsRoute: WorkspaceSettingsRoute,
   WorkspaceSprintsRoute: WorkspaceSprintsRoute,
+  WorkspaceSupportRoute: WorkspaceSupportRoute,
   WorkspaceProjectsProjectIdRoute: WorkspaceProjectsProjectIdRoute,
   WorkspaceWorkItemsItemIdRoute: WorkspaceWorkItemsItemIdRoute,
   WorkspaceProjectsIndexRoute: WorkspaceProjectsIndexRoute,
