@@ -51,7 +51,7 @@ export function SprintPage({ projectId }: { projectId?: string } = {}) {
 
       <SprintToolbar />
 
-      {tab === "overview" && <SprintOverview />}
+      {tab === "overview" && <SprintOverview projectId={projectId} />}
       {tab === "planning" && <SprintPlanningPanel />}
       {tab === "board" && <SprintBoard projectId={projectId} />}
     </div>

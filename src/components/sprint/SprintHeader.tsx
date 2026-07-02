@@ -15,8 +15,11 @@ import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
 import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getProjectById } from "@/lib/mock-projects";
 
 export function SprintHeader({ projectId }: { projectId?: string }) {
+  const project = getProjectById(projectId);
+  const sprint = project.sprint;
   return (
     <div className="space-y-6">
       <header className="space-y-2">
@@ -39,9 +42,9 @@ export function SprintHeader({ projectId }: { projectId?: string }) {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0 space-y-1">
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Sprint 3</h1>
+              <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">{sprint.name}</h1>
               <span className="inline-flex rounded-full border border-accent/30 bg-accent/15 px-2 py-0.5 text-[11px] text-accent">
-                Ativa
+                {sprint.status}
               </span>
             </div>
             <p className="text-sm text-muted-foreground">
@@ -71,7 +74,7 @@ export function SprintHeader({ projectId }: { projectId?: string }) {
             title="Objetivo"
             description="Meta da sprint"
             icon={Target}
-            action={<Badge variant="secondary">Estabilizar MVP</Badge>}
+            action={<Badge variant="secondary">{sprint.objective}</Badge>}
           />
         </WidgetCard>
         <WidgetCard>
@@ -79,7 +82,7 @@ export function SprintHeader({ projectId }: { projectId?: string }) {
             title="Capacidade"
             description="Story points"
             icon={Gauge}
-            action={<span className="text-sm font-medium text-foreground">32 / 40</span>}
+            action={<span className="text-sm font-medium text-foreground">{sprint.capacity}</span>}
           />
         </WidgetCard>
         <WidgetCard>
@@ -87,7 +90,7 @@ export function SprintHeader({ projectId }: { projectId?: string }) {
             title="Itens"
             description="Total planejado"
             icon={Layers}
-            action={<span className="text-sm font-medium text-foreground">12</span>}
+            action={<span className="text-sm font-medium text-foreground">{sprint.itemsTotal}</span>}
           />
         </WidgetCard>
         <WidgetCard>
@@ -96,9 +99,10 @@ export function SprintHeader({ projectId }: { projectId?: string }) {
             description="Duração da sprint"
             icon={Calendar}
             action={
-              <span className="text-sm font-medium text-foreground">15/01 – 29/01/2026</span>
+              <span className="text-sm font-medium text-foreground">{sprint.dates}</span>
             }
           />
+
         </WidgetCard>
       </WidgetGrid>
     </div>
