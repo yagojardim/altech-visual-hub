@@ -108,12 +108,12 @@ export function BoardContent({ className, projectId }: { className?: string; pro
                 itemId="WI-000"
                 title={selectedItem.title}
                 type={selectedItem.type}
-                project="Altech Core"
+                project={project.name}
                 status={selectedStatus ?? "Em progresso"}
                 priority="Média"
                 description="Descrição placeholder do work item."
-                owner="Ana Silva"
-                dueDate="31/03/2026"
+                owner={project.owner}
+                dueDate={project.dueDate}
               />
             </div>
           )}
