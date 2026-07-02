@@ -1,7 +1,9 @@
 import { ChevronRight, Plus, Filter, Share2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getProjectById } from "@/lib/mock-projects";
 
 export function ProjectDashboardHeader({ projectId }: { projectId?: string } = {}) {
+  const project = getProjectById(projectId);
   return (
     <header className="space-y-2">
       <nav
