@@ -15,13 +15,17 @@ import {
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
 import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
+import { getProjectById } from "@/lib/mock-projects";
 
-const SUMMARY = [
-  { title: "Status", description: "Estado atual do projeto", icon: Activity, value: "Em progresso" },
-  { title: "Cliente", description: "Organização contratante", icon: Building2, value: "Altech" },
-  { title: "Responsável", description: "Gestor do projeto", icon: User, value: "Ana Silva" },
-  { title: "Datas", description: "Prazo do projeto", icon: Calendar, value: "01/01 – 31/03/2026" },
-];
+function buildSummary(projectId?: string) {
+  const p = getProjectById(projectId);
+  return [
+    { title: "Status", description: "Estado atual do projeto", icon: Activity, value: p.status },
+    { title: "Cliente", description: "Organização contratante", icon: Building2, value: p.client },
+    { title: "Responsável", description: "Gestor do projeto", icon: User, value: p.owner },
+    { title: "Datas", description: "Prazo do projeto", icon: Calendar, value: p.dueDate },
+  ];
+}
 
 const INDICATORS = [
   { title: "Total de Work Items", description: "Todos os itens do projeto", icon: ListTodo },
@@ -40,11 +44,12 @@ function PlaceholderBox() {
   );
 }
 
-export function ProjectOverviewGrid() {
+export function ProjectOverviewGrid({ projectId }: { projectId?: string } = {}) {
+  const summary = buildSummary(projectId);
   return (
     <div className="space-y-6">
       <WidgetGrid columns={4}>
-        {SUMMARY.map((item) => (
+        {summary.map((item) => (
           <WidgetCard key={item.title}>
             <WidgetHeader
               title={item.title}

@@ -15,7 +15,7 @@ export const MOCK_PROJECTS: ProjectSummary[] = [
     client: "Altech",
     owner: "Ana Silva",
     status: "Em progresso",
-    dueDate: "31/03/2026",
+    dueDate: "01/01 – 31/03/2026",
     description: "Projeto principal da plataforma. Estrutura visual do MVP.",
   },
   {
