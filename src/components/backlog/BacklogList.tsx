@@ -103,12 +103,12 @@ export function BacklogList({ projectId }: { projectId?: string } = {}) {
                 itemId="WI-000"
                 title={selectedItem.title}
                 type={selectedItem.type}
-                project="Altech Core"
+                project={project.name}
                 status="Em progresso"
                 priority="Média"
                 description="Descrição placeholder do work item."
-                owner="Ana Silva"
-                dueDate="31/03/2026"
+                owner={project.owner}
+                dueDate={project.dueDate}
               />
             </div>
           )}
