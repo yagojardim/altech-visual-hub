@@ -1,3 +1,12 @@
+export interface ProjectSprintMock {
+  name: string;
+  status: string;
+  dates: string;
+  objective: string;
+  capacity: string;
+  itemsTotal: number;
+}
+
 export interface ProjectSummary {
   projectId: string;
   name: string;
@@ -6,6 +15,7 @@ export interface ProjectSummary {
   status: string;
   dueDate: string;
   description: string;
+  sprint: ProjectSprintMock;
 }
 
 export const MOCK_PROJECTS: ProjectSummary[] = [
