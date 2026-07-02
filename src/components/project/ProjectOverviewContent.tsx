@@ -1,9 +1,9 @@
 import { ProjectOverviewGrid } from "./ProjectOverviewGrid";
 
-export function ProjectOverviewContent() {
+export function ProjectOverviewContent({ projectId }: { projectId?: string } = {}) {
   return (
     <div className="space-y-6">
-      <ProjectOverviewGrid />
+      <ProjectOverviewGrid projectId={projectId} />
     </div>
   );
 }
