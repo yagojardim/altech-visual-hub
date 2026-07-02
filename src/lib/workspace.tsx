@@ -133,7 +133,7 @@ const MOCK_WORKSPACES: Workspace[] = [
 
 const MOCK_PROJECT: ProjectMock = {
   id: "altech-core",
-  workspaceId: MOCK_WORKSPACES[0].id,
+  workspaceId: "ws-altech",
   name: "Altech Core",
   client: "Altech",
   owner: "Ana Silva",
