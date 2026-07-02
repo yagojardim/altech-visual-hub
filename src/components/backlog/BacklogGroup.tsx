@@ -18,7 +18,13 @@ export function BacklogGroup({
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="h-6 w-6" disabled>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6"
+          disabled
+          aria-label={expanded ? "Recolher grupo" : "Expandir grupo"}
+        >
           {expanded ? (
             <ChevronDown className="h-4 w-4" />
           ) : (

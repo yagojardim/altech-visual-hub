@@ -51,11 +51,13 @@ export function WorkItemCard({
             }
           : undefined
       }
+      aria-disabled={disabled || undefined}
+      aria-pressed={onClick ? selected : undefined}
       className={cn(
         "group relative flex flex-col gap-3 rounded-xl border bg-panel p-4 shadow-sm transition-colors",
         "border-border",
         !disabled && "hover:border-primary/40 hover:bg-panel-elevated",
-        onClick && !disabled && "cursor-pointer",
+        onClick && !disabled && "cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
         selected && "border-primary ring-1 ring-primary/30 bg-primary/5",
         disabled && "cursor-not-allowed opacity-60",
         className,
