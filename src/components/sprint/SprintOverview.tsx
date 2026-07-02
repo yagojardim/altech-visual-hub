@@ -32,7 +32,7 @@ export function SprintOverview({ projectId }: { projectId?: string } = {}) {
             icon={Target}
           />
           <p className="mt-3 text-sm text-muted-foreground">
-            Estabilizar as jornadas de Backlog e Board para a primeira demonstração do MVP.
+            {project.sprint.objective} — foco atual da {project.sprint.name} do projeto {project.name}.
           </p>
         </WidgetCard>
         <WidgetCard>
