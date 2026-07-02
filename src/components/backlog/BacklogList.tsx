@@ -7,6 +7,7 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { WorkItemDetails } from "@/components/work-item/WorkItemDetails";
+import { getProjectById } from "@/lib/mock-projects";
 import { BacklogGroup } from "./BacklogGroup";
 import { BacklogItemContainer } from "./BacklogItemContainer";
 import { BacklogRow } from "./BacklogRow";
