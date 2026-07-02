@@ -3,12 +3,14 @@ import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
 import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
 import { Badge } from "@/components/ui/badge";
+import { getProjectById } from "@/lib/mock-projects";
 
 /**
  * Visual summary of the current sprint. Reuses WidgetCard/Grid/Header.
  * All values are placeholders.
  */
-export function SprintOverview() {
+export function SprintOverview({ projectId }: { projectId?: string } = {}) {
+  const project = getProjectById(projectId);
   return (
     <div className="space-y-6">
       <WidgetGrid columns={3}>
