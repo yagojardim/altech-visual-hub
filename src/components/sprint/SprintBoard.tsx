@@ -32,7 +32,8 @@ const SAMPLE_ITEMS: Record<string, { itemId: string; title: string; type: string
  * Sprint Board — visual kanban for the current sprint. Reuses WorkItemCard
  * and the shared WorkItemDetails sheet. No drag-and-drop.
  */
-export function SprintBoard({ className }: { className?: string }) {
+export function SprintBoard({ className, projectId }: { className?: string; projectId?: string }) {
+  const project = getProjectById(projectId);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
   const selected = (() => {
