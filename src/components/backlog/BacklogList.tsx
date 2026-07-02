@@ -7,6 +7,7 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { WorkItemDetails } from "@/components/work-item/WorkItemDetails";
+import { getProjectById } from "@/lib/mock-projects";
 import { BacklogGroup } from "./BacklogGroup";
 import { BacklogItemContainer } from "./BacklogItemContainer";
 import { BacklogRow } from "./BacklogRow";
@@ -29,7 +30,8 @@ const BUG_ITEMS: BacklogItem[] = [{ type: "Bug", title: "Bug de exemplo", level:
 
 const ALL_ITEMS: BacklogItem[] = [...EPIC_ITEMS, ...BUG_ITEMS];
 
-export function BacklogList() {
+export function BacklogList({ projectId }: { projectId?: string } = {}) {
+  const project = getProjectById(projectId);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
   const selectedItem =
@@ -101,12 +103,12 @@ export function BacklogList() {
                 itemId="WI-000"
                 title={selectedItem.title}
                 type={selectedItem.type}
-                project="Altech Core"
+                project={project.name}
                 status="Em progresso"
                 priority="Média"
                 description="Descrição placeholder do work item."
-                owner="Ana Silva"
-                dueDate="31/03/2026"
+                owner={project.owner}
+                dueDate={project.dueDate}
               />
             </div>
           )}

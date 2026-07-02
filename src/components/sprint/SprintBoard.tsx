@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/sheet";
 import { WorkItemCard } from "@/components/work-item/WorkItemCard";
 import { WorkItemDetails } from "@/components/work-item/WorkItemDetails";
+import { getProjectById } from "@/lib/mock-projects";
 import { cn } from "@/lib/utils";
 
 const COLUMNS = [
@@ -31,7 +32,8 @@ const SAMPLE_ITEMS: Record<string, { itemId: string; title: string; type: string
  * Sprint Board — visual kanban for the current sprint. Reuses WorkItemCard
  * and the shared WorkItemDetails sheet. No drag-and-drop.
  */
-export function SprintBoard({ className }: { className?: string }) {
+export function SprintBoard({ className, projectId }: { className?: string; projectId?: string }) {
+  const project = getProjectById(projectId);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
   const selected = (() => {
@@ -111,12 +113,12 @@ export function SprintBoard({ className }: { className?: string }) {
                 itemId={selected.itemId}
                 title={selected.title}
                 type={selected.type}
-                project="Altech Core"
+                project={project.name}
                 status={selected.status}
                 priority="Média"
                 description="Descrição placeholder do work item."
-                owner="Ana Silva"
-                dueDate="29/01/2026"
+                owner={project.owner}
+                dueDate={project.dueDate}
               />
             </div>
           )}

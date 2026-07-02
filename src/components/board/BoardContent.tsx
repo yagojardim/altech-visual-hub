@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/sheet";
 import { WorkItemCard } from "@/components/work-item/WorkItemCard";
 import { WorkItemDetails } from "@/components/work-item/WorkItemDetails";
+import { getProjectById } from "@/lib/mock-projects";
 import { cn } from "@/lib/utils";
 
 const COLUMNS = [
@@ -29,7 +30,8 @@ const SAMPLE_ITEMS: Record<string, { title: string; type: string }[]> = {
   done: [{ title: "Ajuste concluído", type: "Bug" }],
 };
 
-export function BoardContent({ className }: { className?: string }) {
+export function BoardContent({ className, projectId }: { className?: string; projectId?: string }) {
+  const project = getProjectById(projectId);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
   const selectedItem = (() => {
@@ -106,12 +108,12 @@ export function BoardContent({ className }: { className?: string }) {
                 itemId="WI-000"
                 title={selectedItem.title}
                 type={selectedItem.type}
-                project="Altech Core"
+                project={project.name}
                 status={selectedStatus ?? "Em progresso"}
                 priority="Média"
                 description="Descrição placeholder do work item."
-                owner="Ana Silva"
-                dueDate="31/03/2026"
+                owner={project.owner}
+                dueDate={project.dueDate}
               />
             </div>
           )}

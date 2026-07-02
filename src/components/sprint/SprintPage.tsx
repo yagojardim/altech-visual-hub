@@ -53,7 +53,7 @@ export function SprintPage({ projectId }: { projectId?: string } = {}) {
 
       {tab === "overview" && <SprintOverview />}
       {tab === "planning" && <SprintPlanningPanel />}
-      {tab === "board" && <SprintBoard />}
+      {tab === "board" && <SprintBoard projectId={projectId} />}
     </div>
   );
 }
