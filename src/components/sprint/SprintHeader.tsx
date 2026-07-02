@@ -74,7 +74,7 @@ export function SprintHeader({ projectId }: { projectId?: string }) {
             title="Objetivo"
             description="Meta da sprint"
             icon={Target}
-            action={<Badge variant="secondary">Estabilizar MVP</Badge>}
+            action={<Badge variant="secondary">{sprint.objective}</Badge>}
           />
         </WidgetCard>
         <WidgetCard>
@@ -82,7 +82,7 @@ export function SprintHeader({ projectId }: { projectId?: string }) {
             title="Capacidade"
             description="Story points"
             icon={Gauge}
-            action={<span className="text-sm font-medium text-foreground">32 / 40</span>}
+            action={<span className="text-sm font-medium text-foreground">{sprint.capacity}</span>}
           />
         </WidgetCard>
         <WidgetCard>
@@ -90,7 +90,7 @@ export function SprintHeader({ projectId }: { projectId?: string }) {
             title="Itens"
             description="Total planejado"
             icon={Layers}
-            action={<span className="text-sm font-medium text-foreground">12</span>}
+            action={<span className="text-sm font-medium text-foreground">{sprint.itemsTotal}</span>}
           />
         </WidgetCard>
         <WidgetCard>
@@ -99,9 +99,10 @@ export function SprintHeader({ projectId }: { projectId?: string }) {
             description="Duração da sprint"
             icon={Calendar}
             action={
-              <span className="text-sm font-medium text-foreground">15/01 – 29/01/2026</span>
+              <span className="text-sm font-medium text-foreground">{sprint.dates}</span>
             }
           />
+
         </WidgetCard>
       </WidgetGrid>
     </div>
