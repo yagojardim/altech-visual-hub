@@ -30,7 +30,8 @@ const BUG_ITEMS: BacklogItem[] = [{ type: "Bug", title: "Bug de exemplo", level:
 
 const ALL_ITEMS: BacklogItem[] = [...EPIC_ITEMS, ...BUG_ITEMS];
 
-export function BacklogList() {
+export function BacklogList({ projectId }: { projectId?: string } = {}) {
+  const project = getProjectById(projectId);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
   const selectedItem =
