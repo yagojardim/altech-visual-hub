@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronRight, FolderKanban, Pencil } from "lucide-react";
+import { ChevronRight, FolderKanban, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useCan } from "@/lib/auth";
 import { UnauthorizedState, EmptyState, LoadingState, ErrorState } from "@/components/states";
