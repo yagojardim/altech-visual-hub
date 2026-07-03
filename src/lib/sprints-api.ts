@@ -39,6 +39,17 @@ export async function listSprints(): Promise<SprintRow[]> {
   return (data ?? []) as SprintRow[];
 }
 
+export async function listSprintsByProject(projectId: string): Promise<SprintRow[]> {
+  const { data, error } = await supabase
+    .from("sprints")
+    .select(SELECT)
+    .eq("project_id", projectId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as SprintRow[];
+}
+
+
 export async function createSprint(input: SprintInput): Promise<SprintRow> {
   const payload = {
     project_id: input.project_id,
