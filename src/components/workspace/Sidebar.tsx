@@ -171,7 +171,7 @@ function NavLink({
           flexShrink: 0,
         }}
       />
-      <Icon className="h-4 w-4" style={{ color: active ? "#5FB0FF" : "rgba(169,182,201,0.6)" }} aria-hidden="true" />
+      <Icon className={cn("h-4 w-4", active ? "text-[#5FB0FF]" : "text-[rgba(169,182,201,0.6)]")} aria-hidden="true" />
       <span className="truncate flex-1">{item.label}</span>
       {item.badge && (
         <span
