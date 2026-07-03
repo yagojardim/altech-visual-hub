@@ -218,14 +218,15 @@ export function CreateProjectModal({
               </Select>
             </FormField>
 
-            <FormField label="Cliente" htmlFor="proj-client">
+            <FormField label="Time" htmlFor="proj-client">
               <Input
                 id="proj-client"
-                placeholder="Ex.: Altech"
+                placeholder="Ex.: Squad Core"
                 value={form.cliente}
                 onChange={set("cliente")}
               />
             </FormField>
+
 
             <FormField label="Responsável" htmlFor="proj-owner">
               <Input
