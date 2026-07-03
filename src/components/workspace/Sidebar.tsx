@@ -44,8 +44,9 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         to="/dashboard"
         onClick={onNavigate}
         className="flex items-center gap-2 px-2 py-3 focus-visible:outline-none"
+        aria-label="Ir para o Dashboard do Altech Project"
       >
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg altech-gradient">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg altech-gradient" aria-hidden="true">
           <Check className="h-4 w-4 text-primary-foreground" strokeWidth={3} />
         </div>
         <div className="leading-tight">
