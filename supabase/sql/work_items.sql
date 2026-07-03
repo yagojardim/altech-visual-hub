@@ -12,10 +12,15 @@ create table if not exists public.work_items (
   status text not null default 'A Fazer',
   responsavel text,
   descricao text,
+  prioridade text not null default 'Média',
   ordem integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Migração idempotente para instâncias já criadas.
+alter table public.work_items
+  add column if not exists prioridade text not null default 'Média';
 
 create index if not exists work_items_project_idx on public.work_items (project_id);
 create index if not exists work_items_project_status_idx on public.work_items (project_id, status);
