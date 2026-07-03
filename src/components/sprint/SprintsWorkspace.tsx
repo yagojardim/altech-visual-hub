@@ -45,6 +45,7 @@ import {
   type SprintRow,
 } from "@/lib/sprints-api";
 import { getProjectBySlug, listProjects, type ProjectRow } from "@/lib/projects-api";
+import { toWorkItem, type WorkItem } from "@/lib/work-item-map";
 import { WorkItemDetailsPanel } from "@/components/work-item/WorkItemDetailsPanel";
 
 function fmtDate(s: string | null) {
