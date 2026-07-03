@@ -245,6 +245,40 @@ export function ProjectListPage() {
         }
       />
 
+      {activeFilterChips.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            Filtros
+          </span>
+          {activeFilterChips.map((chip) => (
+            <Badge
+              key={`${chip.key}:${chip.value}`}
+              variant="secondary"
+              className="gap-1 pr-1 text-xs font-normal"
+            >
+              <span className="text-muted-foreground">{filterLabels[chip.key] ?? chip.key}:</span>
+              <span>{chip.value}</span>
+              <button
+                type="button"
+                aria-label={`Remover filtro ${chip.value}`}
+                className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded hover:bg-muted"
+                onClick={() => removeFilterValue(chip.key, chip.value)}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-6 px-2 text-xs text-muted-foreground"
+            onClick={clearAllFilters}
+          >
+            Limpar tudo
+          </Button>
+        </div>
+      )}
+
       {loading ? (
         <LoadingState variant="skeleton" />
       ) : error ? (
