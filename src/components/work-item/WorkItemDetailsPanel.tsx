@@ -16,6 +16,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Send } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { WorkItemAttachmentsLive } from "./WorkItemAttachmentsLive";
 
 type WorkItemRow = {
   id: string;
@@ -209,6 +210,8 @@ export function WorkItemDetailsPanel({ workItemId }: { workItemId: string }) {
             ))}
           </ul>
         </section>
+
+        <WorkItemAttachmentsLive workItemId={item.id} />
 
         <section className="space-y-3">
           <h3 className="text-sm font-medium">Comentários</h3>

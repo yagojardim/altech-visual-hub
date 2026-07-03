@@ -20,8 +20,10 @@ import { Route as WorkspaceDashboardRouteImport } from './routes/_workspace.dash
 import { Route as WorkspaceBoardsRouteImport } from './routes/_workspace.boards'
 import { Route as WorkspaceBacklogRouteImport } from './routes/_workspace.backlog'
 import { Route as WorkspaceAutomationRouteImport } from './routes/_workspace.automation'
+import { Route as WorkspaceSettingsIndexRouteImport } from './routes/_workspace.settings.index'
 import { Route as WorkspaceProjectsIndexRouteImport } from './routes/_workspace.projects.index'
 import { Route as WorkspaceWorkItemsItemIdRouteImport } from './routes/_workspace.work-items.$itemId'
+import { Route as WorkspaceSettingsMembersRouteImport } from './routes/_workspace.settings.members'
 import { Route as WorkspaceProjectsProjectIdRouteImport } from './routes/_workspace.projects.$projectId'
 
 const UnauthorizedRoute = UnauthorizedRouteImport.update({
@@ -78,6 +80,11 @@ const WorkspaceAutomationRoute = WorkspaceAutomationRouteImport.update({
   path: '/automation',
   getParentRoute: () => WorkspaceRoute,
 } as any)
+const WorkspaceSettingsIndexRoute = WorkspaceSettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => WorkspaceSettingsRoute,
+} as any)
 const WorkspaceProjectsIndexRoute = WorkspaceProjectsIndexRouteImport.update({
   id: '/projects/',
   path: '/projects/',
@@ -88,6 +95,12 @@ const WorkspaceWorkItemsItemIdRoute =
     id: '/work-items/$itemId',
     path: '/work-items/$itemId',
     getParentRoute: () => WorkspaceRoute,
+  } as any)
+const WorkspaceSettingsMembersRoute =
+  WorkspaceSettingsMembersRouteImport.update({
+    id: '/members',
+    path: '/members',
+    getParentRoute: () => WorkspaceSettingsRoute,
   } as any)
 const WorkspaceProjectsProjectIdRoute =
   WorkspaceProjectsProjectIdRouteImport.update({
@@ -104,12 +117,14 @@ export interface FileRoutesByFullPath {
   '/backlog': typeof WorkspaceBacklogRoute
   '/boards': typeof WorkspaceBoardsRoute
   '/dashboard': typeof WorkspaceDashboardRoute
-  '/settings': typeof WorkspaceSettingsRoute
+  '/settings': typeof WorkspaceSettingsRouteWithChildren
   '/sprints': typeof WorkspaceSprintsRoute
   '/support': typeof WorkspaceSupportRoute
   '/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
+  '/settings/members': typeof WorkspaceSettingsMembersRoute
   '/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
   '/projects/': typeof WorkspaceProjectsIndexRoute
+  '/settings/': typeof WorkspaceSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -119,12 +134,13 @@ export interface FileRoutesByTo {
   '/backlog': typeof WorkspaceBacklogRoute
   '/boards': typeof WorkspaceBoardsRoute
   '/dashboard': typeof WorkspaceDashboardRoute
-  '/settings': typeof WorkspaceSettingsRoute
   '/sprints': typeof WorkspaceSprintsRoute
   '/support': typeof WorkspaceSupportRoute
   '/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
+  '/settings/members': typeof WorkspaceSettingsMembersRoute
   '/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
   '/projects': typeof WorkspaceProjectsIndexRoute
+  '/settings': typeof WorkspaceSettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -136,12 +152,14 @@ export interface FileRoutesById {
   '/_workspace/backlog': typeof WorkspaceBacklogRoute
   '/_workspace/boards': typeof WorkspaceBoardsRoute
   '/_workspace/dashboard': typeof WorkspaceDashboardRoute
-  '/_workspace/settings': typeof WorkspaceSettingsRoute
+  '/_workspace/settings': typeof WorkspaceSettingsRouteWithChildren
   '/_workspace/sprints': typeof WorkspaceSprintsRoute
   '/_workspace/support': typeof WorkspaceSupportRoute
   '/_workspace/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
+  '/_workspace/settings/members': typeof WorkspaceSettingsMembersRoute
   '/_workspace/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
   '/_workspace/projects/': typeof WorkspaceProjectsIndexRoute
+  '/_workspace/settings/': typeof WorkspaceSettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -157,8 +175,10 @@ export interface FileRouteTypes {
     | '/sprints'
     | '/support'
     | '/projects/$projectId'
+    | '/settings/members'
     | '/work-items/$itemId'
     | '/projects/'
+    | '/settings/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -168,12 +188,13 @@ export interface FileRouteTypes {
     | '/backlog'
     | '/boards'
     | '/dashboard'
-    | '/settings'
     | '/sprints'
     | '/support'
     | '/projects/$projectId'
+    | '/settings/members'
     | '/work-items/$itemId'
     | '/projects'
+    | '/settings'
   id:
     | '__root__'
     | '/'
@@ -188,8 +209,10 @@ export interface FileRouteTypes {
     | '/_workspace/sprints'
     | '/_workspace/support'
     | '/_workspace/projects/$projectId'
+    | '/_workspace/settings/members'
     | '/_workspace/work-items/$itemId'
     | '/_workspace/projects/'
+    | '/_workspace/settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -278,6 +301,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceAutomationRouteImport
       parentRoute: typeof WorkspaceRoute
     }
+    '/_workspace/settings/': {
+      id: '/_workspace/settings/'
+      path: '/'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof WorkspaceSettingsIndexRouteImport
+      parentRoute: typeof WorkspaceSettingsRoute
+    }
     '/_workspace/projects/': {
       id: '/_workspace/projects/'
       path: '/projects'
@@ -292,6 +322,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceWorkItemsItemIdRouteImport
       parentRoute: typeof WorkspaceRoute
     }
+    '/_workspace/settings/members': {
+      id: '/_workspace/settings/members'
+      path: '/members'
+      fullPath: '/settings/members'
+      preLoaderRoute: typeof WorkspaceSettingsMembersRouteImport
+      parentRoute: typeof WorkspaceSettingsRoute
+    }
     '/_workspace/projects/$projectId': {
       id: '/_workspace/projects/$projectId'
       path: '/projects/$projectId'
@@ -302,12 +339,25 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface WorkspaceSettingsRouteChildren {
+  WorkspaceSettingsMembersRoute: typeof WorkspaceSettingsMembersRoute
+  WorkspaceSettingsIndexRoute: typeof WorkspaceSettingsIndexRoute
+}
+
+const WorkspaceSettingsRouteChildren: WorkspaceSettingsRouteChildren = {
+  WorkspaceSettingsMembersRoute: WorkspaceSettingsMembersRoute,
+  WorkspaceSettingsIndexRoute: WorkspaceSettingsIndexRoute,
+}
+
+const WorkspaceSettingsRouteWithChildren =
+  WorkspaceSettingsRoute._addFileChildren(WorkspaceSettingsRouteChildren)
+
 interface WorkspaceRouteChildren {
   WorkspaceAutomationRoute: typeof WorkspaceAutomationRoute
   WorkspaceBacklogRoute: typeof WorkspaceBacklogRoute
   WorkspaceBoardsRoute: typeof WorkspaceBoardsRoute
   WorkspaceDashboardRoute: typeof WorkspaceDashboardRoute
-  WorkspaceSettingsRoute: typeof WorkspaceSettingsRoute
+  WorkspaceSettingsRoute: typeof WorkspaceSettingsRouteWithChildren
   WorkspaceSprintsRoute: typeof WorkspaceSprintsRoute
   WorkspaceSupportRoute: typeof WorkspaceSupportRoute
   WorkspaceProjectsProjectIdRoute: typeof WorkspaceProjectsProjectIdRoute
@@ -320,7 +370,7 @@ const WorkspaceRouteChildren: WorkspaceRouteChildren = {
   WorkspaceBacklogRoute: WorkspaceBacklogRoute,
   WorkspaceBoardsRoute: WorkspaceBoardsRoute,
   WorkspaceDashboardRoute: WorkspaceDashboardRoute,
-  WorkspaceSettingsRoute: WorkspaceSettingsRoute,
+  WorkspaceSettingsRoute: WorkspaceSettingsRouteWithChildren,
   WorkspaceSprintsRoute: WorkspaceSprintsRoute,
   WorkspaceSupportRoute: WorkspaceSupportRoute,
   WorkspaceProjectsProjectIdRoute: WorkspaceProjectsProjectIdRoute,
