@@ -82,7 +82,10 @@ export function WorkItemAttachmentsLive({ workItemId }: { workItemId: string }) 
         continue;
       }
       setUploading(true);
-      const path = `${workItemId}/${Date.now()}-${file.name.replace(/[^\w.\-]+/g, "_")}`;
+      const safeName = file.name.replace(/[^\w.\-]+/g, "_");
+      const path = scope
+        ? `${scope.tenant_id}/${scope.project_id}/${workItemId}/${Date.now()}-${safeName}`
+        : `${workItemId}/${Date.now()}-${safeName}`;
       const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, {
         contentType: file.type || "application/octet-stream",
         upsert: false,
