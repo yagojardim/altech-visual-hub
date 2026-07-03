@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Users, Settings as SettingsIcon } from "lucide-react";
 
-export const Route = createFileRoute("/_workspace/settings//")({
+export const Route = createFileRoute("/_workspace/settings/")({
   component: SettingsIndex,
 });
 
