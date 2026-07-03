@@ -39,11 +39,16 @@ import {
   listSprintsByProject,
   listUnassignedItems,
   setItemSprint,
-  SPRINT_STATUS,
   updateSprint,
   type SprintItemRow,
   type SprintRow,
 } from "@/lib/sprints-api";
+import {
+  SPRINT_STATUS,
+  DEFAULT_SPRINT_STATUS,
+  getSprintStatusColor,
+  getSprintStatusLabel,
+} from "@/lib/sprint-status";
 import { getProjectBySlug, listProjects, type ProjectRow } from "@/lib/projects-api";
 import { toWorkItem, type WorkItem } from "@/lib/work-item-map";
 import { WorkItemDetailsPanel } from "@/components/work-item/WorkItemDetailsPanel";
@@ -235,8 +240,8 @@ function SprintCard({
             <h3 className="truncate text-base font-medium text-foreground">{sprint.nome}</h3>
             <p className="mt-0.5 text-xs text-muted-foreground">{projectName}</p>
           </div>
-          <Badge variant="outline" className="text-[10px] uppercase">
-            {sprint.status}
+          <Badge variant="outline" className={`text-[10px] uppercase ${getSprintStatusColor(sprint.status)}`}>
+            {getSprintStatusLabel(sprint.status)}
           </Badge>
         </div>
         {sprint.meta && (
@@ -283,7 +288,7 @@ function CreateSprintDialog({
     meta: "",
     data_inicio: "",
     data_fim: "",
-    status: "Planejada" as string,
+    status: DEFAULT_SPRINT_STATUS as string,
   });
   const [saving, setSaving] = useState(false);
 
@@ -295,7 +300,7 @@ function CreateSprintDialog({
         meta: "",
         data_inicio: "",
         data_fim: "",
-        status: "Planejada",
+        status: DEFAULT_SPRINT_STATUS,
       });
     }
   }, [open, projects, lockProjectId]);

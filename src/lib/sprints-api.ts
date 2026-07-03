@@ -1,8 +1,8 @@
 import { supabase } from "./supabase";
 import { DEFAULT_TENANT_ID } from "./projects-api";
+import { DEFAULT_SPRINT_STATUS } from "./sprint-status";
 
-export const SPRINT_STATUS = ["Planejada", "Ativa", "Concluída"] as const;
-export type SprintStatus = (typeof SPRINT_STATUS)[number];
+export { SPRINT_STATUS, type SprintStatus } from "./sprint-status";
 
 export interface SprintRow {
   id: string;
@@ -58,7 +58,7 @@ export async function createSprint(input: SprintInput): Promise<SprintRow> {
     meta: input.meta?.trim() || null,
     data_inicio: input.data_inicio || null,
     data_fim: input.data_fim || null,
-    status: input.status ?? "Planejada",
+    status: input.status ?? DEFAULT_SPRINT_STATUS,
   };
   const { data, error } = await supabase
     .from("sprints")
