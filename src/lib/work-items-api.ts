@@ -70,7 +70,13 @@ export async function listWorkItemsByProject(projectRef: string): Promise<WorkIt
     .eq("project_id", projectId)
     .order("ordem", { ascending: true })
     .order("created_at", { ascending: true });
-  if (error) throw error;
+  if (error) {
+    if (isMissingRelation(error)) {
+      logSupabaseError("work-items-api:listWorkItemsByProject", error);
+      return [];
+    }
+    throw new Error(error.message || "Erro ao listar work items.");
+  }
   return (data ?? []) as WorkItemRow[];
 }
 
@@ -80,7 +86,13 @@ export async function getWorkItem(id: string): Promise<WorkItemRow | null> {
     .select(SELECT)
     .eq("id", id)
     .maybeSingle();
-  if (error) throw error;
+  if (error) {
+    if (isMissingRelation(error)) {
+      logSupabaseError("work-items-api:getWorkItem", error);
+      return null;
+    }
+    throw new Error(error.message || "Erro ao buscar work item.");
+  }
   return (data as WorkItemRow | null) ?? null;
 }
 
