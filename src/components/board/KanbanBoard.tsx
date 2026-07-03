@@ -234,7 +234,7 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
     }
   };
 
-  if (loading) return <LoadingState label="Carregando board…" />;
+  if (loading) return <LoadingState label="Carregando board…" variant="skeleton" rows={4} />;
   if (error) return <ErrorState description={error} onRetry={() => void load()} />;
   if (!board || columns.length === 0) {
     return (

@@ -197,7 +197,7 @@ function DashboardPage() {
         </p>
       </header>
 
-      {loading && <LoadingState label="Carregando dashboard…" />}
+      {loading && <LoadingState label="Carregando dashboard…" variant="skeleton" rows={4} />}
       {error && !loading && (
         <ErrorState description={error} onRetry={() => void load()} />
       )}

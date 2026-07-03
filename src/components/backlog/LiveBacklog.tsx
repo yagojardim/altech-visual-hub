@@ -311,7 +311,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
     void load();
   };
 
-  if (loading) return <LoadingState label="Carregando backlog…" />;
+  if (loading) return <LoadingState label="Carregando backlog…" variant="skeleton" rows={5} />;
   if (error) return <ErrorState description={error} onRetry={() => void load()} />;
   if (!board) {
     return (
