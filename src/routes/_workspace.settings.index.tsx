@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Users, Settings as SettingsIcon } from "lucide-react";
+import { Users, Settings as SettingsIcon, CreditCard, BarChart3 } from "lucide-react";
 
 export const Route = createFileRoute("/_workspace/settings/")({
   component: SettingsIndex,
@@ -11,7 +11,7 @@ function SettingsIndex() {
       <div>
         <h1 className="text-2xl">Configurações</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Preferências do workspace, membros, integrações e cobrança.
+          Preferências do workspace, membros e integrações. Cobrança e planos: Altech Control (em breve).
         </p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -27,6 +27,24 @@ function SettingsIndex() {
             <p className="text-xs text-muted-foreground">Perfis do workspace (somente leitura).</p>
           </div>
         </Link>
+        <div className="altech-card flex items-start gap-3 p-4 opacity-60">
+          <div className="rounded-md bg-muted p-2 text-muted-foreground">
+            <CreditCard className="h-5 w-5" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold">Cobrança, planos e assinatura</h2>
+            <p className="text-xs text-muted-foreground">Altech Control (em breve).</p>
+          </div>
+        </div>
+        <div className="altech-card flex items-start gap-3 p-4 opacity-60">
+          <div className="rounded-md bg-muted p-2 text-muted-foreground">
+            <BarChart3 className="h-5 w-5" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold">Dashboards executivos consolidados</h2>
+            <p className="text-xs text-muted-foreground">Altech View (em breve).</p>
+          </div>
+        </div>
         <div className="altech-card flex items-start gap-3 p-4 opacity-60">
           <div className="rounded-md bg-muted p-2 text-muted-foreground">
             <SettingsIcon className="h-5 w-5" />

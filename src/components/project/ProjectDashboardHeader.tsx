@@ -29,7 +29,7 @@ export function ProjectDashboardHeader({ projectId }: { projectId?: string } = {
             </span>
           </div>
           <p className="text-sm text-muted-foreground">
-            Visão executiva do projeto com indicadores consolidados.
+            Visão executiva do projeto com indicadores consolidados — Altech View (em breve).
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
