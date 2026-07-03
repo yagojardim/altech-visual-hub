@@ -435,8 +435,8 @@ function SprintDetails({
   onDeleted: () => void;
 }) {
   const [sprint, setSprint] = useState<SprintRow | null>(null);
-  const [items, setItems] = useState<SprintItemRow[]>([]);
-  const [available, setAvailable] = useState<SprintItemRow[]>([]);
+  const [items, setItems] = useState<WorkItem[]>([]);
+  const [available, setAvailable] = useState<WorkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
