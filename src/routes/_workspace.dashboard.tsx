@@ -261,8 +261,8 @@ function DashboardPage() {
 
             <WidgetCard>
               <WidgetHeader
-                title="Progresso"
-                description="Itens concluídos no workspace"
+                title="Work items por status"
+                description={`${data.counts.totalItems} itens no workspace`}
                 icon={Target}
               />
               <div className="mt-3 space-y-3">
@@ -281,6 +281,27 @@ function DashboardPage() {
                     }
                   />
                 </div>
+                {data.statusBreakdown.length > 0 && (
+                  <ul className="space-y-1.5 pt-1">
+                    {data.statusBreakdown.map((s) => (
+                      <li
+                        key={s.status}
+                        className="flex items-center justify-between text-xs"
+                      >
+                        <span className="flex items-center gap-2 text-muted-foreground">
+                          <span
+                            className={cn(
+                              "inline-block h-1.5 w-1.5 rounded-full",
+                              isDone(s.status) ? "bg-emerald-500" : "bg-primary",
+                            )}
+                          />
+                          <span className="capitalize">{s.status}</span>
+                        </span>
+                        <span className="font-medium text-foreground">{s.count}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </WidgetCard>
           </WidgetGrid>
