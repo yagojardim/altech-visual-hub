@@ -151,7 +151,7 @@ export function ProjectListPage() {
               <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Projetos</h1>
               {!loading && !error && (
                 <span className="inline-flex rounded-full border border-accent/30 bg-accent/15 px-2 py-0.5 text-[11px] text-accent">
-                  {count} {count === 1 ? "resultado" : "resultados"}
+                {activeCount} {activeCount === 1 ? "ativo" : "ativos"}
                 </span>
               )}
             </div>
