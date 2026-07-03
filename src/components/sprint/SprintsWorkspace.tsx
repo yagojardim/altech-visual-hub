@@ -300,7 +300,7 @@ function CreateSprintDialog({
         meta: "",
         data_inicio: "",
         data_fim: "",
-        status: "Planejada",
+        status: DEFAULT_SPRINT_STATUS,
       });
     }
   }, [open, projects, lockProjectId]);
