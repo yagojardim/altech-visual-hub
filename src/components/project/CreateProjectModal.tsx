@@ -185,7 +185,7 @@ export function CreateProjectModal({
                 id="proj-name"
                 placeholder="Ex.: Altech Core"
                 value={form.nome}
-                onChange={set("nome")}
+                onChange={onNameChange}
               />
             </FormField>
 
@@ -194,10 +194,11 @@ export function CreateProjectModal({
                 id="proj-slug"
                 placeholder="altech-core"
                 value={form.slug}
-                onChange={set("slug")}
+                onChange={onSlugChange}
                 disabled={mode === "edit"}
               />
             </FormField>
+
 
             <FormField label="Status" htmlFor="proj-status">
               <Select
