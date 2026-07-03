@@ -377,6 +377,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
     );
     try {
       await updateWorkItem(itemId, toWorkItemPatch({ status: nextStatus, order: destOrder }));
+      invalidate();
     } catch (err) {
       setItems(prev);
       toast.error(err instanceof Error ? err.message : "Erro ao mover item");
