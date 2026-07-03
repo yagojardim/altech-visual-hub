@@ -177,8 +177,8 @@ export function ProjectOverviewGrid({ projectId }: { projectId?: string } = {}) 
       <FlowMap
         items={items.slice(0, 21).map<FlowItem>((i) => ({
           id: i.id,
-          title: i.title,
-          meta: i.itemKey ?? undefined,
+          title: (i as { titulo?: string; title?: string }).titulo ?? (i as { title?: string }).title ?? "—",
+          meta: i.item_key ?? undefined,
           status: i.status,
         }))}
       />
