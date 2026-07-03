@@ -38,19 +38,19 @@ export const Route = createFileRoute("/_workspace/dashboard")({
 
 type ActivityItem = {
   id: string;
-  item_key: string | null;
-  titulo: string;
+  itemKey: string | null;
+  title: string;
   status: string | null;
-  updated_at: string | null;
-  created_at: string | null;
+  updatedAt: string | null;
+  createdAt: string | null;
 };
 
 type MyItem = {
   id: string;
-  item_key: string | null;
-  titulo: string;
+  itemKey: string | null;
+  title: string;
   status: string | null;
-  tipo: string | null;
+  type: string | null;
 };
 
 type Result<T> = { ok: true; value: T } | { ok: false; error: string };
