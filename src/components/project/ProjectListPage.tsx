@@ -11,8 +11,9 @@ import { listProjects, type ProjectRow } from "@/lib/projects-api";
 import { useOrgPrefs } from "@/lib/use-org-prefs";
 import type { OrgControlsValue } from "@/components/work-item/OrgControls";
 
-interface ProjectsPrefs extends OrgControlsValue {
+type ProjectsPrefs = OrgControlsValue & {
   search: string;
+  [k: string]: unknown;
 }
 
 const DEFAULT_PREFS: ProjectsPrefs = {
