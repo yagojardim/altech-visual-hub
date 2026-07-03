@@ -12,6 +12,9 @@ export type WorkItemStatus = (typeof STATUS_COLUMNS)[number];
 export const TIPO_OPTIONS = ["Épico", "História", "Tarefa", "Bug"] as const;
 export type WorkItemTipo = (typeof TIPO_OPTIONS)[number];
 
+export const PRIORIDADE_OPTIONS = ["Baixa", "Média", "Alta", "Crítica"] as const;
+export type WorkItemPrioridade = (typeof PRIORIDADE_OPTIONS)[number];
+
 export interface WorkItemRow {
   id: string;
   project_id: string;
@@ -22,7 +25,9 @@ export interface WorkItemRow {
   status: string;
   responsavel: string | null;
   descricao: string | null;
+  prioridade: string;
   ordem: number;
+  sprint_id: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -34,12 +39,14 @@ export interface WorkItemInput {
   status?: string;
   responsavel?: string | null;
   descricao?: string | null;
+  prioridade?: string;
   ordem?: number;
+  sprint_id?: string | null;
   item_key?: string | null;
   tenant_id?: string | null;
 }
 
-const SELECT = "id, project_id, tenant_id, item_key, titulo, tipo, status, responsavel, descricao, ordem, created_at, updated_at";
+const SELECT = "id, project_id, tenant_id, item_key, titulo, tipo, status, responsavel, descricao, prioridade, ordem, sprint_id, created_at, updated_at";
 
 async function resolveProjectUuid(projectRef: string): Promise<string> {
   // Accept either uuid or slug
