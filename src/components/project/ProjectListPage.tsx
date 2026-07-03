@@ -47,10 +47,8 @@ const DEFAULT_PREFS: ProjectsPrefs = {
 
 const SORT_OPTIONS = [
   { value: "nome", label: "Nome" },
+  { value: "data_inicio", label: "Data de início" },
   { value: "status", label: "Status" },
-  { value: "data_inicio", label: "Início" },
-  { value: "data_fim", label: "Fim" },
-  { value: "created_at", label: "Criação" },
 ];
 
 const GROUP_OPTIONS = [
@@ -173,8 +171,14 @@ export function ProjectListPage() {
     });
     const dir = prefs.sortDir === "desc" ? -1 : 1;
     filtered.sort((a, b) => {
-      const av = (a[prefs.sortBy as keyof ProjectRow] as string | null) ?? "";
-      const bv = (b[prefs.sortBy as keyof ProjectRow] as string | null) ?? "";
+      const field = prefs.sortBy as keyof ProjectRow;
+      const av = (a[field] as string | null) ?? "";
+      const bv = (b[field] as string | null) ?? "";
+      if (prefs.sortBy === "data_inicio" || prefs.sortBy === "data_fim") {
+        const aDate = av ? new Date(av).getTime() : Number.POSITIVE_INFINITY;
+        const bDate = bv ? new Date(bv).getTime() : Number.POSITIVE_INFINITY;
+        return (aDate - bDate) * dir;
+      }
       return av.localeCompare(bv, "pt-BR", { numeric: true }) * dir;
     });
     return filtered;

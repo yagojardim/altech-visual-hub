@@ -53,10 +53,19 @@ export function OrgControls({
     () => groupOptions.find((o) => o.value === value.groupBy)?.label ?? "Sem",
     [groupOptions, value.groupBy],
   );
-  const sortLabel = useMemo(
-    () => sortOptions.find((o) => o.value === value.sortBy)?.label ?? sortOptions[0]?.label ?? "",
-    [sortOptions, value.sortBy],
-  );
+  const sortLabel = useMemo(() => {
+    const option = sortOptions.find((o) => o.value === value.sortBy);
+    if (!option) return sortOptions[0]?.label ?? "";
+    const dirLabel =
+      value.sortDir === "asc"
+        ? value.sortBy === "nome"
+          ? "A–Z"
+          : "Crescente"
+        : value.sortBy === "nome"
+          ? "Z–A"
+          : "Decrescente";
+    return `${option.label} · ${dirLabel}`;
+  }, [sortOptions, value.sortBy, value.sortDir]);
 
   return (
     <div className={cn("flex flex-wrap items-center gap-2", className)}>
