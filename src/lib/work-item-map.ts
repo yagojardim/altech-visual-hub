@@ -47,7 +47,7 @@ export type WorkItemPatch = Partial<
   >
 >;
 
-type AnyRow = Record<string, unknown> | null | undefined;
+type AnyRow = Record<string, unknown> | Record<string, never> | null | undefined | object;
 
 function pickString(row: AnyRow, ...keys: string[]): string {
   if (!row) return "";
