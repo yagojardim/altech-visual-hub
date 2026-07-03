@@ -58,6 +58,7 @@ export function CreateProjectModal({
   onOpenChange,
   onSaved,
 }: ProjectFormSheetProps) {
+  const queryClient = useQueryClient();
   const [internalOpen, setInternalOpen] = useState(false);
   const open = openProp ?? internalOpen;
   const setOpen = (v: boolean) => {
