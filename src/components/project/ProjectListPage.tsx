@@ -111,7 +111,7 @@ export function ProjectListPage() {
                 owner={p.responsavel ?? "—"}
                 status={p.status}
                 dueDate={formatRange(p.data_inicio, p.data_fim)}
-                description={p.descricao ?? "Projeto do workspace Altech Project."}
+                description={p.descricao ?? "Projeto do workspace Altech."}
               />
               <Button
                 size="icon"

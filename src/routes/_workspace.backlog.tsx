@@ -12,7 +12,7 @@ function BacklogIndex() {
       <div>
         <h1 className="text-2xl">Backlog</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Fila de trabalho priorizada no workspace Altech Project.
+          Fila de trabalho priorizada no workspace Altech.
         </p>
       </div>
       <EmptyState
