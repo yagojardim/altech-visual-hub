@@ -106,6 +106,8 @@ export async function createWorkItem(input: WorkItemInput): Promise<WorkItemRow>
     status: input.status ?? "A Fazer",
     responsavel: input.responsavel ?? null,
     descricao: input.descricao ?? null,
+    prioridade: input.prioridade ?? "Média",
+    sprint_id: input.sprint_id ?? null,
     ordem: nextOrdem,
   };
   const { data, error } = await supabase
