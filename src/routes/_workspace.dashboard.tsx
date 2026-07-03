@@ -4,7 +4,7 @@ import {
   Activity,
   ArrowUpRight,
   FolderKanban,
-  KanbanSquare,
+  
   Layers,
   ListTodo,
   Target,
