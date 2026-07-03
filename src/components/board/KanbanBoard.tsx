@@ -16,7 +16,8 @@ import {
   STATUS_COLUMNS,
   type WorkItemRow,
 } from "@/lib/work-items-api";
-import { LoadingState, ErrorState } from "@/components/states";
+import { LoadingState, ErrorState, EmptyState } from "@/components/states";
+import { KanbanSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
