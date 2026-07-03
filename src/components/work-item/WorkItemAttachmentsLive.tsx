@@ -37,18 +37,30 @@ export function WorkItemAttachmentsLive({ workItemId }: { workItemId: string }) 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [scope, setScope] = useState<{ tenant_id: string; project_id: string } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const { data, error: e } = await supabase
-      .from("attachments")
-      .select("*")
-      .eq("work_item_id", workItemId)
-      .order("created_at", { ascending: false });
-    if (e) setError(e.message);
-    else setItems((data ?? []) as Attachment[]);
+    const [attRes, wiRes] = await Promise.all([
+      supabase
+        .from("attachments")
+        .select("*")
+        .eq("work_item_id", workItemId)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("work_items")
+        .select("tenant_id, project_id")
+        .eq("id", workItemId)
+        .maybeSingle(),
+    ]);
+    if (attRes.error) setError(attRes.error.message);
+    else setItems((attRes.data ?? []) as Attachment[]);
+    const wi = wiRes.data as { tenant_id?: string; project_id?: string } | null;
+    if (wi?.tenant_id && wi?.project_id) {
+      setScope({ tenant_id: wi.tenant_id, project_id: wi.project_id });
+    }
     setLoading(false);
   }, [workItemId]);
 
@@ -70,7 +82,10 @@ export function WorkItemAttachmentsLive({ workItemId }: { workItemId: string }) 
         continue;
       }
       setUploading(true);
-      const path = `${workItemId}/${Date.now()}-${file.name.replace(/[^\w.\-]+/g, "_")}`;
+      const safeName = file.name.replace(/[^\w.\-]+/g, "_");
+      const path = scope
+        ? `${scope.tenant_id}/${scope.project_id}/${workItemId}/${Date.now()}-${safeName}`
+        : `${workItemId}/${Date.now()}-${safeName}`;
       const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, {
         contentType: file.type || "application/octet-stream",
         upsert: false,
