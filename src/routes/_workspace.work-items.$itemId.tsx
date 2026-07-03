@@ -16,7 +16,7 @@ function WorkItemPage() {
       project="Altech Core"
       status="Em progresso"
       priority="Prioridade média"
-      description="Modelar o sistema de roles e permissões da plataforma Altech. Deve suportar permission-driven UI em todos os módulos e integrar com o Supabase usando policies RLS."
+      description="Modelar o sistema de roles e permissões do Altech Project. Deve suportar permission-driven UI em todos os módulos e integrar com o Supabase usando policies RLS."
       owner="Ana Silva"
       dueDate="12 jul 2026"
       type="Arquitetura"

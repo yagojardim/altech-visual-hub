@@ -12,7 +12,7 @@ function SupportIndex() {
       <div>
         <h1 className="text-2xl">Suporte</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Canal de ajuda da plataforma Altech.
+          Canal de ajuda do Altech Project.
         </p>
       </div>
       <EmptyState
