@@ -338,7 +338,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
         await updateWorkItem(it.id, toWorkItemPatch({ order: it.order }));
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Erro ao reordenar");
-        void load();
+        invalidate();
         return;
       }
     }
@@ -423,7 +423,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
               filterFields={filterFields}
               sortOptions={SORT_OPTIONS}
               groupOptions={GROUP_OPTIONS}
-              onRefresh={() => void load()}
+              onRefresh={() => void refetch()}
               onReset={resetPrefs}
             />
           }
@@ -433,7 +433,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
       {loading ? (
         <LoadingState label="Carregando backlog…" variant="skeleton" rows={5} />
       ) : error ? (
-        <ErrorState description={error} onRetry={() => void load()} />
+        <ErrorState description={error} onRetry={() => void refetch()} />
       ) : totalItems === 0 ? (
         <EmptyState
           title="Nada por aqui ainda"
@@ -499,7 +499,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
           {openItemId && (
             <WorkItemDetailsPanel
               workItemId={openItemId}
-              onChange={() => void load()}
+              onChange={() => void refetch()}
             />
           )}
         </SheetContent>
@@ -509,7 +509,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
         projectId={projectId}
         open={creating}
         onOpenChange={setCreating}
-        onCreated={() => void load()}
+        onCreated={() => void refetch()}
       />
     </>
   );
