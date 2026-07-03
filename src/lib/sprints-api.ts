@@ -58,7 +58,7 @@ export async function createSprint(input: SprintInput): Promise<SprintRow> {
     meta: input.meta?.trim() || null,
     data_inicio: input.data_inicio || null,
     data_fim: input.data_fim || null,
-    status: input.status ?? "Planejada",
+    status: input.status ?? DEFAULT_SPRINT_STATUS,
   };
   const { data, error } = await supabase
     .from("sprints")
