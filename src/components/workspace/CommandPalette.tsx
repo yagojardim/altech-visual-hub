@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
-type ProjectHit = { id: string; name: string | null; slug?: string | null };
+type ProjectHit = { id: string; nome: string | null; slug?: string | null };
 type WorkItemHit = {
   id: string;
   item_key: string | null;
