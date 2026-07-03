@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   DndContext,
   PointerSensor,
@@ -15,6 +16,7 @@ import {
   updateWorkItem,
   STATUS_COLUMNS,
 } from "@/lib/work-items-api";
+import { qk } from "@/lib/query-keys";
 import { toWorkItems, toWorkItemPatch, type WorkItem } from "@/lib/work-item-map";
 import { LoadingState, ErrorState, EmptyState } from "@/components/states";
 import { KanbanSquare } from "lucide-react";
