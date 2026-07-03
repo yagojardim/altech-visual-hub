@@ -84,7 +84,7 @@ function pickNumber(row: AnyRow, ...keys: string[]): number {
  * Normalize any Supabase `work_items` row (PT or EN columns) into the canonical
  * `WorkItem` shape used by the UI.
  */
-export function toWorkItem(raw: AnyRow): WorkItem {
+export function toWorkItem(raw: unknown): WorkItem {
   const row = (raw ?? {}) as Record<string, unknown>;
   return {
     id: pickString(row, "id"),
