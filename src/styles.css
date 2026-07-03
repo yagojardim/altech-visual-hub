@@ -1,28 +1,22 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@import "./styles/altech-tokens.css";
 
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Altech Design System — Light identity.
- * Palette:
- *   primary  #2F6BFF  (blue)
- *   success  #06C18A  (emerald · CTA + success only)
- *   ink      #0B1120  (foreground)
- *   bg       #F7F9FC  (background)
- *   surface  #FFFFFF  (card / popover)
- *   border   #CDD6E3  (hairline)
- *   muted    #586579  (muted text)
- * Fonts: Sora (headings, 700, -0.03em), Manrope (body/UI).
+ * Altech Design System — tokens em src/styles/altech-tokens.css.
+ * Aqui só mapeamos os tokens do shadcn/Tailwind para as variáveis
+ * Altech e definimos extensões (warning, success FG, sidebar, panel).
  */
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 8px);
-  --radius-md: calc(var(--radius) - 4px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 10px);
+  --radius-2xl: calc(var(--radius) + 20px);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -36,17 +30,17 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
+  --color-accent: var(--accent-color);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
-  --color-success: var(--success);
+  --color-success: var(--success-bg);
   --color-success-foreground: var(--success-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
-  --color-ring: var(--ring);
+  --color-ring: var(--ring-color);
   --color-panel: var(--panel);
   --color-panel-elevated: var(--panel-elevated);
   --color-sidebar: var(--sidebar);
@@ -66,50 +60,24 @@
   --shadow-card-hover: 0 4px 12px rgba(11, 17, 32, 0.08), 0 2px 4px rgba(11, 17, 32, 0.06);
 }
 
+/* Extensões que não fazem parte dos tokens Altech base */
 :root {
-  --radius: 1rem; /* 16px */
+  --panel: var(--bg-surface);
+  --panel-elevated: var(--bg-surface);
 
-  /* Surfaces */
-  --background: #F7F9FC;
-  --foreground: #0B1120;
-  --panel: #FFFFFF;
-  --panel-elevated: #FFFFFF;
+  --warning: var(--warning-500);
+  --warning-foreground: var(--ink-900);
+  --success-bg: var(--success-500);
+  --success-foreground: var(--white);
 
-  --card: #FFFFFF;
-  --card-foreground: #0B1120;
-  --popover: #FFFFFF;
-  --popover-foreground: #0B1120;
-
-  /* Brand */
-  --primary: #2F6BFF;
-  --primary-foreground: #FFFFFF;
-  --accent: #EEF3FF;                 /* subtle blue tint for hovers */
-  --accent-foreground: #2F6BFF;
-  --success: #06C18A;
-  --success-foreground: #FFFFFF;
-  --warning: #F5A524;
-  --warning-foreground: #0B1120;
-
-  --secondary: #EEF2F8;
-  --secondary-foreground: #0B1120;
-  --muted: #EEF2F8;
-  --muted-foreground: #586579;
-
-  --destructive: #E5484D;
-  --destructive-foreground: #FFFFFF;
-
-  --border: #CDD6E3;
-  --input: #CDD6E3;
-  --ring: #2F6BFF;
-
-  --sidebar: #FFFFFF;
-  --sidebar-foreground: #0B1120;
-  --sidebar-primary: #2F6BFF;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #EEF3FF;
-  --sidebar-accent-foreground: #2F6BFF;
-  --sidebar-border: #CDD6E3;
-  --sidebar-ring: #2F6BFF;
+  --sidebar: var(--nav-bg);
+  --sidebar-foreground: var(--slate-300);
+  --sidebar-primary: var(--blue-500);
+  --sidebar-primary-foreground: var(--white);
+  --sidebar-accent: color-mix(in srgb, var(--blue-500) 22%, transparent);
+  --sidebar-accent-foreground: var(--white);
+  --sidebar-border: color-mix(in srgb, var(--slate-200) 10%, transparent);
+  --sidebar-ring: var(--blue-500);
 }
 
 @layer base {
@@ -129,17 +97,20 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     font-weight: 700;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.02em;
     color: var(--color-foreground);
+  }
+  code, kbd, samp, pre {
+    font-family: var(--font-mono);
   }
   :focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ring) 35%, transparent);
-    border-radius: calc(var(--radius) - 8px);
+    box-shadow: var(--focus-ring);
+    border-radius: var(--radius-sm);
   }
 }
 
-/* Card: white surface, hairline border, soft shadow, hover elevates +1px */
+/* Card: superfície branca, borda hairline, sombra suave, hover eleva +1px */
 @utility altech-card {
   background-color: var(--color-card);
   color: var(--color-card-foreground);
@@ -154,5 +125,5 @@
 }
 
 @utility altech-gradient {
-  background-image: linear-gradient(135deg, #2F6BFF 0%, #06C18A 100%);
+  background-image: var(--gradient-flow);
 }
