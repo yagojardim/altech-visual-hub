@@ -15,6 +15,7 @@ import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/workspace";
 import { supabase } from "@/lib/supabase";
 import { DEFAULT_TENANT_ID } from "@/lib/projects-api";
+import { toWorkItems, type WorkItem } from "@/lib/work-item-map";
 import { DashboardContainer } from "@/components/dashboard/DashboardContainer";
 import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
@@ -93,6 +94,8 @@ function DashboardPage() {
     setLoading(true);
     setError(null);
     try {
+      // Cada métrica é isolada: falha de uma não derruba a tela.
+      // Resultado vazio é tratado como zero. Não usamos .single().
       const [projectsRes, itemsRes, sprintsRes] = await Promise.all([
         supabase
           .from("projects")
@@ -100,7 +103,7 @@ function DashboardPage() {
           .eq("tenant_id", DEFAULT_TENANT_ID),
         supabase
           .from("work_items")
-          .select("id, item_key, titulo, tipo, status, responsavel, created_at, updated_at")
+          .select("*")
           .eq("tenant_id", DEFAULT_TENANT_ID)
           .order("updated_at", { ascending: false })
           .limit(200),
@@ -110,15 +113,20 @@ function DashboardPage() {
           .eq("tenant_id", DEFAULT_TENANT_ID),
       ]);
 
-      if (projectsRes.error) throw projectsRes.error;
-      if (itemsRes.error) throw itemsRes.error;
-      // sprints table might not exist yet; tolerate error silently
-      const sprintRows = (sprintsRes.error ? [] : sprintsRes.data ?? []) as Array<{
-        id: string;
-        status: string | null;
-      }>;
+      if (projectsRes.error) {
+        console.warn("[dashboard] projects query error:", projectsRes.error);
+      }
+      if (itemsRes.error) {
+        console.warn("[dashboard] work_items query error:", itemsRes.error);
+      }
+      if (sprintsRes.error) {
+        console.warn("[dashboard] sprints query error:", sprintsRes.error);
+      }
 
       const projectRows = (projectsRes.data ?? []) as Array<{ id: string; status: string | null }>;
+      const sprintRows = (sprintsRes.data ?? []) as Array<{ id: string; status: string | null }>;
+      const items: WorkItem[] = toWorkItems(itemsRes.data ?? []);
+
       const activeProjects = projectRows.filter(
         (p) => !PROJECT_INACTIVE.has((p.status ?? "").toLowerCase()),
       ).length;
@@ -127,16 +135,12 @@ function DashboardPage() {
         SPRINT_ACTIVE.has((s.status ?? "").toLowerCase()),
       ).length;
 
-      const items = (itemsRes.data ?? []) as Array<
-        ActivityItem & { tipo: string | null; responsavel: string | null }
-      >;
-
       const openItems = items.filter((i) => !isDone(i.status)).length;
       const doneItems = items.filter((i) => isDone(i.status)).length;
 
       const statusMap = new Map<string, number>();
       for (const i of items) {
-        const key = (i.status ?? "sem status").toString();
+        const key = (i.status || "sem status").toString();
         statusMap.set(key, (statusMap.get(key) ?? 0) + 1);
       }
       const statusBreakdown = Array.from(statusMap.entries())
@@ -145,27 +149,27 @@ function DashboardPage() {
 
       const activity: ActivityItem[] = items.slice(0, 6).map((i) => ({
         id: i.id,
-        item_key: i.item_key,
-        titulo: i.titulo,
+        item_key: i.itemKey,
+        titulo: i.title,
         status: i.status,
-        created_at: i.created_at,
-        updated_at: i.updated_at,
+        created_at: i.createdAt ?? null,
+        updated_at: i.updatedAt ?? null,
       }));
 
       const myItems: MyItem[] = items
         .filter(
           (i) =>
-            i.responsavel &&
+            i.assignee &&
             user &&
-            (i.responsavel === user.name || i.responsavel === user.email || i.responsavel === user.id),
+            (i.assignee === user.name || i.assignee === user.email || i.assignee === user.id),
         )
         .slice(0, 6)
         .map((i) => ({
           id: i.id,
-          item_key: i.item_key,
-          titulo: i.titulo,
+          item_key: i.itemKey,
+          titulo: i.title,
           status: i.status,
-          tipo: i.tipo,
+          tipo: i.type,
         }));
 
       setData({
@@ -181,7 +185,14 @@ function DashboardPage() {
         myItems,
       });
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Erro ao carregar dashboard");
+      console.error("[dashboard] unexpected error:", e);
+      // Fallback: renderiza dashboard zerado em vez de derrubar a tela.
+      setData({
+        counts: { activeProjects: 0, openItems: 0, doneItems: 0, totalItems: 0, activeSprints: 0 },
+        statusBreakdown: [],
+        activity: [],
+        myItems: [],
+      });
     } finally {
       setLoading(false);
     }
