@@ -17,8 +17,8 @@ function BacklogIndex() {
       </div>
       <EmptyState
         icon={<ListTodo className="h-5 w-5" />}
-        title="Backlog por projeto"
-        description="Acesse a aba Backlog dentro de cada projeto para gerenciar histórias, bugs e tarefas."
+        title="Nada por aqui ainda"
+        description="Abra um projeto e acesse a aba Backlog para criar seu primeiro work item."
       />
     </div>
   );

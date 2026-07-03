@@ -16,7 +16,8 @@ import {
   STATUS_COLUMNS,
   type WorkItemRow,
 } from "@/lib/work-items-api";
-import { LoadingState, ErrorState } from "@/components/states";
+import { LoadingState, ErrorState, EmptyState } from "@/components/states";
+import { KanbanSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -186,21 +187,35 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
           Novo work item
         </Button>
       </div>
-      <DndContext sensors={sensors} onDragEnd={onDragEnd}>
-        <div
-          className="grid gap-3 overflow-x-auto pb-2"
-          style={{ gridTemplateColumns: `repeat(${STATUS_COLUMNS.length}, minmax(16rem, 1fr))` }}
-        >
-          {STATUS_COLUMNS.map((status) => (
-            <Column
-              key={status}
-              status={status}
-              items={itemsByStatus.get(status) ?? []}
-              onOpen={setOpenItemId}
-            />
-          ))}
-        </div>
-      </DndContext>
+      {items.length === 0 ? (
+        <EmptyState
+          icon={<KanbanSquare className="h-5 w-5" />}
+          title="Nada por aqui ainda"
+          description="Crie seu primeiro work item para começar."
+          action={
+            <Button size="sm" variant="cta" onClick={() => setCreating(true)}>
+              <Plus className="mr-1 h-4 w-4" />
+              Novo work item
+            </Button>
+          }
+        />
+      ) : (
+        <DndContext sensors={sensors} onDragEnd={onDragEnd}>
+          <div
+            className="grid gap-3 overflow-x-auto pb-2"
+            style={{ gridTemplateColumns: `repeat(${STATUS_COLUMNS.length}, minmax(16rem, 1fr))` }}
+          >
+            {STATUS_COLUMNS.map((status) => (
+              <Column
+                key={status}
+                status={status}
+                items={itemsByStatus.get(status) ?? []}
+                onOpen={setOpenItemId}
+              />
+            ))}
+          </div>
+        </DndContext>
+      )}
 
       <Sheet open={openItemId !== null} onOpenChange={(o) => !o && setOpenItemId(null)}>
         <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-xl lg:max-w-3xl">
