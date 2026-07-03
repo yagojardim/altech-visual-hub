@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronRight, FolderKanban, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { useCan } from "@/lib/auth";
@@ -8,6 +9,7 @@ import { ProjectToolbar } from "./ProjectToolbar";
 import { CreateProjectModal } from "./CreateProjectModal";
 import { Button } from "@/components/ui/button";
 import { listProjects, type ProjectRow } from "@/lib/projects-api";
+import { qk } from "@/lib/query-keys";
 import { useOrgPrefs } from "@/lib/use-org-prefs";
 import type { OrgControlsValue } from "@/components/work-item/OrgControls";
 
