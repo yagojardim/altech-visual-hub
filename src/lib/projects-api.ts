@@ -88,7 +88,15 @@ export async function ensureSeed(): Promise<void> {
     const { count, error: countError } = await supabase
       .from("projects")
       .select("*", { count: "exact", head: true });
-    if (countError) throw countError;
+    if (countError) {
+      if (isMissingRelation(countError)) {
+        logSupabaseError("projects-api:ensureSeed", countError);
+        // Sem tabela ainda: não tenta inserir; marca flag para não repetir.
+        window.localStorage.setItem(SEED_FLAG_KEY, "1");
+        return;
+      }
+      throw countError;
+    }
     if ((count ?? 0) > 0) {
       window.localStorage.setItem(SEED_FLAG_KEY, "1");
       return;
@@ -109,7 +117,13 @@ export async function listProjects(): Promise<ProjectRow[]> {
     .from("projects")
     .select("*")
     .order("created_at", { ascending: true });
-  if (error) throw error;
+  if (error) {
+    if (isMissingRelation(error)) {
+      logSupabaseError("projects-api:listProjects", error);
+      return [];
+    }
+    throw new Error(error.message || "Erro ao listar projetos.");
+  }
   return (data ?? []) as ProjectRow[];
 }
 
