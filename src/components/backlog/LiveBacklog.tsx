@@ -125,9 +125,7 @@ function ItemRow({
       >
         {item.title}
       </button>
-      <Badge variant="outline" className="justify-self-start text-[10px] uppercase">
-        {item.type}
-      </Badge>
+      <TypePill type={item.type} />
       <span className="truncate text-xs text-muted-foreground">
         {item.assignee ?? "—"}
       </span>
