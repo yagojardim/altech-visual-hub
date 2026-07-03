@@ -501,7 +501,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
           {openItemId && (
             <WorkItemDetailsPanel
               workItemId={openItemId}
-              onChange={() => void refetch()}
+              onChange={invalidate}
             />
           )}
         </SheetContent>
@@ -511,7 +511,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
         projectId={projectId}
         open={creating}
         onOpenChange={setCreating}
-        onCreated={() => void refetch()}
+        onCreated={invalidate}
       />
     </>
   );
