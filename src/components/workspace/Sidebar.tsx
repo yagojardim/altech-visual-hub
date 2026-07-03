@@ -59,25 +59,7 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         style={{ borderColor: "rgba(255,255,255,0.05)" }}
         aria-label="Ir para o Dashboard"
       >
-        <svg width="28" height="28" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-          <defs>
-            <linearGradient id="mg" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#2F6BFF" />
-              <stop offset="100%" stopColor="#2E9BFF" />
-            </linearGradient>
-          </defs>
-          <path d="M20 5 L36 35 H4 Z" fill="url(#mg)" opacity="0.1" />
-          <path d="M11 28 L20 8 L29 28" stroke="url(#mg)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-          <path d="M14.5 22 L25.5 22" stroke="url(#mg)" strokeWidth="1.8" strokeLinecap="round" />
-        </svg>
-        <div className="leading-tight">
-          <div style={{ font: "700 13px 'Sora',sans-serif", color: "#F0F4FC", letterSpacing: "-0.02em" }}>
-            Gestão Ágil
-          </div>
-          <div style={{ font: "400 9px 'JetBrains Mono',monospace", color: "rgba(107,136,165,0.65)", marginTop: 2, letterSpacing: "0.06em" }}>
-            ALTECH · v1.0
-          </div>
-        </div>
+        <BrandLogo variant="dark" />
       </Link>
 
       <nav className="flex-1 overflow-y-auto px-2 py-[10px]" aria-label="Navegação principal">
