@@ -265,14 +265,15 @@ function DashboardPage() {
                         <span className="font-mono text-[11px] text-muted-foreground">
                           {i.item_key ?? i.id.slice(0, 6)}
                         </span>
-                        <span className="truncate text-foreground">{i.title}</span>
+                        <span className="truncate text-foreground">{i.titulo}</span>
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
-                        {i.priority && (
+                        {i.tipo && (
                           <Badge variant="outline" className="text-[10px] uppercase">
-                            {i.priority}
+                            {i.tipo}
                           </Badge>
                         )}
+
                         {i.status && (
                           <Badge
                             className={cn(
