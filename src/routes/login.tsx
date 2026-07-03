@@ -11,7 +11,7 @@ export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
       { title: "Entrar · Altech Project" },
-      { name: "description", content: "Acesse seu workspace Altech." },
+      { name: "description", content: "Acesse seu workspace Altech Project." },
     ],
   }),
   component: LoginPage,
@@ -33,7 +33,7 @@ function LoginPage() {
     setSubmitting(true);
     try {
       await signIn(email, password);
-      toast.success("Bem-vindo à Altech");
+      toast.success("Bem-vindo ao Altech Project");
       navigate({ to: "/dashboard" });
     } catch {
       toast.error("Falha ao entrar");
