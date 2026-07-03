@@ -93,7 +93,7 @@ export function getProjectById(projectId: string | undefined | null): ProjectSum
       owner: "—",
       status: "Em progresso",
       dueDate: "—",
-      description: "Projeto do workspace Altech Project.",
+      description: "Projeto do workspace Altech.",
       sprint: FALLBACK_SPRINT,
     }
   );
