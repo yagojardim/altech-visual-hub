@@ -4,15 +4,17 @@ import {
   Activity,
   ArrowUpRight,
   FolderKanban,
-  KanbanSquare,
+  
   Layers,
   ListTodo,
   Target,
+  Timer,
   Zap,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/workspace";
 import { supabase } from "@/lib/supabase";
+import { DEFAULT_TENANT_ID } from "@/lib/projects-api";
 import { DashboardContainer } from "@/components/dashboard/DashboardContainer";
 import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
@@ -46,14 +48,19 @@ type MyItem = {
 
 type DashboardData = {
   counts: {
-    projects: number;
+    activeProjects: number;
     openItems: number;
     doneItems: number;
     totalItems: number;
+    activeSprints: number;
   };
+  statusBreakdown: Array<{ status: string; count: number }>;
   activity: ActivityItem[];
   myItems: MyItem[];
 };
+
+const PROJECT_INACTIVE = new Set(["arquivado", "arquivada", "concluido", "concluído", "cancelado", "cancelada", "encerrado"]);
+const SPRINT_ACTIVE = new Set(["ativa", "ativo", "em andamento", "andamento", "em progresso", "iniciada", "active", "in_progress"]);
 
 const DONE_STATUSES = new Set(["done", "concluido", "concluído", "completed", "closed", "resolved"]);
 
@@ -86,17 +93,39 @@ function DashboardPage() {
     setLoading(true);
     setError(null);
     try {
-      const [projectsRes, itemsRes] = await Promise.all([
-        supabase.from("projects").select("id", { count: "exact", head: true }),
+      const [projectsRes, itemsRes, sprintsRes] = await Promise.all([
+        supabase
+          .from("projects")
+          .select("id, status")
+          .eq("tenant_id", DEFAULT_TENANT_ID),
         supabase
           .from("work_items")
           .select("id, item_key, titulo, tipo, status, responsavel, created_at, updated_at")
+          .eq("tenant_id", DEFAULT_TENANT_ID)
           .order("updated_at", { ascending: false })
           .limit(200),
+        supabase
+          .from("sprints")
+          .select("id, status")
+          .eq("tenant_id", DEFAULT_TENANT_ID),
       ]);
 
       if (projectsRes.error) throw projectsRes.error;
       if (itemsRes.error) throw itemsRes.error;
+      // sprints table might not exist yet; tolerate error silently
+      const sprintRows = (sprintsRes.error ? [] : sprintsRes.data ?? []) as Array<{
+        id: string;
+        status: string | null;
+      }>;
+
+      const projectRows = (projectsRes.data ?? []) as Array<{ id: string; status: string | null }>;
+      const activeProjects = projectRows.filter(
+        (p) => !PROJECT_INACTIVE.has((p.status ?? "").toLowerCase()),
+      ).length;
+
+      const activeSprints = sprintRows.filter((s) =>
+        SPRINT_ACTIVE.has((s.status ?? "").toLowerCase()),
+      ).length;
 
       const items = (itemsRes.data ?? []) as Array<
         ActivityItem & { tipo: string | null; responsavel: string | null }
@@ -104,6 +133,15 @@ function DashboardPage() {
 
       const openItems = items.filter((i) => !isDone(i.status)).length;
       const doneItems = items.filter((i) => isDone(i.status)).length;
+
+      const statusMap = new Map<string, number>();
+      for (const i of items) {
+        const key = (i.status ?? "sem status").toString();
+        statusMap.set(key, (statusMap.get(key) ?? 0) + 1);
+      }
+      const statusBreakdown = Array.from(statusMap.entries())
+        .map(([status, count]) => ({ status, count }))
+        .sort((a, b) => b.count - a.count);
 
       const activity: ActivityItem[] = items.slice(0, 6).map((i) => ({
         id: i.id,
@@ -132,11 +170,13 @@ function DashboardPage() {
 
       setData({
         counts: {
-          projects: projectsRes.count ?? 0,
+          activeProjects,
           openItems,
           doneItems,
           totalItems: items.length,
+          activeSprints,
         },
+        statusBreakdown,
         activity,
         myItems,
       });
@@ -146,6 +186,7 @@ function DashboardPage() {
       setLoading(false);
     }
   }, [user]);
+
 
 
   useEffect(() => {
@@ -177,10 +218,10 @@ function DashboardPage() {
       {!loading && !error && data && (
         <>
           <WidgetGrid columns={4}>
-            <KpiCard label="Projetos" value={data.counts.projects} icon={FolderKanban} />
-            <KpiCard label="Work items" value={data.counts.totalItems} icon={KanbanSquare} />
-            <KpiCard label="Abertos" value={data.counts.openItems} icon={Activity} />
-            <KpiCard label="Concluídos" value={data.counts.doneItems} icon={Zap} />
+            <KpiCard label="Projetos ativos" value={data.counts.activeProjects} icon={FolderKanban} />
+            <KpiCard label="Sprints em andamento" value={data.counts.activeSprints} icon={Timer} />
+            <KpiCard label="Itens abertos" value={data.counts.openItems} icon={Activity} />
+            <KpiCard label="Itens concluídos" value={data.counts.doneItems} icon={Zap} />
           </WidgetGrid>
 
           <WidgetGrid columns={3}>
@@ -220,8 +261,8 @@ function DashboardPage() {
 
             <WidgetCard>
               <WidgetHeader
-                title="Progresso"
-                description="Itens concluídos no workspace"
+                title="Work items por status"
+                description={`${data.counts.totalItems} itens no workspace`}
                 icon={Target}
               />
               <div className="mt-3 space-y-3">
@@ -240,6 +281,27 @@ function DashboardPage() {
                     }
                   />
                 </div>
+                {data.statusBreakdown.length > 0 && (
+                  <ul className="space-y-1.5 pt-1">
+                    {data.statusBreakdown.map((s) => (
+                      <li
+                        key={s.status}
+                        className="flex items-center justify-between text-xs"
+                      >
+                        <span className="flex items-center gap-2 text-muted-foreground">
+                          <span
+                            className={cn(
+                              "inline-block h-1.5 w-1.5 rounded-full",
+                              isDone(s.status) ? "bg-emerald-500" : "bg-primary",
+                            )}
+                          />
+                          <span className="capitalize">{s.status}</span>
+                        </span>
+                        <span className="font-medium text-foreground">{s.count}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </WidgetCard>
           </WidgetGrid>
