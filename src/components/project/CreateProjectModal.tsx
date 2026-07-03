@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import {
   updateProject,
   type ProjectRow,
 } from "@/lib/projects-api";
+import { qk } from "@/lib/query-keys";
 
 const STATUSES = ["Planejamento", "Em progresso", "Pausado", "Concluído"];
 
