@@ -26,7 +26,7 @@ export function ProjectCard({
   owner = "Ana Silva",
   status = "Em progresso",
   dueDate = "31/03/2026",
-  description = "Projeto placeholder para a Plataforma Altech.",
+  description = "Projeto placeholder para a Altech Project.",
   className,
 }: ProjectCardProps) {
   return (
