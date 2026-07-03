@@ -25,6 +25,12 @@ function WorkspaceLayout() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
+  useEffect(() => {
+    ensureSeed().catch(() => {
+      // seed best-effort; listing continues without it
+    });
+  }, []);
+
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
