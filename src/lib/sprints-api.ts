@@ -1,6 +1,7 @@
 import { supabase } from "./supabase";
 import { DEFAULT_TENANT_ID } from "./projects-api";
 import { DEFAULT_SPRINT_STATUS } from "./sprint-status";
+import { isMissingRelation, logSupabaseError } from "./supabase-errors";
 
 export { SPRINT_STATUS, type SprintStatus } from "./sprint-status";
 
