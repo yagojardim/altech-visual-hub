@@ -342,6 +342,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
         return;
       }
     }
+    invalidate();
   };
 
   const moveWithinBy = async (id: string, delta: number) => {
