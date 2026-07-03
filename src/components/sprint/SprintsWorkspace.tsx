@@ -288,7 +288,7 @@ function CreateSprintDialog({
     meta: "",
     data_inicio: "",
     data_fim: "",
-    status: "Planejada" as string,
+    status: DEFAULT_SPRINT_STATUS as string,
   });
   const [saving, setSaving] = useState(false);
 
