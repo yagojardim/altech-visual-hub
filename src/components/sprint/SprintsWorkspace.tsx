@@ -240,8 +240,8 @@ function SprintCard({
             <h3 className="truncate text-base font-medium text-foreground">{sprint.nome}</h3>
             <p className="mt-0.5 text-xs text-muted-foreground">{projectName}</p>
           </div>
-          <Badge variant="outline" className="text-[10px] uppercase">
-            {sprint.status}
+          <Badge variant="outline" className={`text-[10px] uppercase ${getSprintStatusColor(sprint.status)}`}>
+            {getSprintStatusLabel(sprint.status)}
           </Badge>
         </div>
         {sprint.meta && (
