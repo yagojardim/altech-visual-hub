@@ -15,6 +15,7 @@ import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/workspace";
 import { supabase } from "@/lib/supabase";
 import { DEFAULT_TENANT_ID } from "@/lib/projects-api";
+import { toWorkItems, type WorkItem } from "@/lib/work-item-map";
 import { DashboardContainer } from "@/components/dashboard/DashboardContainer";
 import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
