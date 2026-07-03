@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronRight, FolderKanban, Pencil, Plus } from "lucide-react";
+import { Archive, ChevronRight, FolderKanban, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useCan } from "@/lib/auth";
 import { UnauthorizedState, EmptyState, LoadingState, ErrorState } from "@/components/states";
@@ -8,7 +8,24 @@ import { ProjectCard } from "./ProjectCard";
 import { ProjectToolbar } from "./ProjectToolbar";
 import { CreateProjectModal } from "./CreateProjectModal";
 import { Button } from "@/components/ui/button";
-import { listProjects, type ProjectRow } from "@/lib/projects-api";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { deleteProject, listProjects, updateProject, type ProjectRow } from "@/lib/projects-api";
 import { formatSupabaseError } from "@/lib/supabase-errors";
 import { qk } from "@/lib/query-keys";
 import { useOrgPrefs } from "@/lib/use-org-prefs";
