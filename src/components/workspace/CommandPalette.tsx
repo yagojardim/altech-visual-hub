@@ -106,6 +106,7 @@ export function CommandPalette({
         placeholder="Buscar projetos, work items ou comandos…"
         value={query}
         onValueChange={setQuery}
+        aria-label="Buscar projetos, work items ou comandos"
       />
       <CommandList>
         <CommandEmpty>
@@ -114,19 +115,19 @@ export function CommandPalette({
 
         <CommandGroup heading="Ações rápidas">
           <CommandItem onSelect={() => go("/projects")} value="novo-projeto">
-            <Plus className="mr-2 h-4 w-4" /> Novo projeto
+            <Plus className="mr-2 h-4 w-4" aria-hidden="true" /> Novo projeto
           </CommandItem>
           <CommandItem onSelect={() => go("/sprints")} value="nova-sprint">
-            <Rocket className="mr-2 h-4 w-4" /> Nova sprint
+            <Rocket className="mr-2 h-4 w-4" aria-hidden="true" /> Nova sprint
           </CommandItem>
           <CommandItem onSelect={() => go("/dashboard")} value="ir-dashboard">
-            <LayoutDashboard className="mr-2 h-4 w-4" /> Ir para Dashboard
+            <LayoutDashboard className="mr-2 h-4 w-4" aria-hidden="true" /> Ir para Dashboard
           </CommandItem>
           <CommandItem onSelect={() => go("/boards")} value="ir-boards">
-            <KanbanSquare className="mr-2 h-4 w-4" /> Ir para Boards
+            <KanbanSquare className="mr-2 h-4 w-4" aria-hidden="true" /> Ir para Boards
           </CommandItem>
           <CommandItem onSelect={() => go("/backlog")} value="ir-backlog">
-            <ListTodo className="mr-2 h-4 w-4" /> Ir para Backlog
+            <ListTodo className="mr-2 h-4 w-4" aria-hidden="true" /> Ir para Backlog
           </CommandItem>
         </CommandGroup>
 
@@ -140,7 +141,7 @@ export function CommandPalette({
                   value={`proj-${p.nome}-${p.id}`}
                   onSelect={() => openProject(p)}
                 >
-                  <FolderKanban className="mr-2 h-4 w-4" />
+                  <FolderKanban className="mr-2 h-4 w-4" aria-hidden="true" />
                   <span className="truncate">{p.nome ?? "Sem nome"}</span>
                 </CommandItem>
               ))}
@@ -158,7 +159,7 @@ export function CommandPalette({
                   value={`wi-${it.item_key}-${it.titulo}-${it.id}`}
                   onSelect={() => go(`/work-items/${it.item_key ?? it.id}`)}
                 >
-                  <FileText className="mr-2 h-4 w-4" />
+                  <FileText className="mr-2 h-4 w-4" aria-hidden="true" />
                   <span className="mr-2 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
                     {it.item_key ?? it.id.slice(0, 6)}
                   </span>
@@ -172,7 +173,7 @@ export function CommandPalette({
 
         {!projects.length && !items.length && !loading && query && (
           <div className="flex items-center gap-2 px-3 py-6 text-xs text-muted-foreground">
-            <Search className="h-3.5 w-3.5" /> Sem resultados para "{query}"
+            <Search className="h-3.5 w-3.5" aria-hidden="true" /> Sem resultados para "{query}"
           </div>
         )}
       </CommandList>
