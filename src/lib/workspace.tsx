@@ -105,8 +105,8 @@ const MOCK_TENANT: Tenant = {
 const MOCK_ORGANIZATION: Organization = {
   id: "org-altech",
   tenantId: MOCK_TENANT.id,
-  slug: "altech-platform",
-  name: "Altech Platform",
+    slug: "altech-project",
+    name: "Altech Project",
   membersCount: 28,
 };
 
