@@ -13,6 +13,14 @@ import { supabase, type BoardColumn, type BoardRow, type WorkItem } from "@/lib/
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
+import { WorkItemDetailsPanel } from "@/components/work-item/WorkItemDetailsPanel";
 
 const PRIORITY_COLORS: Record<string, string> = {
   critical: "bg-destructive text-destructive-foreground",
@@ -35,7 +43,7 @@ function initials(name?: string | null) {
     .join("");
 }
 
-function ItemCard({ item }: { item: WorkItem }) {
+function ItemCard({ item, onOpen }: { item: WorkItem; onOpen: (id: string) => void }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: item.id,
   });
@@ -49,6 +57,9 @@ function ItemCard({ item }: { item: WorkItem }) {
       style={style}
       {...listeners}
       {...attributes}
+      onClick={() => {
+        if (!isDragging) onOpen(item.id);
+      }}
       className={cn(
         "flex cursor-grab flex-col gap-2 rounded-xl border border-border bg-panel p-3 shadow-sm",
         "hover:border-primary/40 hover:bg-panel-elevated",
@@ -85,9 +96,11 @@ function ItemCard({ item }: { item: WorkItem }) {
 function Column({
   column,
   items,
+  onOpen,
 }: {
   column: BoardColumn;
   items: WorkItem[];
+  onOpen: (id: string) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
   const overLimit = column.wip_limit != null && items.length > column.wip_limit;
@@ -122,7 +135,7 @@ function Column({
       </header>
       <div className="flex flex-1 flex-col gap-2 p-3">
         {items.map((item) => (
-          <ItemCard key={item.id} item={item} />
+          <ItemCard key={item.id} item={item} onOpen={onOpen} />
         ))}
         {items.length === 0 && (
           <div className="rounded-lg border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
@@ -140,6 +153,7 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
   const [items, setItems] = useState<WorkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [openItemId, setOpenItemId] = useState<string | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -232,12 +246,28 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
   }
 
   return (
-    <DndContext sensors={sensors} onDragEnd={onDragEnd}>
-      <div className="grid gap-3 overflow-x-auto pb-2" style={{ gridTemplateColumns: `repeat(${columns.length}, minmax(16rem, 1fr))` }}>
-        {columns.map((col) => (
-          <Column key={col.id} column={col} items={itemsByColumn.get(col.id) ?? []} />
-        ))}
-      </div>
-    </DndContext>
+    <>
+      <DndContext sensors={sensors} onDragEnd={onDragEnd}>
+        <div className="grid gap-3 overflow-x-auto pb-2" style={{ gridTemplateColumns: `repeat(${columns.length}, minmax(16rem, 1fr))` }}>
+          {columns.map((col) => (
+            <Column
+              key={col.id}
+              column={col}
+              items={itemsByColumn.get(col.id) ?? []}
+              onOpen={setOpenItemId}
+            />
+          ))}
+        </div>
+      </DndContext>
+      <Sheet open={openItemId !== null} onOpenChange={(o) => !o && setOpenItemId(null)}>
+        <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-xl lg:max-w-3xl">
+          <SheetHeader className="sr-only">
+            <SheetTitle>Work Item</SheetTitle>
+            <SheetDescription>Detalhes do work item selecionado</SheetDescription>
+          </SheetHeader>
+          {openItemId && <WorkItemDetailsPanel workItemId={openItemId} />}
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }
