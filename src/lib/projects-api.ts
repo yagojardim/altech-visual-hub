@@ -74,20 +74,36 @@ function toSlug(s: string): string {
     .slice(0, 60);
 }
 
-async function ensureSeed(): Promise<void> {
-  const { data, error } = await supabase.from("projects").select("slug");
-  if (error) throw error;
-  const existing = new Set((data ?? []).map((r: { slug: string }) => r.slug));
-  const missing = SEED_PROJECTS.filter((p) => !existing.has(p.slug));
-  if (missing.length === 0) return;
-  const { error: insertError } = await supabase.from("projects").insert(missing);
-  if (insertError) throw insertError;
+const SEED_FLAG_KEY = "altech_seed_done";
+
+let seedPromise: Promise<void> | null = null;
+
+export async function ensureSeed(): Promise<void> {
+  if (typeof window === "undefined") return;
+  if (window.localStorage.getItem(SEED_FLAG_KEY) === "1") return;
+  if (seedPromise) return seedPromise;
+
+  seedPromise = (async () => {
+    const { count, error: countError } = await supabase
+      .from("projects")
+      .select("*", { count: "exact", head: true });
+    if (countError) throw countError;
+    if ((count ?? 0) > 0) {
+      window.localStorage.setItem(SEED_FLAG_KEY, "1");
+      return;
+    }
+    const { error: insertError } = await supabase.from("projects").insert(SEED_PROJECTS);
+    if (insertError) throw insertError;
+    window.localStorage.setItem(SEED_FLAG_KEY, "1");
+  })().catch((err) => {
+    seedPromise = null;
+    throw err;
+  });
+
+  return seedPromise;
 }
 
 export async function listProjects(): Promise<ProjectRow[]> {
-  await ensureSeed().catch(() => {
-    // seed best-effort; listing still runs
-  });
   const { data, error } = await supabase
     .from("projects")
     .select("*")
@@ -95,6 +111,7 @@ export async function listProjects(): Promise<ProjectRow[]> {
   if (error) throw error;
   return (data ?? []) as ProjectRow[];
 }
+
 
 export async function createProject(input: ProjectInput): Promise<ProjectRow> {
   const slug = input.slug?.trim() ? toSlug(input.slug) : toSlug(input.nome);
