@@ -55,26 +55,26 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       <Link
         to="/dashboard"
         onClick={onNavigate}
-        className="flex flex-shrink-0 items-center gap-3 border-b px-[18px] py-[14px] focus-visible:outline-none"
+        className="flex flex-shrink-0 items-center gap-[10px] border-b px-[18px] py-[14px] focus-visible:outline-none"
         style={{ borderColor: "rgba(255,255,255,0.05)" }}
         aria-label="Ir para o Dashboard"
       >
         <svg width="28" height="28" viewBox="0 0 40 40" fill="none" aria-hidden="true">
           <defs>
-            <linearGradient id="altech-mark" x1="0" y1="0" x2="1" y2="1">
+            <linearGradient id="mg" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#2F6BFF" />
               <stop offset="100%" stopColor="#2E9BFF" />
             </linearGradient>
           </defs>
-          <path d="M20 5 L36 35 H4 Z" fill="url(#altech-mark)" opacity="0.1" />
-          <path d="M11 28 L20 8 L29 28" stroke="url(#altech-mark)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-          <path d="M14.5 22 L25.5 22" stroke="url(#altech-mark)" strokeWidth="1.8" strokeLinecap="round" />
+          <path d="M20 5 L36 35 H4 Z" fill="url(#mg)" opacity="0.1" />
+          <path d="M11 28 L20 8 L29 28" stroke="url(#mg)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          <path d="M14.5 22 L25.5 22" stroke="url(#mg)" strokeWidth="1.8" strokeLinecap="round" />
         </svg>
         <div className="leading-tight">
-          <div style={{ font: "700 12px 'Sora',sans-serif", color: "#F0F4FC", letterSpacing: "-0.01em" }}>
+          <div style={{ font: "700 13px 'Sora',sans-serif", color: "#F0F4FC", letterSpacing: "-0.02em" }}>
             Gestão Ágil
           </div>
-          <div style={{ font: "400 9px 'JetBrains Mono',monospace", color: "rgba(107,136,165,0.6)", marginTop: 3, letterSpacing: "0.06em" }}>
+          <div style={{ font: "400 9px 'JetBrains Mono',monospace", color: "rgba(107,136,165,0.65)", marginTop: 2, letterSpacing: "0.06em" }}>
             ALTECH · v1.0
           </div>
         </div>
