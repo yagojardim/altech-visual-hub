@@ -49,9 +49,9 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <Check className="h-4 w-4 text-primary-foreground" strokeWidth={3} />
         </div>
         <div className="leading-tight">
-          <div className="text-sm font-semibold tracking-tight">Altech</div>
+          <div className="text-sm font-semibold tracking-tight">Altech Project</div>
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            Platform
+            by Altech
           </div>
         </div>
       </Link>
