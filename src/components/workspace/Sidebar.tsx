@@ -139,6 +139,7 @@ function NavLink({
   onNavigate?: () => void;
 }) {
   const Icon = item.icon;
+  const iconClass = cn("h-4 w-4", active ? "text-[#5FB0FF]" : "text-[rgba(169,182,201,0.6)]");
   return (
     <Link
       to={item.to}
@@ -166,7 +167,11 @@ function NavLink({
           flexShrink: 0,
         }}
       />
-      <Icon className={cn("h-4 w-4", active ? "text-[#5FB0FF]" : "text-[rgba(169,182,201,0.6)]")} aria-hidden="true" />
+      {item.concept ? (
+        <ConceptIcon name={item.concept} size={16} active={active} className={iconClass} />
+      ) : Icon ? (
+        <Icon className={iconClass} aria-hidden="true" />
+      ) : null}
       <span className="truncate flex-1">{item.label}</span>
       {item.badge && (
         <span
