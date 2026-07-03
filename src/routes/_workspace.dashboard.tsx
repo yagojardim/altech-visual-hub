@@ -8,11 +8,13 @@ import {
   Layers,
   ListTodo,
   Target,
+  Timer,
   Zap,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/workspace";
 import { supabase } from "@/lib/supabase";
+import { DEFAULT_TENANT_ID } from "@/lib/projects-api";
 import { DashboardContainer } from "@/components/dashboard/DashboardContainer";
 import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
@@ -46,14 +48,19 @@ type MyItem = {
 
 type DashboardData = {
   counts: {
-    projects: number;
+    activeProjects: number;
     openItems: number;
     doneItems: number;
     totalItems: number;
+    activeSprints: number;
   };
+  statusBreakdown: Array<{ status: string; count: number }>;
   activity: ActivityItem[];
   myItems: MyItem[];
 };
+
+const PROJECT_INACTIVE = new Set(["arquivado", "arquivada", "concluido", "concluído", "cancelado", "cancelada", "encerrado"]);
+const SPRINT_ACTIVE = new Set(["ativa", "ativo", "em andamento", "andamento", "em progresso", "iniciada", "active", "in_progress"]);
 
 const DONE_STATUSES = new Set(["done", "concluido", "concluído", "completed", "closed", "resolved"]);
 
