@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { BacklogPage } from "@/components/backlog/BacklogPage";
 import { BoardPage } from "@/components/board/BoardPage";
 import { SprintsWorkspace } from "@/components/sprint/SprintsWorkspace";
@@ -7,6 +7,7 @@ import { ProjectHeader } from "./ProjectHeader";
 import { ProjectNavigation } from "./ProjectNavigation";
 import { ProjectOverviewPage } from "./ProjectOverviewPage";
 import { ViewContainer } from "@/components/views/ViewContainer";
+import { Route as ProjectRoute } from "@/routes/_workspace.projects.$projectId";
 
 
 const TAB_LABELS: Record<string, string> = {
@@ -18,7 +19,16 @@ const TAB_LABELS: Record<string, string> = {
 };
 
 export function ProjectPage({ projectId }: { projectId: string }) {
-  const [activeTab, setActiveTab] = useState("overview");
+  const { tab: activeTab } = ProjectRoute.useSearch();
+  const navigate = useNavigate({ from: ProjectRoute.fullPath });
+
+  const setActiveTab = (next: string) => {
+    navigate({
+      search: { tab: next as typeof activeTab },
+      replace: false,
+      resetScroll: false,
+    });
+  };
 
   return (
     <div className="space-y-6">
