@@ -45,6 +45,7 @@ import {
   type SprintRow,
 } from "@/lib/sprints-api";
 import { getProjectBySlug, listProjects, type ProjectRow } from "@/lib/projects-api";
+import { toWorkItem, type WorkItem } from "@/lib/work-item-map";
 import { WorkItemDetailsPanel } from "@/components/work-item/WorkItemDetailsPanel";
 
 function fmtDate(s: string | null) {
@@ -434,8 +435,8 @@ function SprintDetails({
   onDeleted: () => void;
 }) {
   const [sprint, setSprint] = useState<SprintRow | null>(null);
-  const [items, setItems] = useState<SprintItemRow[]>([]);
-  const [available, setAvailable] = useState<SprintItemRow[]>([]);
+  const [items, setItems] = useState<WorkItem[]>([]);
+  const [available, setAvailable] = useState<WorkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
@@ -462,8 +463,8 @@ function SprintDetails({
           listItemsBySprint(sprintId),
           listUnassignedItems(s.project_id),
         ]);
-        setItems(linked);
-        setAvailable(unassigned);
+        setItems(linked.map(toWorkItem));
+        setAvailable(unassigned.map(toWorkItem));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao carregar sprint");
@@ -604,14 +605,14 @@ function SprintDetails({
             {items.map((it) => (
               <li key={it.id} className="flex items-center gap-2 px-3 py-2 text-sm">
                 <span className="font-mono text-[11px] text-muted-foreground">
-                  {it.item_key ?? it.id.slice(0, 6)}
+                  {it.itemKey ?? it.id.slice(0, 6)}
                 </span>
                 <button
                   type="button"
                   className="min-w-0 flex-1 truncate text-left hover:underline"
                   onClick={() => setOpenItemId(it.id)}
                 >
-                  {it.titulo}
+                  {it.title}
                 </button>
                 <Badge variant="outline" className="text-[10px] uppercase">
                   {it.status}
@@ -646,7 +647,7 @@ function SprintDetails({
             <SelectContent>
               {available.map((it) => (
                 <SelectItem key={it.id} value={it.id}>
-                  {(it.item_key ?? it.id.slice(0, 6)) + " — " + it.titulo}
+                  {(it.itemKey ?? it.id.slice(0, 6)) + " — " + it.title}
                 </SelectItem>
               ))}
             </SelectContent>

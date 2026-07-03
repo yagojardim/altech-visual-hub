@@ -22,8 +22,13 @@ import {
   STATUS_COLUMNS,
   TIPO_OPTIONS,
   PRIORIDADE_OPTIONS,
-  type WorkItemRow,
 } from "@/lib/work-items-api";
+import {
+  toWorkItem,
+  toWorkItemPatch,
+  type WorkItem,
+  type WorkItemPatch,
+} from "@/lib/work-item-map";
 
 export function WorkItemDetailsPanel({
   workItemId,
@@ -32,7 +37,7 @@ export function WorkItemDetailsPanel({
   workItemId: string;
   onChange?: () => void;
 }) {
-  const [item, setItem] = useState<WorkItemRow | null>(null);
+  const [item, setItem] = useState<WorkItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,7 +47,7 @@ export function WorkItemDetailsPanel({
     try {
       const row = await getWorkItem(workItemId);
       if (!row) throw new Error("Work item não encontrado");
-      setItem(row);
+      setItem(toWorkItem(row));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erro ao carregar");
     } finally {
@@ -54,14 +59,14 @@ export function WorkItemDetailsPanel({
     void load();
   }, [load]);
 
-  const patch = async (delta: Partial<WorkItemRow>) => {
+  const patch = async (delta: WorkItemPatch) => {
     if (!item) return;
     const prev = item;
-    const next = { ...item, ...delta };
+    const next: WorkItem = { ...item, ...delta };
     setItem(next);
     try {
-      const saved = await updateWorkItem(item.id, delta);
-      setItem(saved);
+      const saved = await updateWorkItem(item.id, toWorkItemPatch(delta));
+      setItem(toWorkItem(saved));
       onChange?.();
     } catch (err) {
       setItem(prev);
@@ -71,7 +76,7 @@ export function WorkItemDetailsPanel({
 
   const handleDelete = async () => {
     if (!item) return;
-    if (!confirm(`Excluir “${item.titulo}”?`)) return;
+    if (!confirm(`Excluir “${item.title}”?`)) return;
     try {
       await deleteWorkItem(item.id);
       toast.success("Work item excluído.");
@@ -91,23 +96,23 @@ export function WorkItemDetailsPanel({
         <header className="space-y-3">
           <div className="flex items-center gap-2">
             <span className="rounded bg-muted px-2 py-0.5 text-xs font-mono text-muted-foreground">
-              {item.item_key ?? item.id.slice(0, 6)}
+              {item.itemKey ?? item.id.slice(0, 6)}
             </span>
-            <Badge variant="outline">{item.tipo}</Badge>
+            <Badge variant="outline">{item.type}</Badge>
           </div>
           <Input
             className="text-lg font-semibold"
-            value={item.titulo}
-            onChange={(e) => setItem({ ...item, titulo: e.target.value })}
+            value={item.title}
+            onChange={(e) => setItem({ ...item, title: e.target.value })}
             onBlur={(e) => {
               const v = e.target.value.trim();
-              if (v && v !== item.titulo) void patch({ titulo: v });
+              if (v && v !== item.title) void patch({ title: v });
             }}
           />
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">Tipo</span>
-              <Select value={item.tipo} onValueChange={(v) => void patch({ tipo: v })}>
+              <Select value={item.type} onValueChange={(v) => void patch({ type: v })}>
                 <SelectTrigger className="h-8 w-40">
                   <SelectValue />
                 </SelectTrigger>
@@ -134,8 +139,8 @@ export function WorkItemDetailsPanel({
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">Prioridade</span>
               <Select
-                value={item.prioridade}
-                onValueChange={(v) => void patch({ prioridade: v })}
+                value={item.priority}
+                onValueChange={(v) => void patch({ priority: v })}
               >
                 <SelectTrigger className="h-8 w-36">
                   <SelectValue />
@@ -154,9 +159,9 @@ export function WorkItemDetailsPanel({
           <h3 className="text-sm font-medium">Descrição</h3>
           <Textarea
             rows={5}
-            value={item.descricao ?? ""}
-            onChange={(e) => setItem({ ...item, descricao: e.target.value })}
-            onBlur={(e) => void patch({ descricao: e.target.value || null })}
+            value={item.description ?? ""}
+            onChange={(e) => setItem({ ...item, description: e.target.value })}
+            onBlur={(e) => void patch({ description: e.target.value || null })}
             placeholder="Descreva o work item…"
           />
         </section>
@@ -172,19 +177,19 @@ export function WorkItemDetailsPanel({
           <Input
             className="h-8"
             placeholder="Nome do responsável"
-            value={item.responsavel ?? ""}
-            onChange={(e) => setItem({ ...item, responsavel: e.target.value })}
-            onBlur={(e) => void patch({ responsavel: e.target.value.trim() || null })}
+            value={item.assignee ?? ""}
+            onChange={(e) => setItem({ ...item, assignee: e.target.value })}
+            onBlur={(e) => void patch({ assignee: e.target.value.trim() || null })}
           />
         </div>
-        <MetaRow label="Ordem" value={String(item.ordem)} />
+        <MetaRow label="Ordem" value={String(item.order)} />
         <MetaRow
           label="Criado em"
-          value={item.created_at ? new Date(item.created_at).toLocaleString() : "—"}
+          value={item.createdAt ? new Date(item.createdAt).toLocaleString() : "—"}
         />
         <MetaRow
           label="Atualizado"
-          value={item.updated_at ? new Date(item.updated_at).toLocaleString() : "—"}
+          value={item.updatedAt ? new Date(item.updatedAt).toLocaleString() : "—"}
         />
         <div className="pt-3">
           <Button
