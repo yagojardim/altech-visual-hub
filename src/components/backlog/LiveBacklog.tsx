@@ -16,8 +16,8 @@ import {
   STATUS_COLUMNS,
   TIPO_OPTIONS,
   PRIORIDADE_OPTIONS,
-  type WorkItemRow,
 } from "@/lib/work-items-api";
+import { toWorkItems, toWorkItemPatch, type WorkItem } from "@/lib/work-item-map";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -44,20 +44,20 @@ type BacklogPrefs = OrgControlsValue & {
 const DEFAULT_PREFS: BacklogPrefs = {
   filters: {
     status: [] as string[],
-    tipo: [] as string[],
-    prioridade: [] as string[],
-    responsavel: [] as string[],
+    type: [] as string[],
+    priority: [] as string[],
+    assignee: [] as string[],
   },
-  sortBy: "ordem",
+  sortBy: "order",
   sortDir: "asc",
   groupBy: "status",
   search: "",
 };
 
 const SORT_OPTIONS = [
-  { value: "ordem", label: "Ordem" },
-  { value: "prioridade", label: "Prioridade" },
-  { value: "titulo", label: "Título" },
+  { value: "order", label: "Ordem" },
+  { value: "priority", label: "Prioridade" },
+  { value: "title", label: "Título" },
   { value: "updated_at", label: "Atualização" },
   { value: "created_at", label: "Criação" },
 ];
@@ -65,9 +65,9 @@ const SORT_OPTIONS = [
 const GROUP_OPTIONS = [
   { value: "none", label: "Sem agrupamento" },
   { value: "status", label: "Status" },
-  { value: "tipo", label: "Tipo" },
-  { value: "prioridade", label: "Prioridade" },
-  { value: "responsavel", label: "Responsável" },
+  { value: "type", label: "Tipo" },
+  { value: "priority", label: "Prioridade" },
+  { value: "assignee", label: "Responsável" },
 ];
 
 const PRIORITY_RANK: Record<string, number> = {
@@ -86,7 +86,7 @@ function ItemRow({
   last,
   draggable,
 }: {
-  item: WorkItemRow;
+  item: WorkItem;
   onClick: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
@@ -115,19 +115,19 @@ function ItemRow({
         onClick={onClick}
         className="text-left font-mono text-[11px] text-muted-foreground hover:text-primary"
       >
-        {item.item_key ?? item.id.slice(0, 6)}
+        {item.itemKey ?? item.id.slice(0, 6)}
       </button>
       <button
         onClick={onClick}
         className="truncate text-left font-medium text-foreground hover:text-primary"
       >
-        {item.titulo}
+        {item.title}
       </button>
       <Badge variant="outline" className="justify-self-start text-[10px] uppercase">
-        {item.tipo}
+        {item.type}
       </Badge>
       <span className="truncate text-xs text-muted-foreground">
-        {item.responsavel ?? "—"}
+        {item.assignee ?? "—"}
       </span>
       <div className="flex items-center gap-1">
         <Button
@@ -185,7 +185,7 @@ function DropZone({
 }
 
 export function LiveBacklog({ projectId }: { projectId: string }) {
-  const [items, setItems] = useState<WorkItemRow[]>([]);
+  const [items, setItems] = useState<WorkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
@@ -201,7 +201,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
     setError(null);
     try {
       const rows = await listWorkItemsByProject(projectId);
-      setItems(rows);
+      setItems(toWorkItems(rows));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erro ao carregar backlog");
     } finally {
@@ -216,9 +216,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const filterFields = useMemo(() => {
-    const responsaveis = Array.from(
-      new Set(items.map((i) => i.responsavel ?? "—")),
-    ).sort();
+    const assignees = Array.from(new Set(items.map((i) => i.assignee ?? "—"))).sort();
     return [
       {
         key: "status",
@@ -226,34 +224,48 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
         options: STATUS_COLUMNS.map((s) => ({ value: s, label: s })),
       },
       {
-        key: "tipo",
+        key: "type",
         label: "Tipo",
         options: TIPO_OPTIONS.map((t) => ({ value: t, label: t })),
       },
       {
-        key: "prioridade",
+        key: "priority",
         label: "Prioridade",
         options: PRIORIDADE_OPTIONS.map((p) => ({ value: p, label: p })),
       },
       {
-        key: "responsavel",
+        key: "assignee",
         label: "Responsável",
-        options: responsaveis.map((v) => ({ value: v, label: v })),
+        options: assignees.map((v) => ({ value: v, label: v })),
       },
     ];
   }, [items]);
+
+  const getField = (it: WorkItem, key: string): string => {
+    switch (key) {
+      case "status":
+        return it.status;
+      case "type":
+        return it.type;
+      case "priority":
+        return it.priority;
+      case "assignee":
+        return it.assignee ?? "—";
+      default:
+        return "—";
+    }
+  };
 
   const visible = useMemo(() => {
     const q = prefs.search.trim().toLowerCase();
     const filtered = items.filter((it) => {
       if (q) {
-        const hay = `${it.titulo} ${it.item_key ?? ""} ${it.descricao ?? ""} ${it.responsavel ?? ""}`.toLowerCase();
+        const hay = `${it.title} ${it.itemKey ?? ""} ${it.description ?? ""} ${it.assignee ?? ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       for (const [key, values] of Object.entries(prefs.filters)) {
         if (!values || values.length === 0) continue;
-        const v = ((it as unknown as Record<string, unknown>)[key] as string | null) ?? "—";
-        if (!values.includes(v)) return false;
+        if (!values.includes(getField(it, key))) return false;
       }
       return true;
     });
@@ -261,24 +273,24 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
   }, [items, prefs.search, prefs.filters]);
 
   const sortItems = useCallback(
-    (list: WorkItemRow[]) => {
+    (list: WorkItem[]) => {
       const dir = prefs.sortDir === "desc" ? -1 : 1;
       const sorted = [...list];
       sorted.sort((a, b) => {
         switch (prefs.sortBy) {
-          case "ordem":
-            return (a.ordem - b.ordem) * dir;
-          case "prioridade": {
-            const av = PRIORITY_RANK[a.prioridade] ?? 99;
-            const bv = PRIORITY_RANK[b.prioridade] ?? 99;
+          case "order":
+            return (a.order - b.order) * dir;
+          case "priority": {
+            const av = PRIORITY_RANK[a.priority] ?? 99;
+            const bv = PRIORITY_RANK[b.priority] ?? 99;
             return (av - bv) * dir;
           }
-          case "titulo":
-            return a.titulo.localeCompare(b.titulo, "pt-BR") * dir;
+          case "title":
+            return a.title.localeCompare(b.title, "pt-BR") * dir;
           case "updated_at":
-            return String(a.updated_at ?? "").localeCompare(String(b.updated_at ?? "")) * dir;
+            return String(a.updatedAt ?? "").localeCompare(String(b.updatedAt ?? "")) * dir;
           case "created_at":
-            return String(a.created_at ?? "").localeCompare(String(b.created_at ?? "")) * dir;
+            return String(a.createdAt ?? "").localeCompare(String(b.createdAt ?? "")) * dir;
           default:
             return 0;
         }
@@ -294,8 +306,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
       return [{ key: "__all__", label: "Todos", items: sorted }];
     }
     if (prefs.groupBy === "status") {
-      // preserve canonical status order
-      const map = new Map<string, WorkItemRow[]>();
+      const map = new Map<string, WorkItem[]>();
       for (const s of STATUS_COLUMNS) map.set(s, []);
       for (const it of sorted) {
         if (!map.has(it.status)) map.set(it.status, []);
@@ -303,26 +314,24 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
       }
       return Array.from(map.entries()).map(([key, items]) => ({ key, label: key, items }));
     }
-    const map = new Map<string, WorkItemRow[]>();
+    const map = new Map<string, WorkItem[]>();
     for (const it of sorted) {
-      const key =
-        ((it as unknown as Record<string, unknown>)[prefs.groupBy] as string | null) ?? "—";
-      const k = key || "—";
-      if (!map.has(k)) map.set(k, []);
-      map.get(k)!.push(it);
+      const key = getField(it, prefs.groupBy) || "—";
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(it);
     }
     return Array.from(map.entries())
       .sort(([a], [b]) => a.localeCompare(b, "pt-BR"))
       .map(([key, items]) => ({ key, label: key, items }));
   }, [visible, prefs.groupBy, sortItems]);
 
-  const persistOrder = async (next: WorkItemRow[]) => {
-    const prevById = new Map(items.map((i) => [i.id, i.ordem]));
-    const changes = next.filter((i) => prevById.get(i.id) !== i.ordem);
+  const persistOrder = async (next: WorkItem[]) => {
+    const prevById = new Map(items.map((i) => [i.id, i.order]));
+    const changes = next.filter((i) => prevById.get(i.id) !== i.order);
     setItems(next);
     for (const it of changes) {
       try {
-        await updateWorkItem(it.id, { ordem: it.ordem });
+        await updateWorkItem(it.id, toWorkItemPatch({ order: it.order }));
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Erro ao reordenar");
         void load();
@@ -336,14 +345,14 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
     if (!item) return;
     const siblings = items
       .filter((i) => i.status === item.status)
-      .sort((a, b) => a.ordem - b.ordem);
+      .sort((a, b) => a.order - b.order);
     const idx = siblings.findIndex((i) => i.id === id);
     const target = idx + delta;
     if (idx < 0 || target < 0 || target >= siblings.length) return;
     const reordered = [...siblings];
     [reordered[idx], reordered[target]] = [reordered[target], reordered[idx]];
-    const withNewOrdem = reordered.map((it, i) => ({ ...it, ordem: i + 1 }));
-    const merged = items.map((i) => withNewOrdem.find((n) => n.id === i.id) ?? i);
+    const withNewOrder = reordered.map((it, i) => ({ ...it, order: i + 1 }));
+    const merged = items.map((i) => withNewOrder.find((n) => n.id === i.id) ?? i);
     await persistOrder(merged);
   };
 
@@ -357,12 +366,12 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
 
     const prev = items;
     const destOrder =
-      Math.max(0, ...items.filter((i) => i.status === nextStatus).map((i) => i.ordem)) + 1;
+      Math.max(0, ...items.filter((i) => i.status === nextStatus).map((i) => i.order)) + 1;
     setItems((cur) =>
-      cur.map((i) => (i.id === itemId ? { ...i, status: nextStatus, ordem: destOrder } : i)),
+      cur.map((i) => (i.id === itemId ? { ...i, status: nextStatus, order: destOrder } : i)),
     );
     try {
-      await updateWorkItem(itemId, { status: nextStatus, ordem: destOrder });
+      await updateWorkItem(itemId, toWorkItemPatch({ status: nextStatus, order: destOrder }));
     } catch (err) {
       setItems(prev);
       toast.error(err instanceof Error ? err.message : "Erro ao mover item");
@@ -371,7 +380,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
 
   const totalItems = items.length;
   const shownItems = visible.length;
-  const canDrag = prefs.groupBy === "status" && prefs.sortBy === "ordem";
+  const canDrag = prefs.groupBy === "status" && prefs.sortBy === "order";
 
   return (
     <>
