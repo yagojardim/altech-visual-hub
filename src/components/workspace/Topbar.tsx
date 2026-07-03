@@ -20,8 +20,6 @@ interface TopbarProps {
 
 export function Topbar({ onOpenPalette, onOpenMobileNav }: TopbarProps) {
   const { user } = useAuth();
-  const ws = useWorkspace();
-  const workspaceName = ws.current?.name ?? "Altech HQ";
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
