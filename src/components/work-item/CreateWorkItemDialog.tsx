@@ -53,6 +53,7 @@ export function CreateWorkItemDialog({
   defaultTipo,
   onCreated,
 }: CreateWorkItemDialogProps) {
+  const queryClient = useQueryClient();
   const [form, setForm] = useState(empty(defaultStatus, defaultTipo));
   const [saving, setSaving] = useState(false);
 
@@ -75,6 +76,8 @@ export function CreateWorkItemDialog({
         responsavel: form.responsavel.trim() || null,
         descricao: form.descricao.trim() || null,
       });
+      await queryClient.invalidateQueries({ queryKey: qk.workItemsByProject(projectId) });
+      await queryClient.invalidateQueries({ queryKey: qk.workItems() });
       toast.success("Work item criado.");
       onCreated?.(created);
       onOpenChange(false);
