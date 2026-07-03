@@ -287,20 +287,58 @@ export function ProjectListPage() {
                       dueDate={formatRange(p.data_inicio, p.data_fim)}
                       description={p.descricao ?? "Projeto do workspace Altech."}
                     />
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      aria-label={`Editar ${p.nome}`}
-                      className="absolute right-2 top-2 h-7 w-7 opacity-0 transition group-hover:opacity-100 focus:opacity-100"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setEditing(p);
-                        setEditOpen(true);
-                      }}
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label={`Ações de ${p.nome}`}
+                          className="absolute right-2 top-2 h-7 w-7 opacity-0 transition group-hover:opacity-100 focus:opacity-100 data-[state=open]:opacity-100"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                        >
+                          <MoreHorizontal className="h-3.5 w-3.5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="end"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <DropdownMenuItem
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            setEditing(p);
+                            setEditOpen(true);
+                          }}
+                        >
+                          <Pencil className="mr-2 h-3.5 w-3.5" />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            void handleArchive(p);
+                          }}
+                          disabled={p.status === "Arquivado"}
+                        >
+                          <Archive className="mr-2 h-3.5 w-3.5" />
+                          Arquivar
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            setDeleting(p);
+                          }}
+                        >
+                          <Trash2 className="mr-2 h-3.5 w-3.5" />
+                          Excluir
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 ))}
               </div>
