@@ -21,6 +21,9 @@ import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
 import { LoadingState, EmptyState } from "@/components/states";
+import { FlowMap, type FlowItem } from "@/components/signature/FlowMap";
+import { HealthScore } from "@/components/signature/HealthScore";
+import { EvolutionTimeline, type EvolutionEvent } from "@/components/signature/EvolutionTimeline";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
