@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { LoadingState, ErrorState } from "@/components/states";
+import { LoadingState, ErrorState, EmptyState } from "@/components/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -88,7 +88,7 @@ export function WorkItemDetailsPanel({
 
   if (loading) return <LoadingState label="Carregando work item…" />;
   if (error) return <ErrorState description={error} onRetry={() => void load()} />;
-  if (!item) return <ErrorState description="Work item não encontrado" />;
+  if (!item) return <EmptyState title="Nada por aqui ainda" description="Work item não encontrado." />;
 
   return (
     <div className="grid gap-6 pt-4 lg:grid-cols-[1fr_260px]">
