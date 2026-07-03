@@ -52,10 +52,9 @@ const SORT_OPTIONS = [
 ];
 
 const GROUP_OPTIONS = [
-  { value: "none", label: "Sem agrupamento" },
-  { value: "status", label: "Status" },
-  { value: "cliente", label: "Cliente" },
-  { value: "responsavel", label: "Responsável" },
+  { value: "none", label: "Nenhum" },
+  { value: "status", label: "Por status" },
+  { value: "responsavel", label: "Por responsável" },
 ];
 
 export function ProjectListPage() {
