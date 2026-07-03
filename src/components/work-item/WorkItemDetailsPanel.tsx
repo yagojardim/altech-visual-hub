@@ -48,6 +48,7 @@ type CommentRow = {
 type Criterion = { id: string; text: string; done: boolean };
 
 const STATUS_OPTIONS = ["Backlog", "A Fazer", "Em Andamento", "Em Validação", "Concluído"];
+const TYPE_OPTIONS = ["Épico", "História", "Tarefa", "Bug"];
 
 function parseCriteria(raw: unknown): Criterion[] {
   if (!raw) return [];
@@ -166,18 +167,33 @@ export function WorkItemDetailsPanel({ workItemId }: { workItemId: string }) {
                 void patch({ title: e.target.value });
             }}
           />
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Status</span>
-            <Select value={item.status ?? ""} onValueChange={(v) => void patch({ status: v })}>
-              <SelectTrigger className="h-8 w-48">
-                <SelectValue placeholder="Selecionar" />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUS_OPTIONS.map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Tipo</span>
+              <Select value={item.type ?? ""} onValueChange={(v) => void patch({ type: v })}>
+                <SelectTrigger className="h-8 w-40">
+                  <SelectValue placeholder="Selecionar" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TYPE_OPTIONS.map((t) => (
+                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Status</span>
+              <Select value={item.status ?? ""} onValueChange={(v) => void patch({ status: v })}>
+                <SelectTrigger className="h-8 w-48">
+                  <SelectValue placeholder="Selecionar" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUS_OPTIONS.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </header>
 
@@ -249,7 +265,16 @@ export function WorkItemDetailsPanel({ workItemId }: { workItemId: string }) {
 
       <aside className="space-y-3 rounded-xl border border-border bg-panel/40 p-4 text-sm">
         <h3 className="text-sm font-medium">Metadados</h3>
-        <MetaRow label="Assignee" value={item.assignee ?? "—"} />
+        <div className="space-y-1.5">
+          <label className="text-xs text-muted-foreground">Responsável</label>
+          <Input
+            className="h-8"
+            placeholder="Nome do responsável"
+            value={item.assignee ?? ""}
+            onChange={(e) => setItem({ ...item, assignee: e.target.value })}
+            onBlur={(e) => void patch({ assignee: e.target.value || null })}
+          />
+        </div>
         <MetaRow label="Prioridade" value={item.priority ?? "—"} />
         <MetaRow label="Estimate" value={item.estimate != null ? String(item.estimate) : "—"} />
         <MetaRow label="Sprint" value={item.sprint_id ?? "—"} />
