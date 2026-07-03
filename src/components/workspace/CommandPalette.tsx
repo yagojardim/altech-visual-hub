@@ -173,7 +173,7 @@ export function CommandPalette({
 
         {!projects.length && !items.length && !loading && query && (
           <div className="flex items-center gap-2 px-3 py-6 text-xs text-muted-foreground">
-            <Search className="h-3.5 w-3.5" /> Sem resultados para "{query}"
+            <Search className="h-3.5 w-3.5" aria-hidden="true" /> Sem resultados para "{query}"
           </div>
         )}
       </CommandList>
