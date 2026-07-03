@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_workspace/dashboard")({
 type ActivityItem = {
   id: string;
   item_key: string | null;
-  title: string;
+  titulo: string;
   status: string | null;
   updated_at: string | null;
   created_at: string | null;
@@ -39,32 +39,20 @@ type ActivityItem = {
 type MyItem = {
   id: string;
   item_key: string | null;
-  title: string;
+  titulo: string;
   status: string | null;
-  priority: string | null;
-};
-
-type ActiveSprint = {
-  id: string;
-  name: string;
-  goal: string | null;
-  end_date: string | null;
+  tipo: string | null;
 };
 
 type DashboardData = {
   counts: {
     projects: number;
-    boards: number;
     openItems: number;
-    activeSprints: number;
+    doneItems: number;
+    totalItems: number;
   };
   activity: ActivityItem[];
   myItems: MyItem[];
-  sprint: {
-    sprint: ActiveSprint | null;
-    total: number;
-    done: number;
-  };
 };
 
 const DONE_STATUSES = new Set(["done", "concluido", "concluído", "completed", "closed", "resolved"]);
@@ -98,36 +86,29 @@ function DashboardPage() {
     setLoading(true);
     setError(null);
     try {
-      const [projectsRes, boardsRes, sprintsRes, itemsRes] = await Promise.all([
+      const [projectsRes, itemsRes] = await Promise.all([
         supabase.from("projects").select("id", { count: "exact", head: true }),
-        supabase.from("boards").select("id", { count: "exact", head: true }),
-        supabase.from("sprints").select("id, name, goal, end_date, status").eq("status", "active"),
         supabase
           .from("work_items")
-          .select("id, item_key, title, status, priority, assignee, sprint_id, created_at, updated_at")
+          .select("id, item_key, titulo, tipo, status, responsavel, created_at, updated_at")
           .order("updated_at", { ascending: false })
           .limit(200),
       ]);
 
       if (projectsRes.error) throw projectsRes.error;
-      if (boardsRes.error) throw boardsRes.error;
-      if (sprintsRes.error) throw sprintsRes.error;
       if (itemsRes.error) throw itemsRes.error;
 
       const items = (itemsRes.data ?? []) as Array<
-        ActivityItem & {
-          priority: string | null;
-          assignee: string | null;
-          sprint_id: string | null;
-        }
+        ActivityItem & { tipo: string | null; responsavel: string | null }
       >;
 
       const openItems = items.filter((i) => !isDone(i.status)).length;
+      const doneItems = items.filter((i) => isDone(i.status)).length;
 
       const activity: ActivityItem[] = items.slice(0, 6).map((i) => ({
         id: i.id,
         item_key: i.item_key,
-        title: i.title,
+        titulo: i.titulo,
         status: i.status,
         created_at: i.created_at,
         updated_at: i.updated_at,
@@ -136,38 +117,28 @@ function DashboardPage() {
       const myItems: MyItem[] = items
         .filter(
           (i) =>
-            i.assignee &&
+            i.responsavel &&
             user &&
-            (i.assignee === user.id || i.assignee === user.email || i.assignee === user.name),
+            (i.responsavel === user.name || i.responsavel === user.email || i.responsavel === user.id),
         )
         .slice(0, 6)
         .map((i) => ({
           id: i.id,
           item_key: i.item_key,
-          title: i.title,
+          titulo: i.titulo,
           status: i.status,
-          priority: i.priority,
+          tipo: i.tipo,
         }));
-
-      const activeSprint = (sprintsRes.data ?? [])[0] as ActiveSprint | undefined;
-      const sprintScoped = activeSprint
-        ? items.filter((i) => i.sprint_id === activeSprint.id)
-        : [];
 
       setData({
         counts: {
           projects: projectsRes.count ?? 0,
-          boards: boardsRes.count ?? 0,
           openItems,
-          activeSprints: sprintsRes.data?.length ?? 0,
+          doneItems,
+          totalItems: items.length,
         },
         activity,
         myItems,
-        sprint: {
-          sprint: activeSprint ?? null,
-          total: sprintScoped.length,
-          done: sprintScoped.filter((i) => isDone(i.status)).length,
-        },
       });
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Erro ao carregar dashboard");
@@ -175,6 +146,7 @@ function DashboardPage() {
       setLoading(false);
     }
   }, [user]);
+
 
   useEffect(() => {
     void load();
@@ -206,9 +178,9 @@ function DashboardPage() {
         <>
           <WidgetGrid columns={4}>
             <KpiCard label="Projetos" value={data.counts.projects} icon={FolderKanban} />
-            <KpiCard label="Boards" value={data.counts.boards} icon={KanbanSquare} />
-            <KpiCard label="Work items abertos" value={data.counts.openItems} icon={Activity} />
-            <KpiCard label="Sprints ativas" value={data.counts.activeSprints} icon={Zap} />
+            <KpiCard label="Work items" value={data.counts.totalItems} icon={KanbanSquare} />
+            <KpiCard label="Abertos" value={data.counts.openItems} icon={Activity} />
+            <KpiCard label="Concluídos" value={data.counts.doneItems} icon={Zap} />
           </WidgetGrid>
 
           <WidgetGrid columns={3}>
@@ -228,7 +200,7 @@ function DashboardPage() {
                         <span className="font-mono text-[11px] text-muted-foreground">
                           {i.item_key ?? i.id.slice(0, 6)}
                         </span>
-                        <span className="truncate text-foreground">{i.title}</span>
+                        <span className="truncate text-foreground">{i.titulo}</span>
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
                         {i.status && (
@@ -248,37 +220,30 @@ function DashboardPage() {
 
             <WidgetCard>
               <WidgetHeader
-                title="Sprint atual"
-                description={data.sprint.sprint?.name ?? "Sem sprint ativa"}
+                title="Progresso"
+                description="Itens concluídos no workspace"
                 icon={Target}
               />
-              {data.sprint.sprint ? (
-                <div className="mt-3 space-y-3">
-                  {data.sprint.sprint.goal && (
-                    <p className="text-xs text-muted-foreground">{data.sprint.sprint.goal}</p>
-                  )}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">Progresso</span>
-                      <span className="font-medium">
-                        {data.sprint.done} / {data.sprint.total}
-                      </span>
-                    </div>
-                    <Progress
-                      value={data.sprint.total ? (data.sprint.done / data.sprint.total) * 100 : 0}
-                    />
+              <div className="mt-3 space-y-3">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Concluídos</span>
+                    <span className="font-medium">
+                      {data.counts.doneItems} / {data.counts.totalItems}
+                    </span>
                   </div>
-                  {data.sprint.sprint.end_date && (
-                    <p className="text-[11px] text-muted-foreground">
-                      Termina em {new Date(data.sprint.sprint.end_date).toLocaleDateString("pt-BR")}
-                    </p>
-                  )}
+                  <Progress
+                    value={
+                      data.counts.totalItems
+                        ? (data.counts.doneItems / data.counts.totalItems) * 100
+                        : 0
+                    }
+                  />
                 </div>
-              ) : (
-                <p className="mt-4 text-sm text-muted-foreground">Nenhuma sprint em andamento.</p>
-              )}
+              </div>
             </WidgetCard>
           </WidgetGrid>
+
 
           <WidgetGrid columns={3}>
             <WidgetCard className="lg:col-span-2">
@@ -300,14 +265,15 @@ function DashboardPage() {
                         <span className="font-mono text-[11px] text-muted-foreground">
                           {i.item_key ?? i.id.slice(0, 6)}
                         </span>
-                        <span className="truncate text-foreground">{i.title}</span>
+                        <span className="truncate text-foreground">{i.titulo}</span>
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
-                        {i.priority && (
+                        {i.tipo && (
                           <Badge variant="outline" className="text-[10px] uppercase">
-                            {i.priority}
+                            {i.tipo}
                           </Badge>
                         )}
+
                         {i.status && (
                           <Badge
                             className={cn(

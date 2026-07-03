@@ -8,10 +8,17 @@ import {
   useDraggable,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { AlertTriangle, User } from "lucide-react";
-import { supabase, type BoardColumn, type BoardRow, type WorkItem } from "@/lib/supabase";
-import { LoadingState, EmptyState, ErrorState } from "@/components/states";
+import { Plus, User } from "lucide-react";
+import { toast } from "sonner";
+import {
+  listWorkItemsByProject,
+  updateWorkItem,
+  STATUS_COLUMNS,
+  type WorkItemRow,
+} from "@/lib/work-items-api";
+import { LoadingState, ErrorState } from "@/components/states";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   Sheet,
@@ -21,29 +28,14 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { WorkItemDetailsPanel } from "@/components/work-item/WorkItemDetailsPanel";
-
-const PRIORITY_COLORS: Record<string, string> = {
-  critical: "bg-destructive text-destructive-foreground",
-  high: "bg-destructive/15 text-destructive",
-  medium: "bg-warning/15 text-warning",
-  low: "bg-muted text-muted-foreground",
-};
-
-function priorityClass(p?: string | null) {
-  if (!p) return PRIORITY_COLORS.low;
-  return PRIORITY_COLORS[p.toLowerCase()] ?? PRIORITY_COLORS.low;
-}
+import { CreateWorkItemDialog } from "@/components/work-item/CreateWorkItemDialog";
 
 function initials(name?: string | null) {
-  if (!name) return "?";
-  return name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((s) => s[0]?.toUpperCase() ?? "")
-    .join("");
+  if (!name) return null;
+  return name.split(/\s+/).slice(0, 2).map((s) => s[0]?.toUpperCase() ?? "").join("");
 }
 
-function ItemCard({ item, onOpen }: { item: WorkItem; onOpen: (id: string) => void }) {
+function ItemCard({ item, onOpen }: { item: WorkItemRow; onOpen: (id: string) => void }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: item.id,
   });
@@ -70,23 +62,17 @@ function ItemCard({ item, onOpen }: { item: WorkItem; onOpen: (id: string) => vo
         <span className="text-[11px] font-mono text-muted-foreground">
           {item.item_key ?? item.id.slice(0, 6)}
         </span>
-        {item.type && (
-          <Badge variant="outline" className="text-[10px] uppercase">
-            {item.type}
-          </Badge>
-        )}
+        <Badge variant="outline" className="text-[10px] uppercase">
+          {item.tipo}
+        </Badge>
       </div>
-      <h4 className="text-sm font-medium leading-snug text-foreground">{item.title}</h4>
-      <div className="flex items-center justify-between gap-2 pt-1">
-        <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-medium", priorityClass(item.priority))}>
-          {item.priority ?? "—"}
-        </span>
-        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground">
-          {item.assignee_name || item.assignee ? (
-            initials(item.assignee_name ?? item.assignee)
-          ) : (
-            <User className="h-3 w-3" />
-          )}
+      <h4 className="text-sm font-medium leading-snug text-foreground">{item.titulo}</h4>
+      <div className="flex items-center justify-end gap-2 pt-1">
+        <div
+          className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground"
+          title={item.responsavel ?? "Sem responsável"}
+        >
+          {initials(item.responsavel) ?? <User className="h-3 w-3" />}
         </div>
       </div>
     </article>
@@ -94,17 +80,15 @@ function ItemCard({ item, onOpen }: { item: WorkItem; onOpen: (id: string) => vo
 }
 
 function Column({
-  column,
+  status,
   items,
   onOpen,
 }: {
-  column: BoardColumn;
-  items: WorkItem[];
+  status: string;
+  items: WorkItemRow[];
   onOpen: (id: string) => void;
 }) {
-  const { setNodeRef, isOver } = useDroppable({ id: column.id });
-  const overLimit = column.wip_limit != null && items.length > column.wip_limit;
-
+  const { setNodeRef, isOver } = useDroppable({ id: `col:${status}` });
   return (
     <section
       ref={setNodeRef}
@@ -113,24 +97,10 @@ function Column({
         isOver && "ring-2 ring-primary/40",
       )}
     >
-      <header
-        className={cn(
-          "flex items-center justify-between gap-2 rounded-t-xl border-b border-border px-3 py-2",
-          overLimit && "bg-warning/15",
-        )}
-      >
-        <div className="flex items-center gap-2">
-          {overLimit && <AlertTriangle className="h-3.5 w-3.5 text-warning" />}
-          <h3 className="text-sm font-medium text-foreground">{column.name}</h3>
-        </div>
-        <span
-          className={cn(
-            "rounded-full bg-panel px-2 py-0.5 text-[11px] text-muted-foreground",
-            overLimit && "bg-warning/25 text-warning",
-          )}
-        >
+      <header className="flex items-center justify-between gap-2 rounded-t-xl border-b border-border px-3 py-2">
+        <h3 className="text-sm font-medium text-foreground">{status}</h3>
+        <span className="rounded-full bg-panel px-2 py-0.5 text-[11px] text-muted-foreground">
           {items.length}
-          {column.wip_limit != null ? ` / ${column.wip_limit}` : ""}
         </span>
       </header>
       <div className="flex flex-1 flex-col gap-2 p-3">
@@ -148,12 +118,11 @@ function Column({
 }
 
 export function KanbanBoard({ projectId }: { projectId: string }) {
-  const [board, setBoard] = useState<BoardRow | null>(null);
-  const [columns, setColumns] = useState<BoardColumn[]>([]);
-  const [items, setItems] = useState<WorkItem[]>([]);
+  const [items, setItems] = useState<WorkItemRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -161,39 +130,10 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
     setLoading(true);
     setError(null);
     try {
-      const { data: boards, error: bErr } = await supabase
-        .from("boards")
-        .select("id, project_id, name")
-        .eq("project_id", projectId)
-        .limit(1);
-      if (bErr) throw bErr;
-      const b = boards?.[0] as BoardRow | undefined;
-      if (!b) {
-        setBoard(null);
-        setColumns([]);
-        setItems([]);
-        return;
-      }
-      setBoard(b);
-
-      const [colsRes, itemsRes] = await Promise.all([
-        supabase
-          .from("board_columns")
-          .select("id, board_id, name, position, wip_limit")
-          .eq("board_id", b.id)
-          .order("position", { ascending: true }),
-        supabase
-          .from("work_items")
-          .select("id, board_id, column_id, item_key, title, type, priority, status, assignee")
-          .eq("board_id", b.id),
-      ]);
-      if (colsRes.error) throw colsRes.error;
-      if (itemsRes.error) throw itemsRes.error;
-      setColumns((colsRes.data ?? []) as BoardColumn[]);
-      setItems((itemsRes.data ?? []) as WorkItem[]);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Erro ao carregar board";
-      setError(msg);
+      const rows = await listWorkItemsByProject(projectId);
+      setItems(rows);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erro ao carregar board");
     } finally {
       setLoading(false);
     }
@@ -203,71 +143,87 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
     void load();
   }, [load]);
 
-  const itemsByColumn = useMemo(() => {
-    const map = new Map<string, WorkItem[]>();
-    for (const col of columns) map.set(col.id, []);
+  const itemsByStatus = useMemo(() => {
+    const map = new Map<string, WorkItemRow[]>();
+    for (const s of STATUS_COLUMNS) map.set(s, []);
     for (const it of items) {
-      if (it.column_id && map.has(it.column_id)) map.get(it.column_id)!.push(it);
+      const key = STATUS_COLUMNS.includes(it.status as (typeof STATUS_COLUMNS)[number])
+        ? it.status
+        : STATUS_COLUMNS[0];
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(it);
     }
     return map;
-  }, [columns, items]);
+  }, [items]);
 
   const onDragEnd = async (e: DragEndEvent) => {
     const itemId = String(e.active.id);
     const overId = e.over ? String(e.over.id) : null;
-    if (!overId) return;
+    if (!overId || !overId.startsWith("col:")) return;
+    const nextStatus = overId.slice(4);
     const item = items.find((i) => i.id === itemId);
-    const column = columns.find((c) => c.id === overId);
-    if (!item || !column || item.column_id === column.id) return;
+    if (!item || item.status === nextStatus) return;
 
     const prev = items;
-    setItems((cur) =>
-      cur.map((i) => (i.id === itemId ? { ...i, column_id: column.id, status: column.name } : i)),
-    );
-    const { error: uErr } = await supabase
-      .from("work_items")
-      .update({ column_id: column.id, status: column.name })
-      .eq("id", itemId);
-    if (uErr) {
+    setItems((cur) => cur.map((i) => (i.id === itemId ? { ...i, status: nextStatus } : i)));
+    try {
+      await updateWorkItem(itemId, { status: nextStatus });
+    } catch (err) {
       setItems(prev);
-      setError(uErr.message);
+      const msg = err instanceof Error ? err.message : "Erro ao mover item";
+      toast.error(msg);
     }
   };
 
   if (loading) return <LoadingState label="Carregando board…" variant="skeleton" rows={4} />;
   if (error) return <ErrorState description={error} onRetry={() => void load()} />;
-  if (!board || columns.length === 0) {
-    return (
-      <EmptyState
-        title="Board não configurado"
-        description="Nenhum board com colunas foi encontrado para este projeto."
-      />
-    );
-  }
 
   return (
     <>
+      <div className="mb-3 flex justify-end">
+        <Button size="sm" variant="cta" onClick={() => setCreating(true)}>
+          <Plus className="mr-1 h-4 w-4" />
+          Novo work item
+        </Button>
+      </div>
       <DndContext sensors={sensors} onDragEnd={onDragEnd}>
-        <div className="grid gap-3 overflow-x-auto pb-2" style={{ gridTemplateColumns: `repeat(${columns.length}, minmax(16rem, 1fr))` }}>
-          {columns.map((col) => (
+        <div
+          className="grid gap-3 overflow-x-auto pb-2"
+          style={{ gridTemplateColumns: `repeat(${STATUS_COLUMNS.length}, minmax(16rem, 1fr))` }}
+        >
+          {STATUS_COLUMNS.map((status) => (
             <Column
-              key={col.id}
-              column={col}
-              items={itemsByColumn.get(col.id) ?? []}
+              key={status}
+              status={status}
+              items={itemsByStatus.get(status) ?? []}
               onOpen={setOpenItemId}
             />
           ))}
         </div>
       </DndContext>
+
       <Sheet open={openItemId !== null} onOpenChange={(o) => !o && setOpenItemId(null)}>
         <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-xl lg:max-w-3xl">
           <SheetHeader className="sr-only">
             <SheetTitle>Work Item</SheetTitle>
             <SheetDescription>Detalhes do work item selecionado</SheetDescription>
           </SheetHeader>
-          {openItemId && <WorkItemDetailsPanel workItemId={openItemId} />}
+          {openItemId && (
+            <WorkItemDetailsPanel
+              workItemId={openItemId}
+              onChange={() => void load()}
+            />
+          )}
         </SheetContent>
       </Sheet>
+
+      <CreateWorkItemDialog
+        projectId={projectId}
+        open={creating}
+        onOpenChange={setCreating}
+        defaultStatus="A Fazer"
+        onCreated={() => void load()}
+      />
     </>
   );
 }

@@ -25,9 +25,10 @@ type ProjectHit = { id: string; name: string | null; slug?: string | null };
 type WorkItemHit = {
   id: string;
   item_key: string | null;
-  title: string;
-  board_id: string | null;
+  titulo: string;
+  project_id: string | null;
 };
+
 
 export function CommandPalette({
   open,
@@ -70,14 +71,15 @@ export function CommandPalette({
       const itemQuery = q
         ? supabase
             .from("work_items")
-            .select("id, item_key, title, board_id")
-            .or(`title.ilike.%${q}%,item_key.ilike.%${q}%`)
+            .select("id, item_key, titulo, project_id")
+            .or(`titulo.ilike.%${q}%,item_key.ilike.%${q}%`)
             .limit(8)
         : supabase
             .from("work_items")
-            .select("id, item_key, title, board_id")
+            .select("id, item_key, titulo, project_id")
             .order("updated_at", { ascending: false })
             .limit(6);
+
       const [{ data: p }, { data: it }] = await Promise.all([projectQuery, itemQuery]);
       if (!alive) return;
       setProjects((p ?? []) as ProjectHit[]);
@@ -153,16 +155,17 @@ export function CommandPalette({
               {items.map((it) => (
                 <CommandItem
                   key={it.id}
-                  value={`wi-${it.item_key}-${it.title}-${it.id}`}
+                  value={`wi-${it.item_key}-${it.titulo}-${it.id}`}
                   onSelect={() => go(`/work-items/${it.item_key ?? it.id}`)}
                 >
                   <FileText className="mr-2 h-4 w-4" />
                   <span className="mr-2 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
                     {it.item_key ?? it.id.slice(0, 6)}
                   </span>
-                  <span className="truncate">{it.title}</span>
+                  <span className="truncate">{it.titulo}</span>
                 </CommandItem>
               ))}
+
             </CommandGroup>
           </>
         )}
