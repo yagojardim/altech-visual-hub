@@ -9,6 +9,7 @@ import { ProjectToolbar } from "./ProjectToolbar";
 import { CreateProjectModal } from "./CreateProjectModal";
 import { Button } from "@/components/ui/button";
 import { listProjects, type ProjectRow } from "@/lib/projects-api";
+import { formatSupabaseError } from "@/lib/supabase-errors";
 import { qk } from "@/lib/query-keys";
 import { useOrgPrefs } from "@/lib/use-org-prefs";
 import type { OrgControlsValue } from "@/components/work-item/OrgControls";
