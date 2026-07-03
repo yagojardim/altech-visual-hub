@@ -232,7 +232,7 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
           {openItemId && (
             <WorkItemDetailsPanel
               workItemId={openItemId}
-              onChange={() => void load()}
+              onChange={invalidate}
             />
           )}
         </SheetContent>
