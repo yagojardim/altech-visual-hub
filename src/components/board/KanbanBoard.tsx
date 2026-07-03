@@ -10,6 +10,7 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { Plus, User } from "lucide-react";
+import { ConceptIcon, CONCEPT_COLORS, conceptFromType } from "@/components/icons/ConceptIcon";
 import { toast } from "sonner";
 import {
   listWorkItemsByProject,
@@ -65,9 +66,28 @@ function ItemCard({ item, onOpen }: { item: WorkItem; onOpen: (id: string) => vo
         <span className="text-[11px] font-mono text-muted-foreground">
           {item.itemKey ?? item.id.slice(0, 6)}
         </span>
-        <Badge variant="outline" className="text-[10px] uppercase">
-          {item.type}
-        </Badge>
+        {(() => {
+          const c = conceptFromType(item.type);
+          const color = CONCEPT_COLORS[c];
+          return (
+            <span
+              className="keep-radius inline-flex items-center gap-1 px-1.5 py-0.5"
+              style={{
+                color,
+                background: `color-mix(in srgb, ${color} 12%, transparent)`,
+                borderRadius: 4,
+                fontFamily: "'JetBrains Mono',monospace",
+                fontSize: 9,
+                fontWeight: 500,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+              }}
+            >
+              <ConceptIcon name={c} size={11} />
+              {item.type}
+            </span>
+          );
+        })()}
       </div>
       <h4 className="text-sm font-medium leading-snug text-foreground">{item.title}</h4>
       <div className="flex items-center justify-end gap-2 pt-1">

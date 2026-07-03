@@ -22,6 +22,30 @@ import { qk } from "@/lib/query-keys";
 import { toWorkItems, toWorkItemPatch, type WorkItem } from "@/lib/work-item-map";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { Badge } from "@/components/ui/badge";
+import { ConceptIcon, CONCEPT_COLORS, conceptFromType } from "@/components/icons/ConceptIcon";
+
+function TypePill({ type }: { type?: string | null }) {
+  const c = conceptFromType(type);
+  const color = CONCEPT_COLORS[c];
+  return (
+    <span
+      className="keep-radius justify-self-start inline-flex items-center gap-1 px-1.5 py-0.5"
+      style={{
+        color,
+        background: `color-mix(in srgb, ${color} 12%, transparent)`,
+        borderRadius: 4,
+        fontFamily: "'JetBrains Mono',monospace",
+        fontSize: 10,
+        fontWeight: 500,
+        letterSpacing: "0.06em",
+        textTransform: "uppercase",
+      }}
+    >
+      <ConceptIcon name={c} size={12} />
+      {type ?? "—"}
+    </span>
+  );
+}
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -125,9 +149,7 @@ function ItemRow({
       >
         {item.title}
       </button>
-      <Badge variant="outline" className="justify-self-start text-[10px] uppercase">
-        {item.type}
-      </Badge>
+      <TypePill type={item.type} />
       <span className="truncate text-xs text-muted-foreground">
         {item.assignee ?? "—"}
       </span>

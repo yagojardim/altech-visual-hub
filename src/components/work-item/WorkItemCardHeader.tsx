@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
+import { ConceptIcon, CONCEPT_COLORS, conceptFromType } from "@/components/icons/ConceptIcon";
 
 export interface WorkItemCardHeaderProps {
   itemId?: string;
@@ -18,12 +18,27 @@ export function WorkItemCardHeader({
   type = "História",
   priority = "Média",
 }: WorkItemCardHeaderProps) {
+  const concept = conceptFromType(type);
+  const color = CONCEPT_COLORS[concept];
   return (
     <header className="flex items-center justify-between gap-2">
       <div className="flex items-center gap-2 overflow-hidden">
-        <Badge variant="outline" className="shrink-0 text-[10px]">
+        <span
+          className="keep-radius inline-flex shrink-0 items-center gap-1.5 px-1.5 py-0.5"
+          style={{
+            color,
+            background: `color-mix(in srgb, ${color} 12%, transparent)`,
+            borderRadius: 4,
+            fontFamily: "'JetBrains Mono',monospace",
+            fontSize: 10,
+            fontWeight: 500,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+          }}
+        >
+          <ConceptIcon name={concept} size={12} />
           {type}
-        </Badge>
+        </span>
         <code className="truncate rounded bg-panel px-1.5 py-0.5 font-mono text-[10px] text-primary">
           {itemId}
         </code>
@@ -39,3 +54,4 @@ export function WorkItemCardHeader({
     </header>
   );
 }
+
