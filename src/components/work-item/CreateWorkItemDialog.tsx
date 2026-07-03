@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +26,7 @@ import {
   TIPO_OPTIONS,
   type WorkItemRow,
 } from "@/lib/work-items-api";
+import { qk } from "@/lib/query-keys";
 
 export interface CreateWorkItemDialogProps {
   projectId: string;
