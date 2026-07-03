@@ -605,14 +605,14 @@ function SprintDetails({
             {items.map((it) => (
               <li key={it.id} className="flex items-center gap-2 px-3 py-2 text-sm">
                 <span className="font-mono text-[11px] text-muted-foreground">
-                  {it.item_key ?? it.id.slice(0, 6)}
+                  {it.itemKey ?? it.id.slice(0, 6)}
                 </span>
                 <button
                   type="button"
                   className="min-w-0 flex-1 truncate text-left hover:underline"
                   onClick={() => setOpenItemId(it.id)}
                 >
-                  {it.titulo}
+                  {it.title}
                 </button>
                 <Badge variant="outline" className="text-[10px] uppercase">
                   {it.status}
