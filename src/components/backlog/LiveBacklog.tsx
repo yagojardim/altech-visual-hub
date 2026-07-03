@@ -358,7 +358,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
               </Button>
             </div>
 
-            <DropZone id="drop:sprint" active={!activeSprint ? false : undefined}>
+            <DropZone id="drop:sprint">
               {activeSprint ? (
                 sprintItems.length === 0 ? (
                   <div className="p-6 text-center text-sm text-muted-foreground">
