@@ -121,30 +121,33 @@ function Column({
 }
 
 export function KanbanBoard({ projectId }: { projectId: string }) {
+  const queryClient = useQueryClient();
   const [items, setItems] = useState<WorkItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const rows = await listWorkItemsByProject(projectId);
-      setItems(toWorkItems(rows));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Erro ao carregar board");
-    } finally {
-      setLoading(false);
-    }
-  }, [projectId]);
+  const queryKey = qk.workItemsByProject(projectId);
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey,
+    queryFn: () => listWorkItemsByProject(projectId),
+  });
+  const error = queryError instanceof Error ? queryError.message : queryError ? String(queryError) : null;
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    if (data) setItems(toWorkItems(data));
+  }, [data]);
+
+  const invalidate = () => {
+    void queryClient.invalidateQueries({ queryKey });
+  };
+
 
   const itemsByStatus = useMemo(() => {
     const map = new Map<string, WorkItem[]>();
