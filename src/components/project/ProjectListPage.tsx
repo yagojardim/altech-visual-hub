@@ -97,8 +97,8 @@ export function ProjectListPage() {
       ) : !projects || projects.length === 0 ? (
         <EmptyState
           icon={<FolderKanban className="h-5 w-5" />}
-          title="Nenhum projeto encontrado"
-          description="Crie o primeiro projeto para começar a organizar o trabalho."
+          title="Nada por aqui ainda"
+          description="Crie seu primeiro projeto para começar."
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
