@@ -29,6 +29,24 @@ function SettingsIndex() {
         </Link>
         <div className="altech-card flex items-start gap-3 p-4 opacity-60">
           <div className="rounded-md bg-muted p-2 text-muted-foreground">
+            <CreditCard className="h-5 w-5" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold">Cobrança, planos e assinatura</h2>
+            <p className="text-xs text-muted-foreground">Altech Control (em breve).</p>
+          </div>
+        </div>
+        <div className="altech-card flex items-start gap-3 p-4 opacity-60">
+          <div className="rounded-md bg-muted p-2 text-muted-foreground">
+            <BarChart3 className="h-5 w-5" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold">Dashboards executivos consolidados</h2>
+            <p className="text-xs text-muted-foreground">Altech View (em breve).</p>
+          </div>
+        </div>
+        <div className="altech-card flex items-start gap-3 p-4 opacity-60">
+          <div className="rounded-md bg-muted p-2 text-muted-foreground">
             <SettingsIcon className="h-5 w-5" />
           </div>
           <div>
