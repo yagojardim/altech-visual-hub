@@ -190,11 +190,11 @@ function DashboardPage() {
           ok: true,
           value: items.slice(0, 6).map((i) => ({
             id: i.id,
-            item_key: i.itemKey,
-            titulo: i.title,
+            itemKey: i.itemKey,
+            title: i.title,
             status: i.status,
-            created_at: i.createdAt ?? null,
-            updated_at: i.updatedAt ?? null,
+            createdAt: i.createdAt ?? null,
+            updatedAt: i.updatedAt ?? null,
           })),
         };
       } catch (e) {
@@ -215,10 +215,10 @@ function DashboardPage() {
             .slice(0, 6)
             .map((i) => ({
               id: i.id,
-              item_key: i.itemKey,
-              titulo: i.title,
+              itemKey: i.itemKey,
+              title: i.title,
               status: i.status,
-              tipo: i.type,
+              type: i.type,
             })),
         };
       } catch (e) {
