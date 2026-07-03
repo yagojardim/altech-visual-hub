@@ -36,7 +36,13 @@ export async function listSprints(): Promise<SprintRow[]> {
     .from("sprints")
     .select(SELECT)
     .order("created_at", { ascending: false });
-  if (error) throw error;
+  if (error) {
+    if (isMissingRelation(error)) {
+      logSupabaseError("sprints-api:listSprints", error);
+      return [];
+    }
+    throw new Error(error.message || "Erro ao listar sprints.");
+  }
   return (data ?? []) as SprintRow[];
 }
 
@@ -46,7 +52,13 @@ export async function listSprintsByProject(projectId: string): Promise<SprintRow
     .select(SELECT)
     .eq("project_id", projectId)
     .order("created_at", { ascending: false });
-  if (error) throw error;
+  if (error) {
+    if (isMissingRelation(error)) {
+      logSupabaseError("sprints-api:listSprintsByProject", error);
+      return [];
+    }
+    throw new Error(error.message || "Erro ao listar sprints do projeto.");
+  }
   return (data ?? []) as SprintRow[];
 }
 
