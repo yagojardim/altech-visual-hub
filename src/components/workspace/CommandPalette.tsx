@@ -106,6 +106,7 @@ export function CommandPalette({
         placeholder="Buscar projetos, work items ou comandos…"
         value={query}
         onValueChange={setQuery}
+        aria-label="Buscar projetos, work items ou comandos"
       />
       <CommandList>
         <CommandEmpty>
