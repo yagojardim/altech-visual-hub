@@ -14,8 +14,8 @@ import {
   listWorkItemsByProject,
   updateWorkItem,
   STATUS_COLUMNS,
-  type WorkItemRow,
 } from "@/lib/work-items-api";
+import { toWorkItems, toWorkItemPatch, type WorkItem } from "@/lib/work-item-map";
 import { LoadingState, ErrorState, EmptyState } from "@/components/states";
 import { KanbanSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +36,7 @@ function initials(name?: string | null) {
   return name.split(/\s+/).slice(0, 2).map((s) => s[0]?.toUpperCase() ?? "").join("");
 }
 
-function ItemCard({ item, onOpen }: { item: WorkItemRow; onOpen: (id: string) => void }) {
+function ItemCard({ item, onOpen }: { item: WorkItem; onOpen: (id: string) => void }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: item.id,
   });
@@ -61,19 +61,19 @@ function ItemCard({ item, onOpen }: { item: WorkItemRow; onOpen: (id: string) =>
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-[11px] font-mono text-muted-foreground">
-          {item.item_key ?? item.id.slice(0, 6)}
+          {item.itemKey ?? item.id.slice(0, 6)}
         </span>
         <Badge variant="outline" className="text-[10px] uppercase">
-          {item.tipo}
+          {item.type}
         </Badge>
       </div>
-      <h4 className="text-sm font-medium leading-snug text-foreground">{item.titulo}</h4>
+      <h4 className="text-sm font-medium leading-snug text-foreground">{item.title}</h4>
       <div className="flex items-center justify-end gap-2 pt-1">
         <div
           className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground"
-          title={item.responsavel ?? "Sem responsável"}
+          title={item.assignee ?? "Sem responsável"}
         >
-          {initials(item.responsavel) ?? <User className="h-3 w-3" />}
+          {initials(item.assignee) ?? <User className="h-3 w-3" />}
         </div>
       </div>
     </article>
@@ -86,7 +86,7 @@ function Column({
   onOpen,
 }: {
   status: string;
-  items: WorkItemRow[];
+  items: WorkItem[];
   onOpen: (id: string) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: `col:${status}` });
@@ -119,7 +119,7 @@ function Column({
 }
 
 export function KanbanBoard({ projectId }: { projectId: string }) {
-  const [items, setItems] = useState<WorkItemRow[]>([]);
+  const [items, setItems] = useState<WorkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
@@ -132,7 +132,7 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
     setError(null);
     try {
       const rows = await listWorkItemsByProject(projectId);
-      setItems(rows);
+      setItems(toWorkItems(rows));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erro ao carregar board");
     } finally {
@@ -145,7 +145,7 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
   }, [load]);
 
   const itemsByStatus = useMemo(() => {
-    const map = new Map<string, WorkItemRow[]>();
+    const map = new Map<string, WorkItem[]>();
     for (const s of STATUS_COLUMNS) map.set(s, []);
     for (const it of items) {
       const key = STATUS_COLUMNS.includes(it.status as (typeof STATUS_COLUMNS)[number])
@@ -168,7 +168,7 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
     const prev = items;
     setItems((cur) => cur.map((i) => (i.id === itemId ? { ...i, status: nextStatus } : i)));
     try {
-      await updateWorkItem(itemId, { status: nextStatus });
+      await updateWorkItem(itemId, toWorkItemPatch({ status: nextStatus }));
     } catch (err) {
       setItems(prev);
       const msg = err instanceof Error ? err.message : "Erro ao mover item";
