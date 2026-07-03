@@ -218,10 +218,10 @@ function DashboardPage() {
       {!loading && !error && data && (
         <>
           <WidgetGrid columns={4}>
-            <KpiCard label="Projetos" value={data.counts.projects} icon={FolderKanban} />
-            <KpiCard label="Work items" value={data.counts.totalItems} icon={KanbanSquare} />
-            <KpiCard label="Abertos" value={data.counts.openItems} icon={Activity} />
-            <KpiCard label="Concluídos" value={data.counts.doneItems} icon={Zap} />
+            <KpiCard label="Projetos ativos" value={data.counts.activeProjects} icon={FolderKanban} />
+            <KpiCard label="Sprints em andamento" value={data.counts.activeSprints} icon={Timer} />
+            <KpiCard label="Itens abertos" value={data.counts.openItems} icon={Activity} />
+            <KpiCard label="Itens concluídos" value={data.counts.doneItems} icon={Zap} />
           </WidgetGrid>
 
           <WidgetGrid columns={3}>
