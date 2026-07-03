@@ -63,6 +63,8 @@ export function Topbar({ onOpenPalette, onOpenMobileNav }: TopbarProps) {
           <Search className="h-4 w-4" aria-hidden="true" />
         </Button>
 
+        <ThemeToggle />
+
         <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Notificações">
           <Bell className="h-4 w-4" aria-hidden="true" />
         </Button>
