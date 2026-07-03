@@ -5,7 +5,7 @@ import { ProjectPage } from "@/components/project/ProjectPage";
 
 export const Route = createFileRoute("/_workspace/projects/$projectId")({
   head: ({ params }) => ({
-    meta: [{ title: `${params.projectId} · Projeto Altech` }],
+    meta: [{ title: `${params.projectId} · Altech Project` }],
   }),
   component: ProjectPageRoute,
 });

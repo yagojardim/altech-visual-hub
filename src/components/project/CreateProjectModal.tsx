@@ -65,7 +65,7 @@ export function CreateProjectModal({ trigger }: CreateProjectModalProps) {
         <div className="flex-1 overflow-y-auto p-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField label="Nome" required htmlFor="proj-name" className="sm:col-span-2">
-              <Input id="proj-name" placeholder="Ex.: Plataforma Altech" disabled />
+              <Input id="proj-name" placeholder="Ex.: Altech Project" disabled />
             </FormField>
 
             <FormField label="Cliente" htmlFor="proj-client">

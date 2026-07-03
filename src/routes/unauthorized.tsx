@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { UnauthorizedState } from "@/components/states";
 
 export const Route = createFileRoute("/unauthorized")({
-  head: () => ({ meta: [{ title: "Sem acesso · Altech" }] }),
+  head: () => ({ meta: [{ title: "Sem acesso · Altech Project" }] }),
   component: () => (
     <div className="min-h-screen bg-background">
       <UnauthorizedState />

@@ -3,7 +3,7 @@ import { ProjectListPage } from "@/components/project/ProjectListPage";
 
 export const Route = createFileRoute("/_workspace/projects/")({
   head: () => ({
-    meta: [{ title: "Projetos · Altech" }],
+    meta: [{ title: "Projetos · Altech Project" }],
   }),
   component: ProjectListPage,
 });
