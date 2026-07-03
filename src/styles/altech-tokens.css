@@ -26,6 +26,15 @@
   /* Sidebar (spec do board Navegação) */
   --nav-bg:#080F1E;
 
+  /* ---- Fases do Produto (7 etapas) ---- */
+  --phase-problema:#F0455A;
+  --phase-descoberta:#7C4DFF;
+  --phase-hipotese:#2E9BFF;
+  --phase-validacao:#5FB0FF;
+  --phase-construcao:#2F6BFF;
+  --phase-entrega:#06C18A;
+  --phase-impacto:#F5A524;
+
   /* ---- Semantic status ---- */
   --success-500:#06C18A; --success-50:#E6FBF4;
   --warning-500:#F5A524; --warning-50:#FEF4E2;
