@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   DndContext,
   PointerSensor,
@@ -17,6 +18,7 @@ import {
   TIPO_OPTIONS,
   PRIORIDADE_OPTIONS,
 } from "@/lib/work-items-api";
+import { qk } from "@/lib/query-keys";
 import { toWorkItems, toWorkItemPatch, type WorkItem } from "@/lib/work-item-map";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { Badge } from "@/components/ui/badge";
