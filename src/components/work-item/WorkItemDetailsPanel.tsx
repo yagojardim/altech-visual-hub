@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { LoadingState, ErrorState, EmptyState } from "@/components/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ import {
   TIPO_OPTIONS,
   PRIORIDADE_OPTIONS,
 } from "@/lib/work-items-api";
+import { qk } from "@/lib/query-keys";
 import {
   toWorkItem,
   toWorkItemPatch,
@@ -37,27 +39,30 @@ export function WorkItemDetailsPanel({
   workItemId: string;
   onChange?: () => void;
 }) {
-  const [item, setItem] = useState<WorkItem | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const detailKey = qk.workItem(workItemId);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const row = await getWorkItem(workItemId);
-      if (!row) throw new Error("Work item não encontrado");
-      setItem(toWorkItem(row));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Erro ao carregar");
-    } finally {
-      setLoading(false);
-    }
-  }, [workItemId]);
+  const {
+    data: row,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey: detailKey,
+    queryFn: () => getWorkItem(workItemId),
+  });
+  const error = queryError instanceof Error ? queryError.message : queryError ? String(queryError) : null;
+
+  const [item, setItem] = useState<WorkItem | null>(null);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    setItem(row ? toWorkItem(row) : null);
+  }, [row]);
+
+  const invalidate = async () => {
+    await queryClient.invalidateQueries({ queryKey: qk.workItems() });
+    await queryClient.invalidateQueries({ queryKey: detailKey });
+  };
 
   const patch = async (delta: WorkItemPatch) => {
     if (!item) return;
@@ -67,6 +72,7 @@ export function WorkItemDetailsPanel({
     try {
       const saved = await updateWorkItem(item.id, toWorkItemPatch(delta));
       setItem(toWorkItem(saved));
+      await invalidate();
       onChange?.();
     } catch (err) {
       setItem(prev);
@@ -79,6 +85,7 @@ export function WorkItemDetailsPanel({
     if (!confirm(`Excluir “${item.title}”?`)) return;
     try {
       await deleteWorkItem(item.id);
+      await invalidate();
       toast.success("Work item excluído.");
       onChange?.();
     } catch (err) {
@@ -87,7 +94,7 @@ export function WorkItemDetailsPanel({
   };
 
   if (loading) return <LoadingState label="Carregando work item…" />;
-  if (error) return <ErrorState description={error} onRetry={() => void load()} />;
+  if (error) return <ErrorState description={error} onRetry={() => void refetch()} />;
   if (!item) return <EmptyState title="Nada por aqui ainda" description="Work item não encontrado." />;
 
   return (

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import {
   updateProject,
   type ProjectRow,
 } from "@/lib/projects-api";
+import { qk } from "@/lib/query-keys";
 
 const STATUSES = ["Planejamento", "Em progresso", "Pausado", "Concluído"];
 
@@ -56,6 +58,7 @@ export function CreateProjectModal({
   onOpenChange,
   onSaved,
 }: ProjectFormSheetProps) {
+  const queryClient = useQueryClient();
   const [internalOpen, setInternalOpen] = useState(false);
   const open = openProp ?? internalOpen;
   const setOpen = (v: boolean) => {
@@ -109,6 +112,7 @@ export function CreateProjectModal({
         mode === "edit" && project
           ? await updateProject(project.id, payload)
           : await createProject(payload);
+      await queryClient.invalidateQueries({ queryKey: qk.projects() });
       toast.success(mode === "edit" ? "Projeto atualizado." : "Projeto criado.");
       onSaved?.(saved);
       setOpen(false);
