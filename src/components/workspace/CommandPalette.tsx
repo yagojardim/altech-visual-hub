@@ -115,19 +115,19 @@ export function CommandPalette({
 
         <CommandGroup heading="Ações rápidas">
           <CommandItem onSelect={() => go("/projects")} value="novo-projeto">
-            <Plus className="mr-2 h-4 w-4" /> Novo projeto
+            <Plus className="mr-2 h-4 w-4" aria-hidden="true" /> Novo projeto
           </CommandItem>
           <CommandItem onSelect={() => go("/sprints")} value="nova-sprint">
-            <Rocket className="mr-2 h-4 w-4" /> Nova sprint
+            <Rocket className="mr-2 h-4 w-4" aria-hidden="true" /> Nova sprint
           </CommandItem>
           <CommandItem onSelect={() => go("/dashboard")} value="ir-dashboard">
-            <LayoutDashboard className="mr-2 h-4 w-4" /> Ir para Dashboard
+            <LayoutDashboard className="mr-2 h-4 w-4" aria-hidden="true" /> Ir para Dashboard
           </CommandItem>
           <CommandItem onSelect={() => go("/boards")} value="ir-boards">
-            <KanbanSquare className="mr-2 h-4 w-4" /> Ir para Boards
+            <KanbanSquare className="mr-2 h-4 w-4" aria-hidden="true" /> Ir para Boards
           </CommandItem>
           <CommandItem onSelect={() => go("/backlog")} value="ir-backlog">
-            <ListTodo className="mr-2 h-4 w-4" /> Ir para Backlog
+            <ListTodo className="mr-2 h-4 w-4" aria-hidden="true" /> Ir para Backlog
           </CommandItem>
         </CommandGroup>
 
