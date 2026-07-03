@@ -211,6 +211,8 @@ export function WorkItemDetailsPanel({ workItemId }: { workItemId: string }) {
           </ul>
         </section>
 
+        <WorkItemAttachmentsLive workItemId={item.id} />
+
         <section className="space-y-3">
           <h3 className="text-sm font-medium">Comentários</h3>
           <ul className="space-y-3">
