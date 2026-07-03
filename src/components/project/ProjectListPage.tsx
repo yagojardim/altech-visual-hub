@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Archive, ChevronRight, FolderKanban, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
+import { Archive, ChevronRight, FolderKanban, MoreHorizontal, Pencil, Plus, Trash2, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useCan } from "@/lib/auth";
 import { UnauthorizedState, EmptyState, LoadingState, ErrorState } from "@/components/states";
