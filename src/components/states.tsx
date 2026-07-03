@@ -2,8 +2,33 @@ import { Loader2, Inbox, AlertTriangle, ShieldOff, SearchX } from "lucide-react"
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export function LoadingState({ label = "Carregando…" }: { label?: string }) {
+export function LoadingState({
+  label = "Carregando…",
+  variant = "spinner",
+  rows = 4,
+}: {
+  label?: string;
+  variant?: "spinner" | "skeleton";
+  rows?: number;
+}) {
+  if (variant === "skeleton") {
+    return (
+      <div className="space-y-3" aria-label={label} aria-busy="true">
+        {Array.from({ length: rows }).map((_, i) => (
+          <div key={i} className="altech-card flex items-center gap-3 p-4">
+            <Skeleton className="h-10 w-10 rounded-full" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-3 w-1/3" />
+              <Skeleton className="h-3 w-2/3" />
+            </div>
+            <Skeleton className="h-8 w-16 rounded-md" />
+          </div>
+        ))}
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
       <Loader2 className="h-6 w-6 animate-spin text-primary" />

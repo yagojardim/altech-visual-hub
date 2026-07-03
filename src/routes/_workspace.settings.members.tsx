@@ -50,7 +50,7 @@ function MembersPage() {
       </div>
 
       {loading ? (
-        <LoadingState label="Carregando membros…" />
+        <LoadingState label="Carregando membros…" variant="skeleton" rows={5} />
       ) : error ? (
         <ErrorState description={error} />
       ) : rows.length === 0 ? (
