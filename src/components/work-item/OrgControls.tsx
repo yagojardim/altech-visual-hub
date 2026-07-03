@@ -50,7 +50,7 @@ export function OrgControls({
     [value.filters],
   );
   const groupLabel = useMemo(
-    () => groupOptions.find((o) => o.value === value.groupBy)?.label ?? "Sem",
+    () => groupOptions.find((o) => o.value === value.groupBy)?.label ?? "Nenhum",
     [groupOptions, value.groupBy],
   );
   const sortLabel = useMemo(() => {
