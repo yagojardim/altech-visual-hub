@@ -28,7 +28,7 @@ export function ProjectPage({ projectId }: { projectId: string }) {
         {activeTab === "overview" && <ProjectOverviewPage projectId={projectId} />}
         {activeTab === "backlog" && <BacklogPage projectId={projectId} />}
         {activeTab === "board" && <BoardPage projectId={projectId} />}
-        {activeTab === "sprints" && <SprintPage projectId={projectId} />}
+        {activeTab === "sprints" && <SprintsWorkspace projectSlug={projectId} hideHeader />}
         {activeTab === "dashboard" && <ProjectDashboardPage projectId={projectId} />}
         {activeTab !== "overview" &&
           activeTab !== "backlog" &&
