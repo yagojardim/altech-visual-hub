@@ -44,8 +44,8 @@ export function SprintHeader({ projectId }: { projectId?: string }) {
           <div className="min-w-0 space-y-1">
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">{sprint.name}</h1>
-              <span className="inline-flex rounded-full border border-accent/30 bg-accent/15 px-2 py-0.5 text-[11px] text-accent">
-                {sprint.status}
+              <span className={`inline-flex rounded-full border px-2 py-0.5 text-[11px] ${getSprintStatusColor(sprint.status)}`}>
+                {getSprintStatusLabel(sprint.status)}
               </span>
             </div>
             <p className="text-sm text-muted-foreground">
