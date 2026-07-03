@@ -47,10 +47,8 @@ const DEFAULT_PREFS: ProjectsPrefs = {
 
 const SORT_OPTIONS = [
   { value: "nome", label: "Nome" },
+  { value: "data_inicio", label: "Data de início" },
   { value: "status", label: "Status" },
-  { value: "data_inicio", label: "Início" },
-  { value: "data_fim", label: "Fim" },
-  { value: "created_at", label: "Criação" },
 ];
 
 const GROUP_OPTIONS = [
