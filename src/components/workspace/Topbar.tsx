@@ -34,11 +34,8 @@ export function Topbar({ onOpenPalette, onOpenMobileNav }: TopbarProps) {
         <Menu className="h-4 w-4" aria-hidden="true" />
       </Button>
 
-      <div className="flex min-w-0 items-center gap-2">
-        <div className="hidden h-6 w-6 items-center justify-center rounded-md altech-gradient sm:flex">
-          <span className="text-[10px] font-bold text-primary-foreground">A</span>
-        </div>
-        <div className="truncate text-sm font-semibold text-foreground">{workspaceName}</div>
+      <div className="flex min-w-0 items-center">
+        <BrandLogo variant="dark" />
       </div>
 
       <div className="ml-auto flex items-center gap-2">
