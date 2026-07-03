@@ -7,22 +7,39 @@ import {
   ListTodo,
   Settings,
   LifeBuoy,
-  Check,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
-  to: "/dashboard" | "/projects" | "/boards" | "/sprints" | "/backlog" | "/settings" | "/support";
+  to: "/dashboard" | "/projects" | "/boards" | "/sprints" | "/backlog" | "/settings" | "/support" | "/automation";
   label: string;
   icon: React.ComponentType<{ className?: string }>;
+  badge?: string;
 }
 
-const NAV: NavItem[] = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/projects", label: "Projetos", icon: FolderKanban },
-  { to: "/boards", label: "Boards", icon: KanbanSquare },
-  { to: "/sprints", label: "Sprints", icon: CalendarRange },
-  { to: "/backlog", label: "Backlog", icon: ListTodo },
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const GROUPS: NavGroup[] = [
+  {
+    label: "Visão",
+    items: [
+      { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { to: "/projects", label: "Projetos", icon: FolderKanban },
+    ],
+  },
+  {
+    label: "Execução",
+    items: [
+      { to: "/boards", label: "Boards", icon: KanbanSquare },
+      { to: "/sprints", label: "Sprints", icon: CalendarRange },
+      { to: "/backlog", label: "Backlog", icon: ListTodo },
+      { to: "/automation", label: "Automação", icon: Zap, badge: "beta" },
+    ],
+  },
 ];
 
 const SECONDARY: NavItem[] = [
@@ -39,39 +56,63 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
-    <div className="flex h-full flex-col gap-2 p-3">
+    <div className="flex h-full flex-col overflow-hidden" style={{ background: "#080F1E" }}>
       <Link
         to="/dashboard"
         onClick={onNavigate}
-        className="flex items-center gap-2 px-2 py-3 focus-visible:outline-none"
-        aria-label="Ir para o Dashboard do Altech Project"
+        className="flex flex-shrink-0 items-center gap-3 border-b px-[18px] py-[14px] focus-visible:outline-none"
+        style={{ borderColor: "rgba(255,255,255,0.05)" }}
+        aria-label="Ir para o Dashboard"
       >
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg altech-gradient" aria-hidden="true">
-          <Check className="h-4 w-4 text-primary-foreground" strokeWidth={3} />
-        </div>
+        <svg width="28" height="28" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="altech-mark" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#2F6BFF" />
+              <stop offset="100%" stopColor="#2E9BFF" />
+            </linearGradient>
+          </defs>
+          <path d="M20 5 L36 35 H4 Z" fill="url(#altech-mark)" opacity="0.1" />
+          <path d="M11 28 L20 8 L29 28" stroke="url(#altech-mark)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          <path d="M14.5 22 L25.5 22" stroke="url(#altech-mark)" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
         <div className="leading-tight">
-          <div className="text-sm font-semibold tracking-tight">Altech Project</div>
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            by Altech
+          <div style={{ font: "700 12px 'Sora',sans-serif", color: "#F0F4FC", letterSpacing: "-0.01em" }}>
+            Gestão Ágil
+          </div>
+          <div style={{ font: "400 9px 'JetBrains Mono',monospace", color: "rgba(107,136,165,0.6)", marginTop: 3, letterSpacing: "0.06em" }}>
+            ALTECH · v1.0
           </div>
         </div>
       </Link>
 
-      <nav className="mt-2 flex flex-col gap-0.5" aria-label="Navegação principal">
-        {NAV.map((item) => (
-          <NavLink
-            key={item.to}
-            item={item}
-            active={isSectionActive(pathname, item.to)}
-            onNavigate={onNavigate}
-          />
+      <nav className="flex-1 overflow-y-auto px-2 py-[10px]" aria-label="Navegação principal">
+        {GROUPS.map((group) => (
+          <div key={group.label} className="mb-[18px]">
+            <div
+              style={{
+                font: "500 9px 'JetBrains Mono',monospace",
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: "rgba(107,136,165,0.5)",
+                padding: "4px 10px 3px",
+                marginBottom: 2,
+              }}
+            >
+              {group.label}
+            </div>
+            {group.items.map((item) => (
+              <NavLink
+                key={item.to}
+                item={item}
+                active={isSectionActive(pathname, item.to)}
+                onNavigate={onNavigate}
+              />
+            ))}
+          </div>
         ))}
       </nav>
 
-      <div className="mt-auto flex flex-col gap-0.5 border-t border-sidebar-border pt-3">
-        <div className="px-2 pb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-          Workspace
-        </div>
+      <div className="flex-shrink-0 border-t px-2 py-3" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
         {SECONDARY.map((item) => (
           <NavLink
             key={item.to}
@@ -87,7 +128,7 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
 export function Sidebar() {
   return (
-    <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
+    <aside className="hidden md:flex shrink-0 flex-col" style={{ width: 232 }}>
       <SidebarContent />
     </aside>
   );
@@ -108,14 +149,45 @@ function NavLink({
       to={item.to}
       onClick={onNavigate}
       className={cn(
-        "flex items-center gap-2.5 rounded-md px-2 py-2 text-sm font-medium transition-colors",
-        "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-        active && "bg-sidebar-accent text-sidebar-primary",
+        "group flex items-center gap-[10px] px-[10px] py-[7px] text-[13px] font-medium transition-colors",
+        "keep-radius",
       )}
+      style={{
+        borderRadius: 7,
+        marginBottom: 1,
+        background: active ? "rgba(47,107,255,0.14)" : "transparent",
+        color: active ? "#F0F4FC" : "rgba(169,182,201,0.75)",
+        fontFamily: "'Manrope',sans-serif",
+      }}
       aria-current={active ? "page" : undefined}
     >
-      <Icon aria-hidden="true" className={cn("h-4 w-4", active ? "text-sidebar-primary" : "text-muted-foreground")} />
-      <span className="truncate">{item.label}</span>
+      <span
+        aria-hidden="true"
+        style={{
+          width: 5,
+          height: 5,
+          borderRadius: "50%",
+          background: active ? "#2F6BFF" : "rgba(107,136,165,0.3)",
+          flexShrink: 0,
+        }}
+      />
+      <Icon className="h-4 w-4" style={{ color: active ? "#5FB0FF" : "rgba(169,182,201,0.6)" }} aria-hidden="true" />
+      <span className="truncate flex-1">{item.label}</span>
+      {item.badge && (
+        <span
+          style={{
+            font: "500 9px 'JetBrains Mono',monospace",
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+            color: "#06C18A",
+            background: "rgba(6,193,138,0.12)",
+            padding: "2px 6px",
+            borderRadius: 4,
+          }}
+        >
+          {item.badge}
+        </span>
+      )}
     </Link>
   );
 }
