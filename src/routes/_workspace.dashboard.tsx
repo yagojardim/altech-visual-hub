@@ -38,19 +38,19 @@ export const Route = createFileRoute("/_workspace/dashboard")({
 
 type ActivityItem = {
   id: string;
-  item_key: string | null;
-  titulo: string;
+  itemKey: string | null;
+  title: string;
   status: string | null;
-  updated_at: string | null;
-  created_at: string | null;
+  updatedAt: string | null;
+  createdAt: string | null;
 };
 
 type MyItem = {
   id: string;
-  item_key: string | null;
-  titulo: string;
+  itemKey: string | null;
+  title: string;
   status: string | null;
-  tipo: string | null;
+  type: string | null;
 };
 
 type Result<T> = { ok: true; value: T } | { ok: false; error: string };
@@ -190,11 +190,11 @@ function DashboardPage() {
           ok: true,
           value: items.slice(0, 6).map((i) => ({
             id: i.id,
-            item_key: i.itemKey,
-            titulo: i.title,
+            itemKey: i.itemKey,
+            title: i.title,
             status: i.status,
-            created_at: i.createdAt ?? null,
-            updated_at: i.updatedAt ?? null,
+            createdAt: i.createdAt ?? null,
+            updatedAt: i.updatedAt ?? null,
           })),
         };
       } catch (e) {
@@ -215,10 +215,10 @@ function DashboardPage() {
             .slice(0, 6)
             .map((i) => ({
               id: i.id,
-              item_key: i.itemKey,
-              titulo: i.title,
+              itemKey: i.itemKey,
+              title: i.title,
               status: i.status,
-              tipo: i.type,
+              type: i.type,
             })),
         };
       } catch (e) {
@@ -297,9 +297,9 @@ function DashboardPage() {
                       <li key={i.id} className="flex items-center justify-between gap-3 py-2 text-sm">
                         <div className="flex min-w-0 items-center gap-2">
                           <span className="font-mono text-[11px] text-muted-foreground">
-                            {i.item_key ?? i.id.slice(0, 6)}
+                            {i.itemKey ?? i.id.slice(0, 6)}
                           </span>
-                          <span className="truncate text-foreground">{i.titulo}</span>
+                          <span className="truncate text-foreground">{i.title}</span>
                         </div>
                         <div className="flex shrink-0 items-center gap-2">
                           {i.status && (
@@ -308,7 +308,7 @@ function DashboardPage() {
                             </Badge>
                           )}
                           <span className="text-[11px] text-muted-foreground">
-                            {fmtRelative(i.updated_at ?? i.created_at)}
+                            {fmtRelative(i.updatedAt ?? i.createdAt)}
                           </span>
                         </div>
                       </li>
@@ -393,14 +393,14 @@ function DashboardPage() {
                       <li key={i.id} className="flex items-center justify-between gap-3 py-2 text-sm">
                         <div className="flex min-w-0 items-center gap-2">
                           <span className="font-mono text-[11px] text-muted-foreground">
-                            {i.item_key ?? i.id.slice(0, 6)}
+                            {i.itemKey ?? i.id.slice(0, 6)}
                           </span>
-                          <span className="truncate text-foreground">{i.titulo}</span>
+                          <span className="truncate text-foreground">{i.title}</span>
                         </div>
                         <div className="flex shrink-0 items-center gap-2">
-                          {i.tipo && (
+                          {i.type && (
                             <Badge variant="outline" className="text-[10px] uppercase">
-                              {i.tipo}
+                              {i.type}
                             </Badge>
                           )}
                           {i.status && (
