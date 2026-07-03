@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Archive, ChevronRight, FolderKanban, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
+import { Archive, ChevronRight, FolderKanban, MoreHorizontal, Pencil, Plus, Trash2, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useCan } from "@/lib/auth";
 import { UnauthorizedState, EmptyState, LoadingState, ErrorState } from "@/components/states";
@@ -124,17 +125,36 @@ export function ProjectListPage() {
         options: uniq("status").map((v) => ({ value: v, label: v })),
       },
       {
-        key: "cliente",
-        label: "Cliente",
-        options: uniq("cliente").map((v) => ({ value: v, label: v })),
-      },
-      {
         key: "responsavel",
         label: "Responsável",
         options: uniq("responsavel").map((v) => ({ value: v, label: v })),
       },
     ];
   }, [projects]);
+
+  const filterLabels: Record<string, string> = {
+    status: "Status",
+    responsavel: "Responsável",
+  };
+
+  const activeFilterChips = Object.entries(prefs.filters).flatMap(([key, values]) =>
+    (values ?? []).map((val) => ({ key, value: val })),
+  );
+
+  const removeFilterValue = (key: string, val: string) => {
+    const current = prefs.filters[key] ?? [];
+    updatePrefs({
+      filters: { ...prefs.filters, [key]: current.filter((v) => v !== val) },
+    });
+  };
+
+  const clearAllFilters = () => {
+    updatePrefs({
+      filters: Object.fromEntries(
+        Object.keys(prefs.filters).map((k) => [k, [] as string[]]),
+      ),
+    });
+  };
 
   const visible = useMemo(() => {
     if (!projects) return [];
@@ -174,7 +194,7 @@ export function ProjectListPage() {
   }, [visible, prefs.groupBy]);
 
   const count = visible.length;
-  const activeCount = projects?.filter((p) => p.status !== "Arquivado").length ?? 0;
+  const activeCount = visible.filter((p) => p.status !== "Arquivado").length;
 
   if (!canView) return <UnauthorizedState />;
 
@@ -225,6 +245,40 @@ export function ProjectListPage() {
           />
         }
       />
+
+      {activeFilterChips.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            Filtros
+          </span>
+          {activeFilterChips.map((chip) => (
+            <Badge
+              key={`${chip.key}:${chip.value}`}
+              variant="secondary"
+              className="gap-1 pr-1 text-xs font-normal"
+            >
+              <span className="text-muted-foreground">{filterLabels[chip.key] ?? chip.key}:</span>
+              <span>{chip.value}</span>
+              <button
+                type="button"
+                aria-label={`Remover filtro ${chip.value}`}
+                className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded hover:bg-muted"
+                onClick={() => removeFilterValue(chip.key, chip.value)}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-6 px-2 text-xs text-muted-foreground"
+            onClick={clearAllFilters}
+          >
+            Limpar tudo
+          </Button>
+        </div>
+      )}
 
       {loading ? (
         <LoadingState variant="skeleton" />
