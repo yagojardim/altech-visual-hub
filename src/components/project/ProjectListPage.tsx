@@ -158,7 +158,7 @@ export function ProjectListPage() {
     const q = prefs.search.trim().toLowerCase();
     const filtered = projects.filter((p) => {
       if (q) {
-        const hay = `${p.nome} ${p.cliente ?? ""} ${p.responsavel ?? ""} ${p.descricao ?? ""}`.toLowerCase();
+        const hay = `${p.nome} ${p.slug ?? ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       for (const [key, values] of Object.entries(prefs.filters)) {
