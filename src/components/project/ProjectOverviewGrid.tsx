@@ -14,7 +14,7 @@ import {
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
 import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
-import { LoadingState, ErrorState } from "@/components/states";
+import { LoadingState, ErrorState, EmptyState } from "@/components/states";
 import { getProjectBySlug, type ProjectRow } from "@/lib/projects-api";
 import { listWorkItemsByProject, type WorkItemRow } from "@/lib/work-items-api";
 import { listSprintsByProject, isDoneStatus, type SprintRow } from "@/lib/sprints-api";
