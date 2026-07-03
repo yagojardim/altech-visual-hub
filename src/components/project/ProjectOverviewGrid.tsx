@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Activity,
   Building2,
@@ -15,9 +15,10 @@ import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
 import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
 import { LoadingState, ErrorState, EmptyState } from "@/components/states";
-import { getProjectBySlug, type ProjectRow } from "@/lib/projects-api";
-import { listWorkItemsByProject, type WorkItemRow } from "@/lib/work-items-api";
-import { listSprintsByProject, isDoneStatus, type SprintRow } from "@/lib/sprints-api";
+import { getProjectBySlug } from "@/lib/projects-api";
+import { listWorkItemsByProject } from "@/lib/work-items-api";
+import { listSprintsByProject, isDoneStatus } from "@/lib/sprints-api";
+import { qk } from "@/lib/query-keys";
 
 function fmtDate(s: string | null): string {
   if (!s) return "—";
@@ -51,46 +52,31 @@ const STATUS_IN_PROGRESS = new Set(["em progresso", "em andamento", "em revisão
 const STATUS_PENDING = new Set(["a fazer", "todo", "backlog", "planejado"]);
 
 export function ProjectOverviewGrid({ projectId }: { projectId?: string } = {}) {
-  const [project, setProject] = useState<ProjectRow | null>(null);
-  const [items, setItems] = useState<WorkItemRow[]>([]);
-  const [sprints, setSprints] = useState<SprintRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [reloadKey, setReloadKey] = useState(0);
+  const projectQuery = useQuery({
+    queryKey: ["projects", "bySlug", projectId ?? ""],
+    queryFn: () => (projectId ? getProjectBySlug(projectId) : Promise.resolve(null)),
+    enabled: !!projectId,
+  });
+  const project = projectQuery.data ?? null;
 
-  useEffect(() => {
-    if (!projectId) return;
-    let alive = true;
-    setLoading(true);
-    setError(null);
-    (async () => {
-      try {
-        const p = await getProjectBySlug(projectId);
-        if (!alive) return;
-        setProject(p);
-        if (!p) {
-          setItems([]);
-          setSprints([]);
-          return;
-        }
-        const [wi, sp] = await Promise.all([
-          listWorkItemsByProject(p.id),
-          listSprintsByProject(p.id),
-        ]);
-        if (!alive) return;
-        setItems(wi);
-        setSprints(sp);
-      } catch (e) {
-        if (!alive) return;
-        setError(e instanceof Error ? e.message : "Erro ao carregar projeto");
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [projectId, reloadKey]);
+  const itemsQuery = useQuery({
+    queryKey: project ? qk.workItemsByProject(project.id) : ["work_items", "disabled"],
+    queryFn: () => (project ? listWorkItemsByProject(project.id) : Promise.resolve([])),
+    enabled: !!project,
+  });
+
+  const sprintsQuery = useQuery({
+    queryKey: ["sprints", "byProject", project?.id ?? ""],
+    queryFn: () => (project ? listSprintsByProject(project.id) : Promise.resolve([])),
+    enabled: !!project,
+  });
+
+  const loading = projectQuery.isLoading || (!!project && (itemsQuery.isLoading || sprintsQuery.isLoading));
+  const err = projectQuery.error ?? itemsQuery.error ?? sprintsQuery.error;
+  const error = err instanceof Error ? err.message : err ? String(err) : null;
+
+  const items = itemsQuery.data ?? [];
+  const sprints = sprintsQuery.data ?? [];
 
   if (loading) return <LoadingState variant="skeleton" rows={4} />;
   if (error)
@@ -98,7 +84,11 @@ export function ProjectOverviewGrid({ projectId }: { projectId?: string } = {}) 
       <ErrorState
         title="Não foi possível carregar o projeto"
         description={error}
-        onRetry={() => setReloadKey((k) => k + 1)}
+        onRetry={() => {
+          void projectQuery.refetch();
+          void itemsQuery.refetch();
+          void sprintsQuery.refetch();
+        }}
       />
     );
   if (!project)
