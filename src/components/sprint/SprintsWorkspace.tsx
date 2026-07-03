@@ -647,7 +647,7 @@ function SprintDetails({
             <SelectContent>
               {available.map((it) => (
                 <SelectItem key={it.id} value={it.id}>
-                  {(it.item_key ?? it.id.slice(0, 6)) + " — " + it.titulo}
+                  {(it.itemKey ?? it.id.slice(0, 6)) + " — " + it.title}
                 </SelectItem>
               ))}
             </SelectContent>
