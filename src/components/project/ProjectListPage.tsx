@@ -191,11 +191,28 @@ export function ProjectListPage() {
           onRetry={reload}
         />
       ) : !projects || projects.length === 0 ? (
-        <EmptyState
-          icon={<FolderKanban className="h-5 w-5" />}
-          title="Nada por aqui ainda"
-          description="Crie seu primeiro projeto para começar."
-        />
+        <>
+          <EmptyState
+            icon={<FolderKanban className="h-5 w-5" />}
+            title="Nada por aqui ainda"
+            description="Crie seu primeiro projeto para começar."
+            action={
+              <Button size="sm" variant="cta" onClick={() => setCreateOpen(true)}>
+                <Plus className="mr-1.5 h-4 w-4" />
+                Novo Projeto
+              </Button>
+            }
+          />
+          <CreateProjectModal
+            trigger={null}
+            open={createOpen}
+            onOpenChange={setCreateOpen}
+            onSaved={(p) => {
+              toast.success(`Projeto “${p.nome}” criado.`);
+              reload();
+            }}
+          />
+        </>
       ) : count === 0 ? (
         <EmptyState
           icon={<FolderKanban className="h-5 w-5" />}
