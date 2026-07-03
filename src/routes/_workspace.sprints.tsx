@@ -114,8 +114,8 @@ function SprintsIndex() {
       ) : sprints.length === 0 ? (
         <EmptyState
           icon={<CalendarRange className="h-5 w-5" />}
-          title="Nenhuma sprint criada"
-          description="Crie uma sprint para começar a organizar os ciclos de entrega."
+          title="Nada por aqui ainda"
+          description="Crie sua primeira sprint para começar."
           action={
             <Button variant="cta" onClick={() => setCreating(true)}>
               <Plus className="mr-1 h-4 w-4" />
