@@ -178,9 +178,9 @@ function DashboardPage() {
         <>
           <WidgetGrid columns={4}>
             <KpiCard label="Projetos" value={data.counts.projects} icon={FolderKanban} />
-            <KpiCard label="Boards" value={data.counts.boards} icon={KanbanSquare} />
-            <KpiCard label="Work items abertos" value={data.counts.openItems} icon={Activity} />
-            <KpiCard label="Sprints ativas" value={data.counts.activeSprints} icon={Zap} />
+            <KpiCard label="Work items" value={data.counts.totalItems} icon={KanbanSquare} />
+            <KpiCard label="Abertos" value={data.counts.openItems} icon={Activity} />
+            <KpiCard label="Concluídos" value={data.counts.doneItems} icon={Zap} />
           </WidgetGrid>
 
           <WidgetGrid columns={3}>
@@ -200,7 +200,7 @@ function DashboardPage() {
                         <span className="font-mono text-[11px] text-muted-foreground">
                           {i.item_key ?? i.id.slice(0, 6)}
                         </span>
-                        <span className="truncate text-foreground">{i.title}</span>
+                        <span className="truncate text-foreground">{i.titulo}</span>
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
                         {i.status && (
@@ -220,37 +220,30 @@ function DashboardPage() {
 
             <WidgetCard>
               <WidgetHeader
-                title="Sprint atual"
-                description={data.sprint.sprint?.name ?? "Sem sprint ativa"}
+                title="Progresso"
+                description="Itens concluídos no workspace"
                 icon={Target}
               />
-              {data.sprint.sprint ? (
-                <div className="mt-3 space-y-3">
-                  {data.sprint.sprint.goal && (
-                    <p className="text-xs text-muted-foreground">{data.sprint.sprint.goal}</p>
-                  )}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">Progresso</span>
-                      <span className="font-medium">
-                        {data.sprint.done} / {data.sprint.total}
-                      </span>
-                    </div>
-                    <Progress
-                      value={data.sprint.total ? (data.sprint.done / data.sprint.total) * 100 : 0}
-                    />
+              <div className="mt-3 space-y-3">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Concluídos</span>
+                    <span className="font-medium">
+                      {data.counts.doneItems} / {data.counts.totalItems}
+                    </span>
                   </div>
-                  {data.sprint.sprint.end_date && (
-                    <p className="text-[11px] text-muted-foreground">
-                      Termina em {new Date(data.sprint.sprint.end_date).toLocaleDateString("pt-BR")}
-                    </p>
-                  )}
+                  <Progress
+                    value={
+                      data.counts.totalItems
+                        ? (data.counts.doneItems / data.counts.totalItems) * 100
+                        : 0
+                    }
+                  />
                 </div>
-              ) : (
-                <p className="mt-4 text-sm text-muted-foreground">Nenhuma sprint em andamento.</p>
-              )}
+              </div>
             </WidgetCard>
           </WidgetGrid>
+
 
           <WidgetGrid columns={3}>
             <WidgetCard className="lg:col-span-2">
