@@ -31,8 +31,8 @@ export function AutomationPage() {
   return (
     <div className="space-y-6">
       <BoardHeader
-        title="Automações"
-        description="Configure regras automáticas do workspace."
+        title="Automações — Altech Control (em breve)"
+        description="Regras, gatilhos e automações do workspace serão disponibilizados no Altech Control."
       />
       <ViewContainer
         header={
