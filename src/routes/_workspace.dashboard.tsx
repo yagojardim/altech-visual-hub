@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_workspace/dashboard")({
 type ActivityItem = {
   id: string;
   item_key: string | null;
-  title: string;
+  titulo: string;
   status: string | null;
   updated_at: string | null;
   created_at: string | null;
@@ -39,32 +39,20 @@ type ActivityItem = {
 type MyItem = {
   id: string;
   item_key: string | null;
-  title: string;
+  titulo: string;
   status: string | null;
-  priority: string | null;
-};
-
-type ActiveSprint = {
-  id: string;
-  name: string;
-  goal: string | null;
-  end_date: string | null;
+  tipo: string | null;
 };
 
 type DashboardData = {
   counts: {
     projects: number;
-    boards: number;
     openItems: number;
-    activeSprints: number;
+    doneItems: number;
+    totalItems: number;
   };
   activity: ActivityItem[];
   myItems: MyItem[];
-  sprint: {
-    sprint: ActiveSprint | null;
-    total: number;
-    done: number;
-  };
 };
 
 const DONE_STATUSES = new Set(["done", "concluido", "concluído", "completed", "closed", "resolved"]);
@@ -98,36 +86,29 @@ function DashboardPage() {
     setLoading(true);
     setError(null);
     try {
-      const [projectsRes, boardsRes, sprintsRes, itemsRes] = await Promise.all([
+      const [projectsRes, itemsRes] = await Promise.all([
         supabase.from("projects").select("id", { count: "exact", head: true }),
-        supabase.from("boards").select("id", { count: "exact", head: true }),
-        supabase.from("sprints").select("id, name, goal, end_date, status").eq("status", "active"),
         supabase
           .from("work_items")
-          .select("id, item_key, title, status, priority, assignee, sprint_id, created_at, updated_at")
+          .select("id, item_key, titulo, tipo, status, responsavel, created_at, updated_at")
           .order("updated_at", { ascending: false })
           .limit(200),
       ]);
 
       if (projectsRes.error) throw projectsRes.error;
-      if (boardsRes.error) throw boardsRes.error;
-      if (sprintsRes.error) throw sprintsRes.error;
       if (itemsRes.error) throw itemsRes.error;
 
       const items = (itemsRes.data ?? []) as Array<
-        ActivityItem & {
-          priority: string | null;
-          assignee: string | null;
-          sprint_id: string | null;
-        }
+        ActivityItem & { tipo: string | null; responsavel: string | null }
       >;
 
       const openItems = items.filter((i) => !isDone(i.status)).length;
+      const doneItems = items.filter((i) => isDone(i.status)).length;
 
       const activity: ActivityItem[] = items.slice(0, 6).map((i) => ({
         id: i.id,
         item_key: i.item_key,
-        title: i.title,
+        titulo: i.titulo,
         status: i.status,
         created_at: i.created_at,
         updated_at: i.updated_at,
@@ -136,38 +117,28 @@ function DashboardPage() {
       const myItems: MyItem[] = items
         .filter(
           (i) =>
-            i.assignee &&
+            i.responsavel &&
             user &&
-            (i.assignee === user.id || i.assignee === user.email || i.assignee === user.name),
+            (i.responsavel === user.name || i.responsavel === user.email || i.responsavel === user.id),
         )
         .slice(0, 6)
         .map((i) => ({
           id: i.id,
           item_key: i.item_key,
-          title: i.title,
+          titulo: i.titulo,
           status: i.status,
-          priority: i.priority,
+          tipo: i.tipo,
         }));
-
-      const activeSprint = (sprintsRes.data ?? [])[0] as ActiveSprint | undefined;
-      const sprintScoped = activeSprint
-        ? items.filter((i) => i.sprint_id === activeSprint.id)
-        : [];
 
       setData({
         counts: {
           projects: projectsRes.count ?? 0,
-          boards: boardsRes.count ?? 0,
           openItems,
-          activeSprints: sprintsRes.data?.length ?? 0,
+          doneItems,
+          totalItems: items.length,
         },
         activity,
         myItems,
-        sprint: {
-          sprint: activeSprint ?? null,
-          total: sprintScoped.length,
-          done: sprintScoped.filter((i) => isDone(i.status)).length,
-        },
       });
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Erro ao carregar dashboard");
@@ -175,6 +146,7 @@ function DashboardPage() {
       setLoading(false);
     }
   }, [user]);
+
 
   useEffect(() => {
     void load();
