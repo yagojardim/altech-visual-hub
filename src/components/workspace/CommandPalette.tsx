@@ -159,7 +159,7 @@ export function CommandPalette({
                   value={`wi-${it.item_key}-${it.titulo}-${it.id}`}
                   onSelect={() => go(`/work-items/${it.item_key ?? it.id}`)}
                 >
-                  <FileText className="mr-2 h-4 w-4" />
+                  <FileText className="mr-2 h-4 w-4" aria-hidden="true" />
                   <span className="mr-2 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
                     {it.item_key ?? it.id.slice(0, 6)}
                   </span>
