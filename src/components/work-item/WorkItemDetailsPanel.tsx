@@ -16,6 +16,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Send } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { WorkItemAttachmentsLive } from "./WorkItemAttachmentsLive";
 
 type WorkItemRow = {
   id: string;
