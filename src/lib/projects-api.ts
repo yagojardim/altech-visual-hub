@@ -165,6 +165,12 @@ export async function getProjectBySlug(slug: string): Promise<ProjectRow | null>
     .select("*")
     .eq("slug", slug)
     .maybeSingle();
-  if (error) throw error;
+  if (error) {
+    if (isMissingRelation(error)) {
+      logSupabaseError("projects-api:getProjectBySlug", error);
+      return null;
+    }
+    throw new Error(error.message || "Erro ao buscar projeto.");
+  }
   return (data as ProjectRow | null) ?? null;
 }
