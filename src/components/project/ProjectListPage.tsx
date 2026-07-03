@@ -47,6 +47,7 @@ export function ProjectListPage() {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<ProjectRow | null>(null);
   const [editOpen, setEditOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const {
     data: projects,
