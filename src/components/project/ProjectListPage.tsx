@@ -201,7 +201,7 @@ export function ProjectListPage() {
   }, [visible, prefs.groupBy]);
 
   const count = visible.length;
-  const activeCount = visible.filter((p) => p.status !== "Arquivado").length;
+  const activeCount = (projects ?? []).filter((p) => p.status !== "Arquivado").length;
 
   if (!canView) return <UnauthorizedState />;
 
