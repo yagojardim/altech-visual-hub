@@ -7,7 +7,7 @@ const LABELS: Record<string, string> = {
   boards: "Boards",
   projects: "Projetos",
   "work-items": "Work Items",
-  automation: "Automação",
+  automation: "Automação — Altech Control (em breve)",
   ...Object.fromEntries(MOCK_PROJECTS.map((p) => [p.projectId, p.name])),
 };
 
