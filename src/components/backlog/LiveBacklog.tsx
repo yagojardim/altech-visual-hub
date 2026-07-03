@@ -187,9 +187,8 @@ function DropZone({
 }
 
 export function LiveBacklog({ projectId }: { projectId: string }) {
+  const queryClient = useQueryClient();
   const [items, setItems] = useState<WorkItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
@@ -198,22 +197,25 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
     DEFAULT_PREFS,
   );
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const rows = await listWorkItemsByProject(projectId);
-      setItems(toWorkItems(rows));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Erro ao carregar backlog");
-    } finally {
-      setLoading(false);
-    }
-  }, [projectId]);
+  const queryKey = qk.workItemsByProject(projectId);
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey,
+    queryFn: () => listWorkItemsByProject(projectId),
+  });
+  const error = queryError instanceof Error ? queryError.message : queryError ? String(queryError) : null;
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    if (data) setItems(toWorkItems(data));
+  }, [data]);
+
+  const invalidate = useCallback(() => {
+    void queryClient.invalidateQueries({ queryKey });
+  }, [queryClient, queryKey]);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
