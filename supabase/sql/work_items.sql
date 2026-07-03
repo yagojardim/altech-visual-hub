@@ -12,6 +12,7 @@ create table if not exists public.work_items (
   status text not null default 'A Fazer',
   responsavel text,
   descricao text,
+  prioridade text not null default 'Média',
   ordem integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
