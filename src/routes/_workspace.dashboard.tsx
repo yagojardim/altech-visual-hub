@@ -294,7 +294,7 @@ function DashboardPage() {
               />
             )}
 
-            <WidgetGrid columns={2}>
+            <WidgetGrid columns={1}>
               <HealthScore
                 dimensions={[
                   {
@@ -325,7 +325,10 @@ function DashboardPage() {
                   },
                 ]}
               />
-              {state.activity.ok && (
+            </WidgetGrid>
+
+            {state.activity.ok && (
+              <WidgetGrid columns={1}>
                 <EvolutionTimeline
                   events={state.activity.value.map<EvolutionEvent>((a) => ({
                     id: a.id,
@@ -335,8 +338,8 @@ function DashboardPage() {
                     status: a.status,
                   }))}
                 />
-              )}
-            </WidgetGrid>
+              </WidgetGrid>
+            )}
 
 
             <WidgetGrid columns={3}>
