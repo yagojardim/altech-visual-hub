@@ -93,7 +93,7 @@ export function ProjectListPage() {
 
   const {
     data: projects,
-    isLoading: loading,
+    isFetching: loading,
     error: queryError,
     refetch,
   } = useQuery({
@@ -107,9 +107,13 @@ export function ProjectListPage() {
     DEFAULT_PREFS,
   );
 
-  const reload = () => {
+  const reload = async () => {
     void queryClient.invalidateQueries({ queryKey: qk.projects() });
-    void refetch();
+    try {
+      await refetch();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao atualizar projetos.");
+    }
   };
 
   const filterFields = useMemo(() => {
