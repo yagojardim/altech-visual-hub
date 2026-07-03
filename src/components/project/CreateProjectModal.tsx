@@ -67,6 +67,7 @@ export function CreateProjectModal({
   };
 
   const [form, setForm] = useState(emptyState);
+  const [slugTouched, setSlugTouched] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -82,14 +83,40 @@ export function CreateProjectModal({
         data_fim: project.data_fim ?? "",
         descricao: project.descricao ?? "",
       });
+      setSlugTouched(true);
     } else if (mode === "create") {
       setForm(emptyState);
+      setSlugTouched(false);
     }
   }, [open, mode, project]);
+
+  const slugify = (s: string) =>
+    s
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 60);
 
   const set = (k: keyof typeof form) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const nome = e.target.value;
+    setForm((f) => ({
+      ...f,
+      nome,
+      slug: slugTouched ? f.slug : slugify(nome),
+    }));
+  };
+
+  const onSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSlugTouched(true);
+    setForm((f) => ({ ...f, slug: e.target.value }));
+  };
+
 
   const handleSubmit = async () => {
     if (!form.nome.trim()) {
