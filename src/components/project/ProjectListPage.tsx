@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronRight, FolderKanban, Pencil } from "lucide-react";
+import { ChevronRight, FolderKanban, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useCan } from "@/lib/auth";
 import { UnauthorizedState, EmptyState, LoadingState, ErrorState } from "@/components/states";
@@ -47,6 +47,7 @@ export function ProjectListPage() {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<ProjectRow | null>(null);
   const [editOpen, setEditOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const {
     data: projects,
@@ -129,6 +130,7 @@ export function ProjectListPage() {
   }, [visible, prefs.groupBy]);
 
   const count = visible.length;
+  const activeCount = projects?.filter((p) => p.status !== "Arquivado").length ?? 0;
 
   if (!canView) return <UnauthorizedState />;
 
@@ -149,7 +151,7 @@ export function ProjectListPage() {
               <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Projetos</h1>
               {!loading && !error && (
                 <span className="inline-flex rounded-full border border-accent/30 bg-accent/15 px-2 py-0.5 text-[11px] text-accent">
-                  {count} {count === 1 ? "resultado" : "resultados"}
+                {activeCount} {activeCount === 1 ? "ativo" : "ativos"}
                 </span>
               )}
             </div>
@@ -189,11 +191,28 @@ export function ProjectListPage() {
           onRetry={reload}
         />
       ) : !projects || projects.length === 0 ? (
-        <EmptyState
-          icon={<FolderKanban className="h-5 w-5" />}
-          title="Nada por aqui ainda"
-          description="Crie seu primeiro projeto para começar."
-        />
+        <>
+          <EmptyState
+            icon={<FolderKanban className="h-5 w-5" />}
+            title="Nada por aqui ainda"
+            description="Crie seu primeiro projeto para começar."
+            action={
+              <Button size="sm" variant="cta" onClick={() => setCreateOpen(true)}>
+                <Plus className="mr-1.5 h-4 w-4" />
+                Novo Projeto
+              </Button>
+            }
+          />
+          <CreateProjectModal
+            trigger={null}
+            open={createOpen}
+            onOpenChange={setCreateOpen}
+            onSaved={(p) => {
+              toast.success(`Projeto “${p.nome}” criado.`);
+              reload();
+            }}
+          />
+        </>
       ) : count === 0 ? (
         <EmptyState
           icon={<FolderKanban className="h-5 w-5" />}
