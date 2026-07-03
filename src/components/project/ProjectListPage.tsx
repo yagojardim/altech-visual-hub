@@ -91,12 +91,9 @@ export function ProjectListPage() {
         <ErrorState
           title="Não foi possível carregar os projetos"
           description={error}
-          action={
-            <Button variant="outline" size="sm" onClick={reload}>
-              Tentar novamente
-            </Button>
-          }
+          onRetry={reload}
         />
+
       ) : !projects || projects.length === 0 ? (
         <EmptyState
           icon={<FolderKanban className="h-5 w-5" />}
