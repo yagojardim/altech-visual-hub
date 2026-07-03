@@ -1,20 +1,15 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import {
-  LayoutDashboard,
-  KanbanSquare,
-  FolderKanban,
-  CalendarRange,
-  ListTodo,
-  Settings,
-  LifeBuoy,
-  Zap,
-} from "lucide-react";
+import { LayoutDashboard, Settings, LifeBuoy, Zap } from "lucide-react";
+import { ConceptIcon, type ConceptIconName } from "@/components/icons/ConceptIcon";
 import { cn } from "@/lib/utils";
+
+type IconRender = React.ComponentType<{ className?: string }>;
 
 interface NavItem {
   to: "/dashboard" | "/projects" | "/boards" | "/sprints" | "/backlog" | "/settings" | "/support" | "/automation";
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon?: IconRender;
+  concept?: ConceptIconName;
   badge?: string;
 }
 
@@ -28,15 +23,15 @@ const GROUPS: NavGroup[] = [
     label: "Visão",
     items: [
       { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { to: "/projects", label: "Projetos", icon: FolderKanban },
+      { to: "/projects", label: "Projetos", concept: "projeto" },
     ],
   },
   {
     label: "Execução",
     items: [
-      { to: "/boards", label: "Boards", icon: KanbanSquare },
-      { to: "/sprints", label: "Sprints", icon: CalendarRange },
-      { to: "/backlog", label: "Backlog", icon: ListTodo },
+      { to: "/boards", label: "Boards", concept: "feature" },
+      { to: "/sprints", label: "Sprints", concept: "sprint" },
+      { to: "/backlog", label: "Backlog", concept: "historia" },
       { to: "/automation", label: "Automação", icon: Zap, badge: "beta" },
     ],
   },
