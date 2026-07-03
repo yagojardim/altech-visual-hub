@@ -167,18 +167,33 @@ export function WorkItemDetailsPanel({ workItemId }: { workItemId: string }) {
                 void patch({ title: e.target.value });
             }}
           />
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Status</span>
-            <Select value={item.status ?? ""} onValueChange={(v) => void patch({ status: v })}>
-              <SelectTrigger className="h-8 w-48">
-                <SelectValue placeholder="Selecionar" />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUS_OPTIONS.map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Tipo</span>
+              <Select value={item.type ?? ""} onValueChange={(v) => void patch({ type: v })}>
+                <SelectTrigger className="h-8 w-40">
+                  <SelectValue placeholder="Selecionar" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TYPE_OPTIONS.map((t) => (
+                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Status</span>
+              <Select value={item.status ?? ""} onValueChange={(v) => void patch({ status: v })}>
+                <SelectTrigger className="h-8 w-48">
+                  <SelectValue placeholder="Selecionar" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUS_OPTIONS.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </header>
 
