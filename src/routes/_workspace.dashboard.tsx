@@ -316,7 +316,7 @@ function DashboardPage() {
               />
               {data.myItems.length === 0 ? (
                 <EmptyState
-                  title="Nada por aqui"
+                  title="Nada por aqui ainda"
                   description="Você não tem work items atribuídos no momento."
                 />
               ) : (
