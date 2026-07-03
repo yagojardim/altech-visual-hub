@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import { DEFAULT_TENANT_ID } from "./projects-api";
+import { isMissingRelation, logSupabaseError } from "./supabase-errors";
 
 export const STATUS_COLUMNS = [
   "A Fazer",
