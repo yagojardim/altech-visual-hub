@@ -156,6 +156,11 @@ export async function updateProject(
   return fromDb(data as ProjectDBRow);
 }
 
+export async function deleteProject(id: string): Promise<void> {
+  const { error } = await supabase.from("projects").delete().eq("id", id);
+  if (error) throw error;
+}
+
 export async function getProjectBySlug(slug: string): Promise<ProjectRow | null> {
   const { data, error } = await supabase
     .from("projects")

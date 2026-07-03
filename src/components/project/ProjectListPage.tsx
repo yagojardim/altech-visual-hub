@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronRight, FolderKanban, Pencil, Plus } from "lucide-react";
+import { Archive, ChevronRight, FolderKanban, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useCan } from "@/lib/auth";
 import { UnauthorizedState, EmptyState, LoadingState, ErrorState } from "@/components/states";
@@ -8,7 +8,24 @@ import { ProjectCard } from "./ProjectCard";
 import { ProjectToolbar } from "./ProjectToolbar";
 import { CreateProjectModal } from "./CreateProjectModal";
 import { Button } from "@/components/ui/button";
-import { listProjects, type ProjectRow } from "@/lib/projects-api";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { deleteProject, listProjects, updateProject, type ProjectRow } from "@/lib/projects-api";
 import { formatSupabaseError } from "@/lib/supabase-errors";
 import { qk } from "@/lib/query-keys";
 import { useOrgPrefs } from "@/lib/use-org-prefs";
@@ -48,6 +65,33 @@ export function ProjectListPage() {
   const [editing, setEditing] = useState<ProjectRow | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [deleting, setDeleting] = useState<ProjectRow | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+
+  const handleArchive = async (p: ProjectRow) => {
+    try {
+      await updateProject(p.id, { status: "Arquivado" });
+      toast.success(`Projeto “${p.nome}” arquivado.`);
+      reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao arquivar projeto.");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleting) return;
+    setDeleteBusy(true);
+    try {
+      await deleteProject(deleting.id);
+      toast.success(`Projeto “${deleting.nome}” excluído.`);
+      setDeleting(null);
+      reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir projeto.");
+    } finally {
+      setDeleteBusy(false);
+    }
+  };
 
   const {
     data: projects,
@@ -243,20 +287,58 @@ export function ProjectListPage() {
                       dueDate={formatRange(p.data_inicio, p.data_fim)}
                       description={p.descricao ?? "Projeto do workspace Altech."}
                     />
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      aria-label={`Editar ${p.nome}`}
-                      className="absolute right-2 top-2 h-7 w-7 opacity-0 transition group-hover:opacity-100 focus:opacity-100"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setEditing(p);
-                        setEditOpen(true);
-                      }}
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label={`Ações de ${p.nome}`}
+                          className="absolute right-2 top-2 h-7 w-7 opacity-0 transition group-hover:opacity-100 focus:opacity-100 data-[state=open]:opacity-100"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                        >
+                          <MoreHorizontal className="h-3.5 w-3.5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="end"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <DropdownMenuItem
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            setEditing(p);
+                            setEditOpen(true);
+                          }}
+                        >
+                          <Pencil className="mr-2 h-3.5 w-3.5" />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            void handleArchive(p);
+                          }}
+                          disabled={p.status === "Arquivado"}
+                        >
+                          <Archive className="mr-2 h-3.5 w-3.5" />
+                          Arquivar
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            setDeleting(p);
+                          }}
+                        >
+                          <Trash2 className="mr-2 h-3.5 w-3.5" />
+                          Excluir
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 ))}
               </div>
@@ -275,6 +357,30 @@ export function ProjectListPage() {
           reload();
         }}
       />
+
+      <AlertDialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir projeto?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação removerá o projeto{deleting ? ` “${deleting.nome}”` : ""} permanentemente do banco. Não é possível desfazer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteBusy}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                void handleDelete();
+              }}
+              disabled={deleteBusy}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteBusy ? "Excluindo..." : "Excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
