@@ -16,6 +16,7 @@ import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getProjectById } from "@/lib/mock-projects";
+import { getSprintStatusColor, getSprintStatusLabel } from "@/lib/sprint-status";
 
 export function SprintHeader({ projectId }: { projectId?: string }) {
   const project = getProjectById(projectId);
