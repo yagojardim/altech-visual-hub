@@ -33,7 +33,7 @@ export function ProjectListPage() {
               </span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Consulte, filtre e crie novos projetos da Altech Project.
+              Consulte, filtre e crie novos projetos do Altech Project.
             </p>
           </div>
         </div>

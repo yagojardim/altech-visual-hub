@@ -26,7 +26,7 @@ export const MOCK_PROJECTS: ProjectSummary[] = [
     owner: "Ana Silva",
     status: "Em progresso",
     dueDate: "01/01 – 31/03/2026",
-    description: "Projeto principal da plataforma. Estrutura visual do MVP.",
+    description: "Projeto principal do Altech Project. Estrutura visual do MVP.",
     sprint: {
       name: "Sprint 3",
       status: "Ativa",
@@ -43,7 +43,7 @@ export const MOCK_PROJECTS: ProjectSummary[] = [
     owner: "Bruno Costa",
     status: "Planejamento",
     dueDate: "15/06/2026",
-    description: "Iniciativa de exploração de novas capacidades da plataforma.",
+    description: "Iniciativa de exploração de novas capacidades do Altech Project.",
     sprint: {
       name: "Sprint 1",
       status: "Planejamento",
@@ -93,7 +93,7 @@ export function getProjectById(projectId: string | undefined | null): ProjectSum
       owner: "—",
       status: "Em progresso",
       dueDate: "—",
-      description: "Projeto do workspace Altech.",
+      description: "Projeto do workspace Altech Project.",
       sprint: FALLBACK_SPRINT,
     }
   );

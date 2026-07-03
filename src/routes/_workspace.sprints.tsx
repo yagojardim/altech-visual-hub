@@ -12,7 +12,7 @@ function SprintsIndex() {
       <div>
         <h1 className="text-2xl">Sprints</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Visão consolidada de sprints ativas no workspace Altech.
+          Visão consolidada de sprints ativas no workspace Altech Project.
         </p>
       </div>
       <EmptyState
