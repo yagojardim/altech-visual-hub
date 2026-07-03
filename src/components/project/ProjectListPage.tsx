@@ -93,7 +93,7 @@ export function ProjectListPage() {
 
   const {
     data: projects,
-    isLoading: loading,
+    isFetching: loading,
     error: queryError,
     refetch,
   } = useQuery({
@@ -107,9 +107,13 @@ export function ProjectListPage() {
     DEFAULT_PREFS,
   );
 
-  const reload = () => {
+  const reload = async () => {
     void queryClient.invalidateQueries({ queryKey: qk.projects() });
-    void refetch();
+    try {
+      await refetch();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao atualizar projetos.");
+    }
   };
 
   const filterFields = useMemo(() => {
@@ -158,7 +162,7 @@ export function ProjectListPage() {
     const q = prefs.search.trim().toLowerCase();
     const filtered = projects.filter((p) => {
       if (q) {
-        const hay = `${p.nome} ${p.cliente ?? ""} ${p.responsavel ?? ""} ${p.descricao ?? ""}`.toLowerCase();
+        const hay = `${p.nome} ${p.slug ?? ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       for (const [key, values] of Object.entries(prefs.filters)) {

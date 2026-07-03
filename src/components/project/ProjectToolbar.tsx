@@ -52,7 +52,7 @@ export function ProjectToolbar({
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Pesquisar projetos..."
+              placeholder="Buscar por nome ou slug..."
               className="pl-9"
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
