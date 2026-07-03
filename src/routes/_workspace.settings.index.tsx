@@ -11,7 +11,7 @@ function SettingsIndex() {
       <div>
         <h1 className="text-2xl">Configurações</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Preferências do workspace, membros, integrações e cobrança.
+          Preferências do workspace, membros e integrações. Cobrança e planos: Altech Control (em breve).
         </p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
