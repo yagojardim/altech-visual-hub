@@ -65,6 +65,33 @@ export function ProjectListPage() {
   const [editing, setEditing] = useState<ProjectRow | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [deleting, setDeleting] = useState<ProjectRow | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+
+  const handleArchive = async (p: ProjectRow) => {
+    try {
+      await updateProject(p.id, { status: "Arquivado" });
+      toast.success(`Projeto “${p.nome}” arquivado.`);
+      reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao arquivar projeto.");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleting) return;
+    setDeleteBusy(true);
+    try {
+      await deleteProject(deleting.id);
+      toast.success(`Projeto “${deleting.nome}” excluído.`);
+      setDeleting(null);
+      reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir projeto.");
+    } finally {
+      setDeleteBusy(false);
+    }
+  };
 
   const {
     data: projects,
