@@ -357,6 +357,30 @@ export function ProjectListPage() {
           reload();
         }}
       />
+
+      <AlertDialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir projeto?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação removerá o projeto{deleting ? ` “${deleting.nome}”` : ""} permanentemente do banco. Não é possível desfazer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteBusy}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                void handleDelete();
+              }}
+              disabled={deleteBusy}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteBusy ? "Excluindo..." : "Excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
