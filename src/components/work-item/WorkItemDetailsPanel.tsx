@@ -88,7 +88,7 @@ export function WorkItemDetailsPanel({
 
   if (loading) return <LoadingState label="Carregando work item…" />;
   if (error) return <ErrorState description={error} onRetry={() => void load()} />;
-  if (!item) return <ErrorState description="Work item não encontrado" />;
+  if (!item) return <EmptyState title="Nada por aqui ainda" description="Work item não encontrado." />;
 
   return (
     <div className="grid gap-6 pt-4 lg:grid-cols-[1fr_260px]">
