@@ -21,6 +21,9 @@ import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
 import { LoadingState, EmptyState } from "@/components/states";
+import { FlowMap, type FlowItem } from "@/components/signature/FlowMap";
+import { HealthScore } from "@/components/signature/HealthScore";
+import { EvolutionTimeline, type EvolutionEvent } from "@/components/signature/EvolutionTimeline";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -279,6 +282,62 @@ function DashboardPage() {
               <KpiCard label="Itens abertos" result={state.openItems} icon={Activity} />
               <KpiCard label="Itens concluídos" result={state.doneItems} icon={Zap} />
             </WidgetGrid>
+
+            {state.activity.ok && (
+              <FlowMap
+                items={state.activity.value.map<FlowItem>((a) => ({
+                  id: a.id,
+                  title: a.title,
+                  meta: a.itemKey ?? undefined,
+                  status: a.status,
+                }))}
+              />
+            )}
+
+            <WidgetGrid columns={2}>
+              <HealthScore
+                dimensions={[
+                  {
+                    label: "Prazo",
+                    score:
+                      state.totalItems.ok && state.doneItems.ok && state.totalItems.value
+                        ? Math.min(100, Math.round((state.doneItems.value / state.totalItems.value) * 100) + 10)
+                        : 60,
+                    hint: "Ritmo de entrega vs. planejado",
+                  },
+                  {
+                    label: "Risco",
+                    score: state.activeSprints.ok && state.activeSprints.value > 0 ? 78 : 55,
+                    hint: "Bloqueios e dependências",
+                  },
+                  {
+                    label: "Capacidade",
+                    score: state.activeProjects.ok ? Math.max(30, 90 - state.activeProjects.value * 8) : 70,
+                    hint: "Carga do time",
+                  },
+                  {
+                    label: "Entrega",
+                    score:
+                      state.totalItems.ok && state.doneItems.ok && state.totalItems.value
+                        ? Math.round((state.doneItems.value / state.totalItems.value) * 100)
+                        : 50,
+                    hint: "% concluído no ciclo",
+                  },
+                ]}
+              />
+              {state.activity.ok && (
+                <EvolutionTimeline
+                  events={state.activity.value.map<EvolutionEvent>((a) => ({
+                    id: a.id,
+                    date: a.updatedAt ?? a.createdAt ?? new Date().toISOString(),
+                    title: a.title,
+                    detail: a.itemKey ?? undefined,
+                    status: a.status,
+                  }))}
+                />
+              )}
+            </WidgetGrid>
+
 
             <WidgetGrid columns={3}>
               <WidgetCard className="lg:col-span-2">

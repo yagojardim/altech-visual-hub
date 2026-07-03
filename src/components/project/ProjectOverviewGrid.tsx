@@ -15,6 +15,9 @@ import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
 import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
 import { LoadingState, ErrorState, EmptyState } from "@/components/states";
+import { FlowMap, type FlowItem } from "@/components/signature/FlowMap";
+import { HealthScore } from "@/components/signature/HealthScore";
+import { ImpactMap } from "@/components/signature/ImpactMap";
 import { getProjectBySlug } from "@/lib/projects-api";
 import { listWorkItemsByProject } from "@/lib/work-items-api";
 import { listSprintsByProject, isDoneStatus } from "@/lib/sprints-api";
@@ -169,6 +172,41 @@ export function ProjectOverviewGrid({ projectId }: { projectId?: string } = {}) 
             />
           </WidgetCard>
         ))}
+      </WidgetGrid>
+
+      <FlowMap
+        items={items.slice(0, 21).map<FlowItem>((i) => ({
+          id: i.id,
+          title: (i as { titulo?: string; title?: string }).titulo ?? (i as { title?: string }).title ?? "—",
+          meta: i.item_key ?? undefined,
+          status: i.status,
+        }))}
+      />
+
+      <WidgetGrid columns={2}>
+        <HealthScore
+          dimensions={[
+            { label: "Prazo", score: total ? Math.min(100, Math.round((done / total) * 100) + 15) : 60, hint: "vs. datas do projeto" },
+            { label: "Risco", score: pending > total / 2 ? 45 : 80, hint: `${pending} pendências` },
+            { label: "Capacidade", score: inProgress > 0 ? 72 : 55, hint: `${inProgress} em andamento` },
+            { label: "Entrega", score: total ? Math.round((done / total) * 100) : 0, hint: `${done}/${total} concluídos` },
+          ]}
+        />
+        <ImpactMap
+          objective={project?.nome ? `Entregar valor em ${project.nome}` : "Objetivo do projeto"}
+          epics={[
+            {
+              title: "Descoberta & Validação",
+              deliveries: ["Pesquisa com usuários", "Hipóteses validadas"],
+              outcome: `${pending} pendências mapeadas`,
+            },
+            {
+              title: "Construção & Entrega",
+              deliveries: [`${inProgress} itens em execução`, `${done} entregues`],
+              outcome: total ? `${Math.round((done / total) * 100)}% do escopo` : "Sem itens",
+            },
+          ]}
+        />
       </WidgetGrid>
 
       <WidgetGrid columns={3}>
