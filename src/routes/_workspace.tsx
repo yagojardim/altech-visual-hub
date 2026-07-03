@@ -1,11 +1,12 @@
 import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sidebar, SidebarContent as SidebarNavContent } from "@/components/workspace/Sidebar";
 import { Topbar } from "@/components/workspace/Topbar";
 import { Breadcrumbs } from "@/components/workspace/Breadcrumb";
 import { CommandPalette } from "@/components/workspace/CommandPalette";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { WorkspaceProvider } from "@/lib/workspace";
+import { ensureSeed } from "@/lib/projects-api";
 
 export const Route = createFileRoute("/_workspace")({
   component: WorkspaceRoute,
