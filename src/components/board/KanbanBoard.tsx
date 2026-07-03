@@ -174,6 +174,7 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
     setItems((cur) => cur.map((i) => (i.id === itemId ? { ...i, status: nextStatus } : i)));
     try {
       await updateWorkItem(itemId, toWorkItemPatch({ status: nextStatus }));
+      invalidate();
     } catch (err) {
       setItems(prev);
       const msg = err instanceof Error ? err.message : "Erro ao mover item";
@@ -182,7 +183,7 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
   };
 
   if (loading) return <LoadingState label="Carregando board…" variant="skeleton" rows={4} />;
-  if (error) return <ErrorState description={error} onRetry={() => void load()} />;
+  if (error) return <ErrorState description={error} onRetry={() => void refetch()} />;
 
   return (
     <>
