@@ -1,0 +1,137 @@
+/* ============================================================
+   ALTECH PROJECT — DESIGN TOKENS (handoff p/ Lovable)
+   Cole/instale como src/styles/altech-tokens.css e importe no topo
+   do globals/index.css. Fonte: Design System Altech v1.0.
+   ============================================================ */
+
+/* Fontes carregadas via <link> em src/routes/__root.tsx.
+   Não usar @import remoto aqui: Lightning CSS (Tailwind v4) resolve
+   @import do filesystem e quebraria o build. */
+
+:root {
+  /* ---- Brand: Altech Blue ---- */
+  --blue-50:#EEF4FF; --blue-100:#D9E5FF; --blue-200:#B3CBFF; --blue-300:#80A8FF;
+  --blue-400:#4D85FF; --blue-500:#2F6BFF; --blue-600:#1A52E0; --blue-700:#1340B4;
+  --blue-800:#102F80; --blue-900:#0C2050;
+  /* ---- Accent: Pulse Emerald ---- */
+  --mint-50:#E6FBF4; --mint-100:#C2F5E5; --mint-200:#88EBCB; --mint-300:#4FE0B2;
+  --mint-400:#1FD49C; --mint-500:#06C18A; --mint-600:#03A073; --mint-700:#047E5B;
+  /* ---- Sky ---- */
+  --sky-100:#E4F0FF; --sky-200:#C7E0FF; --sky-400:#5FB0FF; --sky-500:#2E9BFF;
+  /* ---- Neutrals: Ink & Slate ---- */
+  --white:#FFFFFF; --paper:#F7F9FC;
+  --slate-50:#F1F5F9; --slate-100:#E6EBF2; --slate-200:#CDD6E3; --slate-300:#A9B6C9;
+  --slate-400:#7C8AA1; --slate-500:#586579; --slate-600:#3D4759;
+  --ink-700:#1E293B; --ink-800:#131A2B; --ink-900:#0B1120; --ink-950:#070B16;
+  /* Sidebar (spec do board Navegação) */
+  --nav-bg:#080F1E;
+
+  /* ---- Semantic status ---- */
+  --success-500:#06C18A; --success-50:#E6FBF4;
+  --warning-500:#F5A524; --warning-50:#FEF4E2;
+  --danger-500:#F0455A;  --danger-50:#FDE8EB;
+  --info-500:#2E9BFF;    --info-50:#E4F0FF;
+
+  /* ---- Semantic aliases (LIGHT) ---- */
+  --brand:var(--blue-500); --brand-hover:var(--blue-600); --brand-active:var(--blue-700);
+  --brand-subtle:var(--blue-50); --brand-on:var(--white);
+  --accent:var(--mint-500); --accent-hover:var(--mint-600); --accent-subtle:var(--mint-50); --accent-on:var(--white);
+  --bg-page:var(--paper); --bg-surface:var(--white); --bg-surface-2:var(--slate-50);
+  --bg-inset:var(--slate-100); --bg-inverse:var(--ink-900);
+  --text-strong:var(--ink-900); --text-body:var(--ink-700); --text-muted:var(--slate-500);
+  --text-subtle:var(--slate-400); --text-on-brand:var(--white); --text-link:var(--blue-600);
+  --border-subtle:var(--slate-100); --border-default:var(--slate-200); --border-strong:var(--slate-300);
+  --border-focus:var(--blue-500);
+  --ring:color-mix(in srgb, var(--blue-500) 35%, transparent);
+  --gradient-brand:linear-gradient(135deg,#2F6BFF 0%,#2E9BFF 100%);
+  --gradient-flow:linear-gradient(135deg,#2F6BFF 0%,#06C18A 100%);
+  --gradient-ink:linear-gradient(160deg,#131A2B 0%,#070B16 100%);
+
+  /* ---- Type ---- */
+  --font-display:'Sora',ui-sans-serif,system-ui,sans-serif;
+  --font-sans:'Manrope',ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+
+  /* ---- Radius ---- */
+  --radius-xs:4px; --radius-sm:8px; --radius-md:12px; --radius-lg:16px;
+  --radius-xl:22px; --radius-2xl:32px; --radius-pill:999px;
+
+  /* ---- Elevation ---- */
+  --shadow-xs:0 1px 2px rgba(11,17,32,.06);
+  --shadow-sm:0 2px 6px rgba(11,17,32,.07);
+  --shadow-md:0 8px 24px -8px rgba(11,17,32,.14);
+  --shadow-lg:0 18px 48px -12px rgba(11,17,32,.20);
+  --shadow-xl:0 32px 80px -20px rgba(11,17,32,.28);
+  --glow-brand:0 8px 28px -6px rgba(47,107,255,.45);
+  --glow-accent:0 8px 28px -6px rgba(6,193,138,.40);
+  --focus-ring:0 0 0 3px var(--ring);
+  --blur-glass:saturate(160%) blur(14px);
+
+  /* ============================================================
+     PONTE PARA shadcn/ui (mapear os tokens do shadcn p/ Altech).
+     Ajuste conforme a versão do Tailwind do projeto.
+     ============================================================ */
+  --background:var(--bg-page);
+  --foreground:var(--text-strong);
+  --card:var(--bg-surface);
+  --card-foreground:var(--text-strong);
+  --popover:var(--bg-surface);
+  --popover-foreground:var(--text-strong);
+  --primary:var(--brand);
+  --primary-foreground:var(--brand-on);
+  --secondary:var(--bg-surface-2);
+  --secondary-foreground:var(--text-strong);
+  --muted:var(--bg-inset);
+  --muted-foreground:var(--text-muted);
+  --accent-color:var(--accent);
+  --accent-foreground:var(--accent-on);
+  --destructive:var(--danger-500);
+  --destructive-foreground:var(--white);
+  --border:var(--border-default);
+  --input:var(--border-default);
+  --ring-color:var(--brand);
+  --radius:var(--radius-md);
+}
+
+/* ---- DARK MODE ---- */
+.dark,[data-theme="dark"]{
+  --brand:var(--blue-400); --brand-hover:var(--blue-300); --brand-active:var(--blue-500);
+  --brand-subtle:color-mix(in srgb,var(--blue-500) 18%,var(--ink-900)); --brand-on:var(--ink-950);
+  --accent:var(--mint-400); --accent-hover:var(--mint-300);
+  --accent-subtle:color-mix(in srgb,var(--mint-500) 16%,var(--ink-900)); --accent-on:var(--ink-950);
+  --bg-page:var(--ink-950); --bg-surface:var(--ink-900); --bg-surface-2:var(--ink-800);
+  --bg-inset:var(--ink-800); --bg-inverse:var(--white);
+  --text-strong:#F4F7FC; --text-body:var(--slate-200); --text-muted:var(--slate-400);
+  --text-subtle:var(--slate-500); --text-on-brand:var(--ink-950); --text-link:var(--blue-300);
+  --border-subtle:color-mix(in srgb,var(--slate-200) 10%,transparent);
+  --border-default:color-mix(in srgb,var(--slate-200) 16%,transparent);
+  --border-strong:color-mix(in srgb,var(--slate-200) 26%,transparent);
+  --border-focus:var(--blue-400);
+  --ring:color-mix(in srgb,var(--blue-400) 40%,transparent);
+  --background:var(--bg-page); --foreground:var(--text-strong);
+  --card:var(--bg-surface); --card-foreground:var(--text-strong);
+  --primary:var(--brand); --primary-foreground:var(--brand-on);
+  --border:var(--border-default); --input:var(--border-default);
+}
+
+/* ---- Base ---- */
+body{ background:var(--bg-page); color:var(--text-body); font-family:var(--font-sans); }
+h1,h2,h3,h4{ font-family:var(--font-display); color:var(--text-strong); letter-spacing:-0.02em; }
+
+/* ============================================================
+   SIDEBAR / NAVEGAÇÃO — spec exata do board "Navegação"
+   Largura 232px · fundo #080F1E · item radius 8px ·
+   ícone 17×17 · padding item 8px 10px · sempre escura.
+   ============================================================ */
+.altech-nav{ width:232px; background:var(--nav-bg); color:var(--slate-300);
+  display:flex; flex-direction:column; padding:12px; }
+.altech-nav__group-label{ font-family:var(--font-mono); font-size:10px; font-weight:500;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--slate-500);
+  padding:14px 10px 6px; }
+.altech-nav__item{ display:flex; align-items:center; gap:10px; padding:8px 10px;
+  border-radius:8px; font-family:var(--font-sans); font-size:14px; font-weight:500;
+  color:var(--slate-400); cursor:pointer; transition:background .18s cubic-bezier(.22,1,.36,1),color .18s; }
+.altech-nav__item svg{ width:17px; height:17px; }
+.altech-nav__item:hover{ background:rgba(255,255,255,.05); color:var(--slate-200); }
+.altech-nav__item--active{ background:color-mix(in srgb,var(--blue-500) 22%,transparent);
+  color:#fff; }
