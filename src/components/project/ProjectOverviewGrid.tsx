@@ -101,6 +101,13 @@ export function ProjectOverviewGrid({ projectId }: { projectId?: string } = {}) 
         onRetry={() => setReloadKey((k) => k + 1)}
       />
     );
+  if (!project)
+    return (
+      <EmptyState
+        title="Nada por aqui ainda"
+        description="Este projeto ainda não tem dados carregados."
+      />
+    );
 
   const summary = [
     {
