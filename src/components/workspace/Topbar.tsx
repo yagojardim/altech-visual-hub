@@ -3,6 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/workspace";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import {
   DropdownMenu,
   DropdownMenuContent,
