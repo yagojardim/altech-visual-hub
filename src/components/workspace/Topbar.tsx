@@ -30,7 +30,7 @@ export function Topbar({ onOpenPalette, onOpenMobileNav }: TopbarProps) {
         aria-label="Abrir menu"
         onClick={onOpenMobileNav}
       >
-        <Menu className="h-4 w-4" />
+        <Menu className="h-4 w-4" aria-hidden="true" />
       </Button>
 
       <div className="flex min-w-0 items-center gap-2">
@@ -46,7 +46,7 @@ export function Topbar({ onOpenPalette, onOpenMobileNav }: TopbarProps) {
           className="group hidden items-center gap-2 rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground sm:flex"
           aria-label="Abrir busca (Ctrl+K)"
         >
-          <Search className="h-3.5 w-3.5" />
+          <Search className="h-3.5 w-3.5" aria-hidden="true" />
           <span>Buscar…</span>
           <kbd className="ml-6 rounded border border-border bg-background px-1.5 py-0.5 text-[10px] font-mono">
             ⌘K
@@ -59,11 +59,11 @@ export function Topbar({ onOpenPalette, onOpenMobileNav }: TopbarProps) {
           onClick={onOpenPalette}
           aria-label="Abrir busca"
         >
-          <Search className="h-4 w-4" />
+          <Search className="h-4 w-4" aria-hidden="true" />
         </Button>
 
         <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Notificações">
-          <Bell className="h-4 w-4" />
+          <Bell className="h-4 w-4" aria-hidden="true" />
         </Button>
 
         {user && (
@@ -80,7 +80,7 @@ export function Topbar({ onOpenPalette, onOpenMobileNav }: TopbarProps) {
                   <div className="text-xs font-medium text-foreground">{user.name}</div>
                   <div className="text-[10px] capitalize text-muted-foreground">{user.role}</div>
                 </div>
-                <ChevronDown className="hidden h-3.5 w-3.5 text-muted-foreground sm:block" />
+                <ChevronDown className="hidden h-3.5 w-3.5 text-muted-foreground sm:block" aria-hidden="true" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
