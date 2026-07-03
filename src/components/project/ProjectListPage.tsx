@@ -124,17 +124,36 @@ export function ProjectListPage() {
         options: uniq("status").map((v) => ({ value: v, label: v })),
       },
       {
-        key: "cliente",
-        label: "Cliente",
-        options: uniq("cliente").map((v) => ({ value: v, label: v })),
-      },
-      {
         key: "responsavel",
         label: "Responsável",
         options: uniq("responsavel").map((v) => ({ value: v, label: v })),
       },
     ];
   }, [projects]);
+
+  const filterLabels: Record<string, string> = {
+    status: "Status",
+    responsavel: "Responsável",
+  };
+
+  const activeFilterChips = Object.entries(prefs.filters).flatMap(([key, values]) =>
+    (values ?? []).map((val) => ({ key, value: val })),
+  );
+
+  const removeFilterValue = (key: string, val: string) => {
+    const current = prefs.filters[key] ?? [];
+    updatePrefs({
+      filters: { ...prefs.filters, [key]: current.filter((v) => v !== val) },
+    });
+  };
+
+  const clearAllFilters = () => {
+    updatePrefs({
+      filters: Object.fromEntries(
+        Object.keys(prefs.filters).map((k) => [k, [] as string[]]),
+      ),
+    });
+  };
 
   const visible = useMemo(() => {
     if (!projects) return [];
