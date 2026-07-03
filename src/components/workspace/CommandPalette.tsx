@@ -141,7 +141,7 @@ export function CommandPalette({
                   value={`proj-${p.nome}-${p.id}`}
                   onSelect={() => openProject(p)}
                 >
-                  <FolderKanban className="mr-2 h-4 w-4" />
+                  <FolderKanban className="mr-2 h-4 w-4" aria-hidden="true" />
                   <span className="truncate">{p.nome ?? "Sem nome"}</span>
                 </CommandItem>
               ))}
