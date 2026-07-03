@@ -48,6 +48,7 @@ type CommentRow = {
 type Criterion = { id: string; text: string; done: boolean };
 
 const STATUS_OPTIONS = ["Backlog", "A Fazer", "Em Andamento", "Em Validação", "Concluído"];
+const TYPE_OPTIONS = ["Épico", "História", "Tarefa", "Bug"];
 
 function parseCriteria(raw: unknown): Criterion[] {
   if (!raw) return [];
