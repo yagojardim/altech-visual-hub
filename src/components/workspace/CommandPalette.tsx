@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
-type ProjectHit = { id: string; name: string | null; slug?: string | null };
+type ProjectHit = { id: string; nome: string | null; slug?: string | null };
 type WorkItemHit = {
   id: string;
   item_key: string | null;
@@ -66,8 +66,8 @@ export function CommandPalette({
       setLoading(true);
       const q = query.trim();
       const projectQuery = q
-        ? supabase.from("projects").select("id, name, slug").ilike("name", `%${q}%`).limit(6)
-        : supabase.from("projects").select("id, name, slug").order("name").limit(6);
+        ? supabase.from("projects").select("id, nome, slug").ilike("nome", `%${q}%`).limit(6)
+        : supabase.from("projects").select("id, nome, slug").order("nome").limit(6);
       const itemQuery = q
         ? supabase
             .from("work_items")
@@ -137,11 +137,11 @@ export function CommandPalette({
               {projects.map((p) => (
                 <CommandItem
                   key={p.id}
-                  value={`proj-${p.name}-${p.id}`}
+                  value={`proj-${p.nome}-${p.id}`}
                   onSelect={() => openProject(p)}
                 >
                   <FolderKanban className="mr-2 h-4 w-4" />
-                  <span className="truncate">{p.name ?? "Sem nome"}</span>
+                  <span className="truncate">{p.nome ?? "Sem nome"}</span>
                 </CommandItem>
               ))}
             </CommandGroup>
