@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   DndContext,
   PointerSensor,
@@ -15,6 +16,7 @@ import {
   updateWorkItem,
   STATUS_COLUMNS,
 } from "@/lib/work-items-api";
+import { qk } from "@/lib/query-keys";
 import { toWorkItems, toWorkItemPatch, type WorkItem } from "@/lib/work-item-map";
 import { LoadingState, ErrorState, EmptyState } from "@/components/states";
 import { KanbanSquare } from "lucide-react";
@@ -119,30 +121,33 @@ function Column({
 }
 
 export function KanbanBoard({ projectId }: { projectId: string }) {
+  const queryClient = useQueryClient();
   const [items, setItems] = useState<WorkItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const rows = await listWorkItemsByProject(projectId);
-      setItems(toWorkItems(rows));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Erro ao carregar board");
-    } finally {
-      setLoading(false);
-    }
-  }, [projectId]);
+  const queryKey = qk.workItemsByProject(projectId);
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey,
+    queryFn: () => listWorkItemsByProject(projectId),
+  });
+  const error = queryError instanceof Error ? queryError.message : queryError ? String(queryError) : null;
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    if (data) setItems(toWorkItems(data));
+  }, [data]);
+
+  const invalidate = () => {
+    void queryClient.invalidateQueries({ queryKey });
+  };
+
 
   const itemsByStatus = useMemo(() => {
     const map = new Map<string, WorkItem[]>();
@@ -169,6 +174,7 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
     setItems((cur) => cur.map((i) => (i.id === itemId ? { ...i, status: nextStatus } : i)));
     try {
       await updateWorkItem(itemId, toWorkItemPatch({ status: nextStatus }));
+      invalidate();
     } catch (err) {
       setItems(prev);
       const msg = err instanceof Error ? err.message : "Erro ao mover item";
@@ -177,7 +183,7 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
   };
 
   if (loading) return <LoadingState label="Carregando board…" variant="skeleton" rows={4} />;
-  if (error) return <ErrorState description={error} onRetry={() => void load()} />;
+  if (error) return <ErrorState description={error} onRetry={() => void refetch()} />;
 
   return (
     <>
@@ -226,7 +232,7 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
           {openItemId && (
             <WorkItemDetailsPanel
               workItemId={openItemId}
-              onChange={() => void load()}
+              onChange={invalidate}
             />
           )}
         </SheetContent>
@@ -237,7 +243,7 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
         open={creating}
         onOpenChange={setCreating}
         defaultStatus="A Fazer"
-        onCreated={() => void load()}
+        onCreated={invalidate}
       />
     </>
   );

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   DndContext,
   PointerSensor,
@@ -17,6 +18,7 @@ import {
   TIPO_OPTIONS,
   PRIORIDADE_OPTIONS,
 } from "@/lib/work-items-api";
+import { qk } from "@/lib/query-keys";
 import { toWorkItems, toWorkItemPatch, type WorkItem } from "@/lib/work-item-map";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { Badge } from "@/components/ui/badge";
@@ -185,9 +187,8 @@ function DropZone({
 }
 
 export function LiveBacklog({ projectId }: { projectId: string }) {
+  const queryClient = useQueryClient();
   const [items, setItems] = useState<WorkItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
@@ -196,22 +197,25 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
     DEFAULT_PREFS,
   );
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const rows = await listWorkItemsByProject(projectId);
-      setItems(toWorkItems(rows));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Erro ao carregar backlog");
-    } finally {
-      setLoading(false);
-    }
-  }, [projectId]);
+  const queryKey = qk.workItemsByProject(projectId);
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey,
+    queryFn: () => listWorkItemsByProject(projectId),
+  });
+  const error = queryError instanceof Error ? queryError.message : queryError ? String(queryError) : null;
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    if (data) setItems(toWorkItems(data));
+  }, [data]);
+
+  const invalidate = useCallback(() => {
+    void queryClient.invalidateQueries({ queryKey });
+  }, [queryClient, queryKey]);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -334,10 +338,11 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
         await updateWorkItem(it.id, toWorkItemPatch({ order: it.order }));
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Erro ao reordenar");
-        void load();
+        invalidate();
         return;
       }
     }
+    invalidate();
   };
 
   const moveWithinBy = async (id: string, delta: number) => {
@@ -372,6 +377,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
     );
     try {
       await updateWorkItem(itemId, toWorkItemPatch({ status: nextStatus, order: destOrder }));
+      invalidate();
     } catch (err) {
       setItems(prev);
       toast.error(err instanceof Error ? err.message : "Erro ao mover item");
@@ -419,7 +425,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
               filterFields={filterFields}
               sortOptions={SORT_OPTIONS}
               groupOptions={GROUP_OPTIONS}
-              onRefresh={() => void load()}
+              onRefresh={() => void refetch()}
               onReset={resetPrefs}
             />
           }
@@ -429,7 +435,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
       {loading ? (
         <LoadingState label="Carregando backlog…" variant="skeleton" rows={5} />
       ) : error ? (
-        <ErrorState description={error} onRetry={() => void load()} />
+        <ErrorState description={error} onRetry={() => void refetch()} />
       ) : totalItems === 0 ? (
         <EmptyState
           title="Nada por aqui ainda"
@@ -495,7 +501,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
           {openItemId && (
             <WorkItemDetailsPanel
               workItemId={openItemId}
-              onChange={() => void load()}
+              onChange={invalidate}
             />
           )}
         </SheetContent>
@@ -505,7 +511,7 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
         projectId={projectId}
         open={creating}
         onOpenChange={setCreating}
-        onCreated={() => void load()}
+        onCreated={invalidate}
       />
     </>
   );

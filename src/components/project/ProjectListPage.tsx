@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronRight, FolderKanban, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { useCan } from "@/lib/auth";
@@ -8,6 +9,7 @@ import { ProjectToolbar } from "./ProjectToolbar";
 import { CreateProjectModal } from "./CreateProjectModal";
 import { Button } from "@/components/ui/button";
 import { listProjects, type ProjectRow } from "@/lib/projects-api";
+import { qk } from "@/lib/query-keys";
 import { useOrgPrefs } from "@/lib/use-org-prefs";
 import type { OrgControlsValue } from "@/components/work-item/OrgControls";
 
@@ -41,41 +43,30 @@ const GROUP_OPTIONS = [
 
 export function ProjectListPage() {
   const canView = useCan("project.view");
-  const [projects, setProjects] = useState<ProjectRow[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [editing, setEditing] = useState<ProjectRow | null>(null);
   const [editOpen, setEditOpen] = useState(false);
-  const [reloadKey, setReloadKey] = useState(0);
+
+  const {
+    data: projects,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey: qk.projects(),
+    queryFn: listProjects,
+  });
+  const error = queryError instanceof Error ? queryError.message : queryError ? String(queryError) : null;
 
   const [prefs, updatePrefs, resetPrefs] = useOrgPrefs<ProjectsPrefs>(
     "/projects",
     DEFAULT_PREFS,
   );
 
-  useEffect(() => {
-    let alive = true;
-    setLoading(true);
-    setError(null);
-    listProjects()
-      .then((rows) => {
-        if (!alive) return;
-        setProjects(rows);
-      })
-      .catch((err: unknown) => {
-        if (!alive) return;
-        const msg = err instanceof Error ? err.message : String(err);
-        setError(msg);
-      })
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
-    return () => {
-      alive = false;
-    };
-  }, [reloadKey]);
-
-  const reload = () => setReloadKey((k) => k + 1);
+  const reload = () => {
+    void queryClient.invalidateQueries({ queryKey: qk.projects() });
+    void refetch();
+  };
 
   const filterFields = useMemo(() => {
     const uniq = (k: keyof ProjectRow) =>
