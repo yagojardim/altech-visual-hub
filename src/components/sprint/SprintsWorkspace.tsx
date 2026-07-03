@@ -463,8 +463,8 @@ function SprintDetails({
           listItemsBySprint(sprintId),
           listUnassignedItems(s.project_id),
         ]);
-        setItems(linked);
-        setAvailable(unassigned);
+        setItems(linked.map(toWorkItem));
+        setAvailable(unassigned.map(toWorkItem));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao carregar sprint");
