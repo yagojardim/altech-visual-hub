@@ -93,17 +93,39 @@ function DashboardPage() {
     setLoading(true);
     setError(null);
     try {
-      const [projectsRes, itemsRes] = await Promise.all([
-        supabase.from("projects").select("id", { count: "exact", head: true }),
+      const [projectsRes, itemsRes, sprintsRes] = await Promise.all([
+        supabase
+          .from("projects")
+          .select("id, status")
+          .eq("tenant_id", DEFAULT_TENANT_ID),
         supabase
           .from("work_items")
           .select("id, item_key, titulo, tipo, status, responsavel, created_at, updated_at")
+          .eq("tenant_id", DEFAULT_TENANT_ID)
           .order("updated_at", { ascending: false })
           .limit(200),
+        supabase
+          .from("sprints")
+          .select("id, status")
+          .eq("tenant_id", DEFAULT_TENANT_ID),
       ]);
 
       if (projectsRes.error) throw projectsRes.error;
       if (itemsRes.error) throw itemsRes.error;
+      // sprints table might not exist yet; tolerate error silently
+      const sprintRows = (sprintsRes.error ? [] : sprintsRes.data ?? []) as Array<{
+        id: string;
+        status: string | null;
+      }>;
+
+      const projectRows = (projectsRes.data ?? []) as Array<{ id: string; status: string | null }>;
+      const activeProjects = projectRows.filter(
+        (p) => !PROJECT_INACTIVE.has((p.status ?? "").toLowerCase()),
+      ).length;
+
+      const activeSprints = sprintRows.filter((s) =>
+        SPRINT_ACTIVE.has((s.status ?? "").toLowerCase()),
+      ).length;
 
       const items = (itemsRes.data ?? []) as Array<
         ActivityItem & { tipo: string | null; responsavel: string | null }
@@ -111,6 +133,15 @@ function DashboardPage() {
 
       const openItems = items.filter((i) => !isDone(i.status)).length;
       const doneItems = items.filter((i) => isDone(i.status)).length;
+
+      const statusMap = new Map<string, number>();
+      for (const i of items) {
+        const key = (i.status ?? "sem status").toString();
+        statusMap.set(key, (statusMap.get(key) ?? 0) + 1);
+      }
+      const statusBreakdown = Array.from(statusMap.entries())
+        .map(([status, count]) => ({ status, count }))
+        .sort((a, b) => b.count - a.count);
 
       const activity: ActivityItem[] = items.slice(0, 6).map((i) => ({
         id: i.id,
@@ -139,11 +170,13 @@ function DashboardPage() {
 
       setData({
         counts: {
-          projects: projectsRes.count ?? 0,
+          activeProjects,
           openItems,
           doneItems,
           totalItems: items.length,
+          activeSprints,
         },
+        statusBreakdown,
         activity,
         myItems,
       });
@@ -153,6 +186,7 @@ function DashboardPage() {
       setLoading(false);
     }
   }, [user]);
+
 
 
   useEffect(() => {
