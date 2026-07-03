@@ -10,6 +10,7 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { Plus, User } from "lucide-react";
+import { ConceptIcon, CONCEPT_COLORS, conceptFromType } from "@/components/icons/ConceptIcon";
 import { toast } from "sonner";
 import {
   listWorkItemsByProject,
