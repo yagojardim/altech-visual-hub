@@ -2,6 +2,7 @@ import { Search, Bell, Menu, ChevronDown } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/workspace";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,6 +62,8 @@ export function Topbar({ onOpenPalette, onOpenMobileNav }: TopbarProps) {
         >
           <Search className="h-4 w-4" aria-hidden="true" />
         </Button>
+
+        <ThemeToggle />
 
         <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Notificações">
           <Bell className="h-4 w-4" aria-hidden="true" />

@@ -99,24 +99,24 @@
   --border-color: #CDD6E3;
 }
 
-/* Dark mode — system preference */
+/* Dark mode — system preference (only when user has no explicit choice) */
 @media (prefers-color-scheme: dark) {
-  :root:not(.light) {
-    --bg-primary: #0B1120;
-    --bg-secondary: #131A2B;
-    --text-primary: #ffffff;
-    --text-secondary: #A9B6C9;
-    --border-color: color-mix(in srgb, #CDD6E3 18%, transparent);
+  :root:not(.light):not(.dark) {
+    --bg-primary: #0F1117;
+    --bg-secondary: #1C1F26;
+    --text-primary: #E6EDF3;
+    --text-secondary: #8B949E;
+    --border-color: #30363D;
   }
 }
 
-/* Dark mode — explicit .dark class on html */
+/* Dark mode — explicit .dark class on html (user toggle wins) */
 html.dark {
-  --bg-primary: #0B1120;
-  --bg-secondary: #131A2B;
-  --text-primary: #ffffff;
-  --text-secondary: #A9B6C9;
-  --border-color: color-mix(in srgb, #CDD6E3 18%, transparent);
+  --bg-primary: #0F1117;
+  --bg-secondary: #1C1F26;
+  --text-primary: #E6EDF3;
+  --text-secondary: #8B949E;
+  --border-color: #30363D;
   color-scheme: dark;
 }
 
@@ -154,7 +154,7 @@ html.dark {
     gap: var(--space-2);
   }
   button:not([class*="rounded"]) {
-    border-radius: 8px; /* --radius-md */
+    border-radius: 8px; /* --radius-md — buttons keep 8px */
   }
   input:not([type="checkbox"]):not([type="radio"]):not([class*="p-"]):not([class*="px-"]):not([class*="py-"]),
   textarea:not([class*="p-"]):not([class*="px-"]):not([class*="py-"]),
@@ -164,7 +164,7 @@ html.dark {
   input:not([type="checkbox"]):not([type="radio"]):not([class*="rounded"]),
   textarea:not([class*="rounded"]),
   select:not([class*="rounded"]) {
-    border-radius: 8px;
+    border-radius: 8px; /* form fields keep 8px */
   }
   :focus-visible {
     outline: none;
@@ -185,7 +185,7 @@ html.dark [data-theme] {
   background-color: var(--color-card);
   color: var(--color-card-foreground);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-radius: 4px;
   box-shadow: var(--shadow-card);
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
   &:hover {
@@ -198,15 +198,53 @@ html.dark [data-theme] {
   background-image: var(--gradient-flow);
 }
 
-/* Card squareness — override rounded-xl on card-like surfaces to keep design squared */
-.rounded-xl.bg-card,
-.rounded-xl.bg-panel,
-article.rounded-xl {
-  border-radius: 4px;
+/* ============================================================
+ * Global border-radius standardization — Altech angular design.
+ * All cards, containers, panels, popovers, dropdowns, modals,
+ * toasts, list groups, sidebars → 4px (--radius-sm).
+ * Exceptions: buttons, inputs, textareas, selects, comboboxes,
+ * avatars, badges/pills that opt-in with rounded-full.
+ * ============================================================ */
+:where(
+  .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl
+):not(button):not(input):not(textarea):not(select):not([role="combobox"]):not([data-slot="avatar"]):not(.avatar-full):not(.keep-radius) {
+  border-radius: 4px !important;
 }
 
-/* Avatar full-round helper */
-[data-slot="avatar"], .avatar-full { border-radius: var(--radius-full); }
+/* Cover shadcn primitives explicitly (Radix slots) */
+[data-slot="dialog-content"],
+[data-slot="alert-dialog-content"],
+[data-slot="sheet-content"],
+[data-slot="popover-content"],
+[data-slot="dropdown-menu-content"],
+[data-slot="context-menu-content"],
+[data-slot="menubar-content"],
+[data-slot="select-content"],
+[data-slot="hover-card-content"],
+[data-slot="command"],
+[data-slot="tooltip-content"],
+[data-slot="card"],
+[data-slot="alert"],
+[data-slot="toast"],
+[data-sonner-toaster] [data-sonner-toast],
+li[role="option"],
+li[role="menuitem"],
+[role="menuitem"] {
+  border-radius: 4px !important;
+}
+
+/* Avatar full-round helper (kept round) */
+[data-slot="avatar"], .avatar-full { border-radius: var(--radius-full) !important; }
+
+/* Buttons & form fields — keep 8px even if utility classes present */
+button:where(:not(.keep-radius)),
+[role="button"]:where([data-slot="button"]),
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select,
+[role="combobox"] {
+  border-radius: 8px !important;
+}
 
 /* Dark theme surface bridge for shadcn tokens */
 html.dark {
@@ -214,8 +252,16 @@ html.dark {
   --foreground: var(--text-primary);
   --card: var(--bg-secondary);
   --card-foreground: var(--text-primary);
+  --popover: var(--bg-secondary);
+  --popover-foreground: var(--text-primary);
   --border: var(--border-color);
   --input: var(--border-color);
+  --muted: color-mix(in srgb, var(--bg-secondary) 80%, #ffffff 4%);
   --muted-foreground: var(--text-secondary);
+  --secondary: color-mix(in srgb, var(--bg-secondary) 85%, #ffffff 6%);
+  --secondary-foreground: var(--text-primary);
+  --accent-color: color-mix(in srgb, var(--bg-secondary) 80%, #ffffff 8%);
+  --accent-foreground: var(--text-primary);
 }
+
 

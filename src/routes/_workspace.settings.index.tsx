@@ -1,11 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Users, Settings as SettingsIcon, CreditCard, BarChart3 } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { useTheme } from "@/lib/theme";
 
 export const Route = createFileRoute("/_workspace/settings/")({
   component: SettingsIndex,
 });
 
 function SettingsIndex() {
+  const { theme } = useTheme();
   return (
     <div className="space-y-6">
       <div>
@@ -13,6 +16,16 @@ function SettingsIndex() {
         <p className="mt-1 text-sm text-muted-foreground">
           Preferências do workspace, membros e integrações. Cobrança e planos: Altech Control (em breve).
         </p>
+      </div>
+
+      <div className="altech-card flex items-center justify-between gap-4 p-4">
+        <div>
+          <h2 className="text-sm font-semibold">Aparência</h2>
+          <p className="text-xs text-muted-foreground">
+            Tema atual: <span className="font-medium capitalize">{theme === "dark" ? "escuro" : "claro"}</span>. A preferência é salva neste navegador.
+          </p>
+        </div>
+        <ThemeToggle variant="full" />
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <Link
