@@ -112,6 +112,7 @@ export function CreateProjectModal({
         mode === "edit" && project
           ? await updateProject(project.id, payload)
           : await createProject(payload);
+      await queryClient.invalidateQueries({ queryKey: qk.projects() });
       toast.success(mode === "edit" ? "Projeto atualizado." : "Projeto criado.");
       onSaved?.(saved);
       setOpen(false);
