@@ -11,7 +11,7 @@ export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
       { title: "Entrar · Altech Project" },
-      { name: "description", content: "Acesse seu workspace Altech." },
+      { name: "description", content: "Acesse seu workspace Altech Project." },
     ],
   }),
   component: LoginPage,

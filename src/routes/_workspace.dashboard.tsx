@@ -264,7 +264,7 @@ function DashboardPage() {
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">Bem-vindo, {user?.name}</h1>
           <p className="text-sm text-muted-foreground">
-            Visão geral do seu workspace Altech. Use{" "}
+            Visão geral do seu workspace Altech Project. Use{" "}
             <kbd className="rounded border border-border bg-panel px-1 py-0.5 text-[10px] font-mono">
               ⌘K
             </kbd>{" "}

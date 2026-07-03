@@ -346,7 +346,7 @@ export function ProjectListPage() {
                       owner={p.responsavel ?? "—"}
                       status={p.status}
                       dueDate={formatRange(p.data_inicio, p.data_fim)}
-                      description={p.descricao ?? "Projeto do workspace Altech."}
+                      description={p.descricao ?? "Projeto do workspace Altech Project."}
                     />
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
