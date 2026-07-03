@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { isMissingRelation, logSupabaseError } from "./supabase-errors";
 
 export interface ProjectRow {
   id: string;
