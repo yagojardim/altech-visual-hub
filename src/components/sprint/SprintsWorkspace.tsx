@@ -39,11 +39,16 @@ import {
   listSprintsByProject,
   listUnassignedItems,
   setItemSprint,
-  SPRINT_STATUS,
   updateSprint,
   type SprintItemRow,
   type SprintRow,
 } from "@/lib/sprints-api";
+import {
+  SPRINT_STATUS,
+  DEFAULT_SPRINT_STATUS,
+  getSprintStatusColor,
+  getSprintStatusLabel,
+} from "@/lib/sprint-status";
 import { getProjectBySlug, listProjects, type ProjectRow } from "@/lib/projects-api";
 import { toWorkItem, type WorkItem } from "@/lib/work-item-map";
 import { WorkItemDetailsPanel } from "@/components/work-item/WorkItemDetailsPanel";
