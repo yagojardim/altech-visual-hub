@@ -114,7 +114,7 @@ function NavLink({
       )}
       aria-current={active ? "page" : undefined}
     >
-      <Icon className={cn("h-4 w-4", active ? "text-sidebar-primary" : "text-muted-foreground")} />
+      <Icon aria-hidden="true" className={cn("h-4 w-4", active ? "text-sidebar-primary" : "text-muted-foreground")} />
       <span className="truncate">{item.label}</span>
     </Link>
   );
