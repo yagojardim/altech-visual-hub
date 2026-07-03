@@ -80,6 +80,46 @@
   --sidebar-ring: var(--blue-500);
 }
 
+/* Spacing scale (Altech) */
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-full: 9999px;
+
+  /* Theme surface tokens (light) */
+  --bg-primary: #ffffff;
+  --bg-secondary: #F7F9FC;
+  --text-primary: #0B1120;
+  --text-secondary: #586579;
+  --border-color: #CDD6E3;
+}
+
+/* Dark mode — system preference */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --bg-primary: #0B1120;
+    --bg-secondary: #131A2B;
+    --text-primary: #ffffff;
+    --text-secondary: #A9B6C9;
+    --border-color: color-mix(in srgb, #CDD6E3 18%, transparent);
+  }
+}
+
+/* Dark mode — explicit .dark class on html */
+html.dark {
+  --bg-primary: #0B1120;
+  --bg-secondary: #131A2B;
+  --text-primary: #ffffff;
+  --text-secondary: #A9B6C9;
+  --border-color: color-mix(in srgb, #CDD6E3 18%, transparent);
+  color-scheme: dark;
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
@@ -88,26 +128,56 @@
     height: 100%;
   }
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-    font-family: var(--font-sans);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-weight: 400;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
-    font-weight: 700;
+    font-family: "Sora", "Manrope", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 600;
     letter-spacing: -0.02em;
-    color: var(--color-foreground);
+    color: var(--text-primary);
   }
   code, kbd, samp, pre {
-    font-family: var(--font-mono);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+  }
+  button, input, textarea, select {
+    font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-weight: 400;
+  }
+  /* Spacing + radius defaults (only apply when component didn't set its own) */
+  button:not([class*="p-"]):not([class*="px-"]):not([class*="py-"]) {
+    padding: var(--space-3) var(--space-4);
+    gap: var(--space-2);
+  }
+  button:not([class*="rounded"]) {
+    border-radius: 8px; /* --radius-md */
+  }
+  input:not([type="checkbox"]):not([type="radio"]):not([class*="p-"]):not([class*="px-"]):not([class*="py-"]),
+  textarea:not([class*="p-"]):not([class*="px-"]):not([class*="py-"]),
+  select:not([class*="p-"]):not([class*="px-"]):not([class*="py-"]) {
+    padding: var(--space-3) var(--space-4);
+  }
+  input:not([type="checkbox"]):not([type="radio"]):not([class*="rounded"]),
+  textarea:not([class*="rounded"]),
+  select:not([class*="rounded"]) {
+    border-radius: 8px;
   }
   :focus-visible {
     outline: none;
     box-shadow: var(--focus-ring);
     border-radius: var(--radius-sm);
   }
+}
+
+/* Dark mode support for cards/inputs baseline */
+html.dark body,
+html.dark [data-theme] {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 /* Card: superfície branca, borda hairline, sombra suave, hover eleva +1px */
@@ -127,3 +197,25 @@
 @utility altech-gradient {
   background-image: var(--gradient-flow);
 }
+
+/* Card squareness — override rounded-xl on card-like surfaces to keep design squared */
+.rounded-xl.bg-card,
+.rounded-xl.bg-panel,
+article.rounded-xl {
+  border-radius: 4px;
+}
+
+/* Avatar full-round helper */
+[data-slot="avatar"], .avatar-full { border-radius: var(--radius-full); }
+
+/* Dark theme surface bridge for shadcn tokens */
+html.dark {
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
+  --card: var(--bg-secondary);
+  --card-foreground: var(--text-primary);
+  --border: var(--border-color);
+  --input: var(--border-color);
+  --muted-foreground: var(--text-secondary);
+}
+
