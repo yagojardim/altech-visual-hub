@@ -10,7 +10,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Entrar · Altech Platform" },
+      { title: "Entrar · Altech Project" },
       { name: "description", content: "Acesse seu workspace Altech." },
     ],
   }),
@@ -55,7 +55,7 @@ function LoginPage() {
             <Check className="h-6 w-6 text-white" strokeWidth={3} />
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-semibold tracking-tight">Altech Platform</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Altech Project</h1>
             <p className="mt-1 text-sm text-muted-foreground">Entre no seu workspace</p>
           </div>
         </div>

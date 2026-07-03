@@ -23,7 +23,7 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_workspace/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard · Altech" }] }),
+  head: () => ({ meta: [{ title: "Dashboard · Altech Project" }] }),
   component: DashboardPage,
 });
 

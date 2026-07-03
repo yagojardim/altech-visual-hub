@@ -10,7 +10,7 @@ import { type ViewKey } from "@/components/views/ViewSwitcher";
 import { KanbanViewPlaceholder } from "@/components/views/KanbanViewPlaceholder";
 
 export const Route = createFileRoute("/_workspace/boards")({
-  head: () => ({ meta: [{ title: "Boards · Altech" }] }),
+  head: () => ({ meta: [{ title: "Boards · Altech Project" }] }),
   component: BoardsPage,
 });
 
