@@ -276,8 +276,8 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
           })}
           {totalItems === 0 && (
             <EmptyState
-              title="Nenhum work item"
-              description="Crie o primeiro item para começar."
+              title="Nada por aqui ainda"
+              description="Crie seu primeiro work item para começar."
             />
           )}
         </div>
