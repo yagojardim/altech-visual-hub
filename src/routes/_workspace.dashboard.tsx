@@ -232,7 +232,7 @@ function DashboardPage() {
                 icon={Activity}
               />
               {data.activity.length === 0 ? (
-                <EmptyState title="Sem atividade" description="Nenhum work item registrado ainda." />
+                <EmptyState title="Nada por aqui ainda" description="Nenhum work item registrado ainda." />
               ) : (
                 <ul className="mt-3 divide-y divide-border">
                   {data.activity.map((i) => (
@@ -316,7 +316,7 @@ function DashboardPage() {
               />
               {data.myItems.length === 0 ? (
                 <EmptyState
-                  title="Nada por aqui"
+                  title="Nada por aqui ainda"
                   description="Você não tem work items atribuídos no momento."
                 />
               ) : (
