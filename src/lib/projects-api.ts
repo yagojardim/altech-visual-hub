@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { isMissingRelation, logSupabaseError } from "./supabase-errors";
 
 export interface ProjectRow {
   id: string;
@@ -87,7 +88,15 @@ export async function ensureSeed(): Promise<void> {
     const { count, error: countError } = await supabase
       .from("projects")
       .select("*", { count: "exact", head: true });
-    if (countError) throw countError;
+    if (countError) {
+      if (isMissingRelation(countError)) {
+        logSupabaseError("projects-api:ensureSeed", countError);
+        // Sem tabela ainda: não tenta inserir; marca flag para não repetir.
+        window.localStorage.setItem(SEED_FLAG_KEY, "1");
+        return;
+      }
+      throw countError;
+    }
     if ((count ?? 0) > 0) {
       window.localStorage.setItem(SEED_FLAG_KEY, "1");
       return;
@@ -108,7 +117,13 @@ export async function listProjects(): Promise<ProjectRow[]> {
     .from("projects")
     .select("*")
     .order("created_at", { ascending: true });
-  if (error) throw error;
+  if (error) {
+    if (isMissingRelation(error)) {
+      logSupabaseError("projects-api:listProjects", error);
+      return [];
+    }
+    throw new Error(error.message || "Erro ao listar projetos.");
+  }
   return (data ?? []) as ProjectRow[];
 }
 
@@ -150,6 +165,12 @@ export async function getProjectBySlug(slug: string): Promise<ProjectRow | null>
     .select("*")
     .eq("slug", slug)
     .maybeSingle();
-  if (error) throw error;
+  if (error) {
+    if (isMissingRelation(error)) {
+      logSupabaseError("projects-api:getProjectBySlug", error);
+      return null;
+    }
+    throw new Error(error.message || "Erro ao buscar projeto.");
+  }
   return (data as ProjectRow | null) ?? null;
 }

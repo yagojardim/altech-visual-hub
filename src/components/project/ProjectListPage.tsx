@@ -9,6 +9,7 @@ import { ProjectToolbar } from "./ProjectToolbar";
 import { CreateProjectModal } from "./CreateProjectModal";
 import { Button } from "@/components/ui/button";
 import { listProjects, type ProjectRow } from "@/lib/projects-api";
+import { formatSupabaseError } from "@/lib/supabase-errors";
 import { qk } from "@/lib/query-keys";
 import { useOrgPrefs } from "@/lib/use-org-prefs";
 import type { OrgControlsValue } from "@/components/work-item/OrgControls";
@@ -56,7 +57,7 @@ export function ProjectListPage() {
     queryKey: qk.projects(),
     queryFn: listProjects,
   });
-  const error = queryError instanceof Error ? queryError.message : queryError ? String(queryError) : null;
+  const error = queryError ? formatSupabaseError(queryError, "Erro ao carregar projetos.") : null;
 
   const [prefs, updatePrefs, resetPrefs] = useOrgPrefs<ProjectsPrefs>(
     "/projects",
