@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { LayoutDashboard, Settings, LifeBuoy, Zap } from "lucide-react";
 import { ConceptIcon, type ConceptIconName } from "@/components/icons/ConceptIcon";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { cn } from "@/lib/utils";
 
 type IconRender = React.ComponentType<{ className?: string }>;
