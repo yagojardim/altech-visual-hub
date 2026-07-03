@@ -104,8 +104,8 @@ export function toWorkItem(raw: AnyRow): WorkItem {
   };
 }
 
-export function toWorkItems(rows: AnyRow[] | null | undefined): WorkItem[] {
-  return (rows ?? []).map((r) => toWorkItem(r));
+export function toWorkItems(rows: readonly unknown[] | null | undefined): WorkItem[] {
+  return (rows ?? []).map((r) => toWorkItem(r as AnyRow));
 }
 
 /**
