@@ -243,7 +243,7 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
         open={creating}
         onOpenChange={setCreating}
         defaultStatus="A Fazer"
-        onCreated={() => void load()}
+        onCreated={invalidate}
       />
     </>
   );
