@@ -14,12 +14,14 @@ import {
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { WorkItemAttachmentsLive } from "./WorkItemAttachmentsLive";
+import { WorkItemCommentsLive } from "./WorkItemCommentsLive";
 import {
   getWorkItem,
   updateWorkItem,
   deleteWorkItem,
   STATUS_COLUMNS,
   TIPO_OPTIONS,
+  PRIORIDADE_OPTIONS,
   type WorkItemRow,
 } from "@/lib/work-items-api";
 
@@ -129,6 +131,22 @@ export function WorkItemDetailsPanel({
                 </SelectContent>
               </Select>
             </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Prioridade</span>
+              <Select
+                value={item.prioridade}
+                onValueChange={(v) => void patch({ prioridade: v })}
+              >
+                <SelectTrigger className="h-8 w-36">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PRIORIDADE_OPTIONS.map((p) => (
+                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </header>
 
@@ -143,6 +161,7 @@ export function WorkItemDetailsPanel({
           />
         </section>
 
+        <WorkItemCommentsLive workItemId={item.id} />
         <WorkItemAttachmentsLive workItemId={item.id} />
       </div>
 
