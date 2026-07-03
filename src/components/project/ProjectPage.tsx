@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { BacklogPage } from "@/components/backlog/BacklogPage";
 import { BoardPage } from "@/components/board/BoardPage";
-import { SprintPage } from "@/components/sprint/SprintPage";
+import { SprintsWorkspace } from "@/components/sprint/SprintsWorkspace";
 import { ProjectDashboardPage } from "./ProjectDashboardPage";
 import { ProjectHeader } from "./ProjectHeader";
 import { ProjectNavigation } from "./ProjectNavigation";
 import { ProjectOverviewPage } from "./ProjectOverviewPage";
 import { ViewContainer } from "@/components/views/ViewContainer";
+
 
 const TAB_LABELS: Record<string, string> = {
   backlog: "Backlog",
