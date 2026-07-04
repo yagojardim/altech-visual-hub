@@ -36,7 +36,7 @@ function BoardsPage() {
   const navigate = Route.useNavigate();
   const { project: projectFilter } = Route.useSearch();
 
-  const projectsQ = useQuery({ queryKey: ["projects", "all"], queryFn: listProjects });
+  const projectsQ = useQuery({ queryKey: qk.projects(), queryFn: listProjects });
   const boardsQ = useQuery({ queryKey: ["boards", "all"], queryFn: listBoards });
 
   const projectById = useMemo(() => {
