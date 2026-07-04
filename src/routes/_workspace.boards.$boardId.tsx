@@ -253,9 +253,11 @@ function BoardKanbanPage() {
                 <BoardColumnView
                   key={col.id}
                   column={col}
+                  columns={columns}
                   items={itemsByColumn.get(col.id) ?? []}
                   membersById={membersById}
                   loading={itemsQ.isLoading}
+                  onMove={moveItem}
                 />
               ))}
         </div>
