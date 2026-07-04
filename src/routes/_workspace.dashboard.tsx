@@ -359,7 +359,7 @@ function DashboardPage() {
               />
             </WidgetGrid>
 
-            {state.activity.ok && (
+            {roleCfg.showEvolution && state.activity.ok && (
               <WidgetGrid columns={1}>
                 <EvolutionTimeline
                   events={state.activity.value.map<EvolutionEvent>((a) => ({
