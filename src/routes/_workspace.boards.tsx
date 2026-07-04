@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { KanbanSquare, ChevronRight } from "lucide-react";
 import { z } from "zod";
-import { zodValidator } from "@tanstack/zod-adapter";
+
 import { useCan } from "@/lib/auth";
 import { UnauthorizedState, LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
