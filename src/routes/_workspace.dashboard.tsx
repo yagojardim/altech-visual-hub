@@ -14,7 +14,6 @@ import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/workspace";
 import { supabase } from "@/lib/supabase";
 import { toWorkItems, type WorkItem } from "@/lib/work-item-map";
-import { toWorkItems, type WorkItem } from "@/lib/work-item-map";
 import { formatSupabaseError } from "@/lib/supabase-errors";
 import { DashboardContainer } from "@/components/dashboard/DashboardContainer";
 import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
