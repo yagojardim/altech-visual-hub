@@ -23,6 +23,7 @@ import { Route as WorkspaceAutomationRouteImport } from './routes/_workspace.aut
 import { Route as WorkspaceSettingsIndexRouteImport } from './routes/_workspace.settings.index'
 import { Route as WorkspaceProjectsIndexRouteImport } from './routes/_workspace.projects.index'
 import { Route as WorkspaceWorkItemsItemIdRouteImport } from './routes/_workspace.work-items.$itemId'
+import { Route as WorkspaceSprintsSprintIdRouteImport } from './routes/_workspace.sprints.$sprintId'
 import { Route as WorkspaceSettingsMembersRouteImport } from './routes/_workspace.settings.members'
 import { Route as WorkspaceProjectsProjectIdRouteImport } from './routes/_workspace.projects.$projectId'
 import { Route as WorkspaceBoardsBoardIdRouteImport } from './routes/_workspace.boards.$boardId'
@@ -97,6 +98,12 @@ const WorkspaceWorkItemsItemIdRoute =
     path: '/work-items/$itemId',
     getParentRoute: () => WorkspaceRoute,
   } as any)
+const WorkspaceSprintsSprintIdRoute =
+  WorkspaceSprintsSprintIdRouteImport.update({
+    id: '/$sprintId',
+    path: '/$sprintId',
+    getParentRoute: () => WorkspaceSprintsRoute,
+  } as any)
 const WorkspaceSettingsMembersRoute =
   WorkspaceSettingsMembersRouteImport.update({
     id: '/members',
@@ -124,11 +131,12 @@ export interface FileRoutesByFullPath {
   '/boards': typeof WorkspaceBoardsRouteWithChildren
   '/dashboard': typeof WorkspaceDashboardRoute
   '/settings': typeof WorkspaceSettingsRouteWithChildren
-  '/sprints': typeof WorkspaceSprintsRoute
+  '/sprints': typeof WorkspaceSprintsRouteWithChildren
   '/support': typeof WorkspaceSupportRoute
   '/boards/$boardId': typeof WorkspaceBoardsBoardIdRoute
   '/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
   '/settings/members': typeof WorkspaceSettingsMembersRoute
+  '/sprints/$sprintId': typeof WorkspaceSprintsSprintIdRoute
   '/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
   '/projects/': typeof WorkspaceProjectsIndexRoute
   '/settings/': typeof WorkspaceSettingsIndexRoute
@@ -141,11 +149,12 @@ export interface FileRoutesByTo {
   '/backlog': typeof WorkspaceBacklogRoute
   '/boards': typeof WorkspaceBoardsRouteWithChildren
   '/dashboard': typeof WorkspaceDashboardRoute
-  '/sprints': typeof WorkspaceSprintsRoute
+  '/sprints': typeof WorkspaceSprintsRouteWithChildren
   '/support': typeof WorkspaceSupportRoute
   '/boards/$boardId': typeof WorkspaceBoardsBoardIdRoute
   '/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
   '/settings/members': typeof WorkspaceSettingsMembersRoute
+  '/sprints/$sprintId': typeof WorkspaceSprintsSprintIdRoute
   '/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
   '/projects': typeof WorkspaceProjectsIndexRoute
   '/settings': typeof WorkspaceSettingsIndexRoute
@@ -161,11 +170,12 @@ export interface FileRoutesById {
   '/_workspace/boards': typeof WorkspaceBoardsRouteWithChildren
   '/_workspace/dashboard': typeof WorkspaceDashboardRoute
   '/_workspace/settings': typeof WorkspaceSettingsRouteWithChildren
-  '/_workspace/sprints': typeof WorkspaceSprintsRoute
+  '/_workspace/sprints': typeof WorkspaceSprintsRouteWithChildren
   '/_workspace/support': typeof WorkspaceSupportRoute
   '/_workspace/boards/$boardId': typeof WorkspaceBoardsBoardIdRoute
   '/_workspace/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
   '/_workspace/settings/members': typeof WorkspaceSettingsMembersRoute
+  '/_workspace/sprints/$sprintId': typeof WorkspaceSprintsSprintIdRoute
   '/_workspace/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
   '/_workspace/projects/': typeof WorkspaceProjectsIndexRoute
   '/_workspace/settings/': typeof WorkspaceSettingsIndexRoute
@@ -186,6 +196,7 @@ export interface FileRouteTypes {
     | '/boards/$boardId'
     | '/projects/$projectId'
     | '/settings/members'
+    | '/sprints/$sprintId'
     | '/work-items/$itemId'
     | '/projects/'
     | '/settings/'
@@ -203,6 +214,7 @@ export interface FileRouteTypes {
     | '/boards/$boardId'
     | '/projects/$projectId'
     | '/settings/members'
+    | '/sprints/$sprintId'
     | '/work-items/$itemId'
     | '/projects'
     | '/settings'
@@ -222,6 +234,7 @@ export interface FileRouteTypes {
     | '/_workspace/boards/$boardId'
     | '/_workspace/projects/$projectId'
     | '/_workspace/settings/members'
+    | '/_workspace/sprints/$sprintId'
     | '/_workspace/work-items/$itemId'
     | '/_workspace/projects/'
     | '/_workspace/settings/'
@@ -334,6 +347,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceWorkItemsItemIdRouteImport
       parentRoute: typeof WorkspaceRoute
     }
+    '/_workspace/sprints/$sprintId': {
+      id: '/_workspace/sprints/$sprintId'
+      path: '/$sprintId'
+      fullPath: '/sprints/$sprintId'
+      preLoaderRoute: typeof WorkspaceSprintsSprintIdRouteImport
+      parentRoute: typeof WorkspaceSprintsRoute
+    }
     '/_workspace/settings/members': {
       id: '/_workspace/settings/members'
       path: '/members'
@@ -383,13 +403,24 @@ const WorkspaceSettingsRouteChildren: WorkspaceSettingsRouteChildren = {
 const WorkspaceSettingsRouteWithChildren =
   WorkspaceSettingsRoute._addFileChildren(WorkspaceSettingsRouteChildren)
 
+interface WorkspaceSprintsRouteChildren {
+  WorkspaceSprintsSprintIdRoute: typeof WorkspaceSprintsSprintIdRoute
+}
+
+const WorkspaceSprintsRouteChildren: WorkspaceSprintsRouteChildren = {
+  WorkspaceSprintsSprintIdRoute: WorkspaceSprintsSprintIdRoute,
+}
+
+const WorkspaceSprintsRouteWithChildren =
+  WorkspaceSprintsRoute._addFileChildren(WorkspaceSprintsRouteChildren)
+
 interface WorkspaceRouteChildren {
   WorkspaceAutomationRoute: typeof WorkspaceAutomationRoute
   WorkspaceBacklogRoute: typeof WorkspaceBacklogRoute
   WorkspaceBoardsRoute: typeof WorkspaceBoardsRouteWithChildren
   WorkspaceDashboardRoute: typeof WorkspaceDashboardRoute
   WorkspaceSettingsRoute: typeof WorkspaceSettingsRouteWithChildren
-  WorkspaceSprintsRoute: typeof WorkspaceSprintsRoute
+  WorkspaceSprintsRoute: typeof WorkspaceSprintsRouteWithChildren
   WorkspaceSupportRoute: typeof WorkspaceSupportRoute
   WorkspaceProjectsProjectIdRoute: typeof WorkspaceProjectsProjectIdRoute
   WorkspaceWorkItemsItemIdRoute: typeof WorkspaceWorkItemsItemIdRoute
@@ -402,7 +433,7 @@ const WorkspaceRouteChildren: WorkspaceRouteChildren = {
   WorkspaceBoardsRoute: WorkspaceBoardsRouteWithChildren,
   WorkspaceDashboardRoute: WorkspaceDashboardRoute,
   WorkspaceSettingsRoute: WorkspaceSettingsRouteWithChildren,
-  WorkspaceSprintsRoute: WorkspaceSprintsRoute,
+  WorkspaceSprintsRoute: WorkspaceSprintsRouteWithChildren,
   WorkspaceSupportRoute: WorkspaceSupportRoute,
   WorkspaceProjectsProjectIdRoute: WorkspaceProjectsProjectIdRoute,
   WorkspaceWorkItemsItemIdRoute: WorkspaceWorkItemsItemIdRoute,
