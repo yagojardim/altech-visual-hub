@@ -1,43 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, SearchX, Calendar, Target, Timer, User } from "lucide-react";
-import { supabase } from "@/lib/supabase";
-import { logSupabaseError, formatSupabaseError, isMissingRelation } from "@/lib/supabase-errors";
+import { formatSupabaseError } from "@/lib/supabase-errors";
 import { listProjects } from "@/lib/projects-api";
-import { type SprintRow } from "@/lib/sprints-api";
+import { getSprint, listItemsBySprint, type SprintRow, type SprintItemRow } from "@/lib/sprints-api";
 import { getSprintStatusColor, getSprintStatusLabel } from "@/lib/sprint-status";
-import { STATUS_COLUMNS, type WorkItemRow } from "@/lib/work-items-api";
+import { STATUS_COLUMNS } from "@/lib/work-items-api";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { Badge } from "@/components/ui/badge";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { cn } from "@/lib/utils";
-
-async function getSprint(id: string): Promise<SprintRow | null> {
-  const { data, error } = await supabase
-    .from("sprints")
-    .select("id, project_id, tenant_id, nome, meta, data_inicio, data_fim, status, created_at, updated_at")
-    .eq("id", id)
-    .maybeSingle();
-  if (error) { logSupabaseError("sprints:get", error); throw error; }
-  return (data as SprintRow | null) ?? null;
-}
-
-async function getSprintItems(sprintId: string): Promise<WorkItemRow[]> {
-  const { data, error } = await supabase
-    .from("sprint_items")
-    .select("work_item_id, work_items(id, project_id, tenant_id, item_key, titulo, tipo, status, responsavel, descricao, prioridade, ordem, sprint_id, created_at, updated_at)")
-    .eq("sprint_id", sprintId);
-  if (error) {
-    if (isMissingRelation(error)) { logSupabaseError("sprint_items:list", error); return []; }
-    throw error;
-  }
-  const rows = (data ?? []) as Array<{ work_items: WorkItemRow | WorkItemRow[] | null }>;
-  return rows.flatMap((r) => {
-    const wi = r.work_items;
-    if (!wi) return [];
-    return Array.isArray(wi) ? wi : [wi];
-  });
-}
 
 function fmtDate(s: string | null): string {
   if (!s) return "—";
