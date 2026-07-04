@@ -214,6 +214,7 @@ export function WorkItemDrawer({
       const { error } = await supabase.from("work_items").delete().eq("id", itemId);
       if (error) throw error;
       toast.success("Work item excluído.");
+      await queryClient.invalidateQueries({ queryKey: qk.workItems() });
       onChanged?.();
       setConfirmDelete(false);
       onOpenChange(false);
