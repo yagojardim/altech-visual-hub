@@ -234,7 +234,12 @@ function BoardKanbanPage() {
           </div>
         </div>
       </DndContext>
-      <WorkItemDrawer itemId={openItemId} open={!!openItemId} onOpenChange={(o) => { if (!o) setOpenItemId(null); }} />
+      <WorkItemDrawer
+        itemId={openItemId}
+        open={!!openItemId}
+        onOpenChange={(o) => { if (!o) setOpenItemId(null); }}
+        onChanged={() => { void itemsQ.refetch(); }}
+      />
     </div>
   );
 }
