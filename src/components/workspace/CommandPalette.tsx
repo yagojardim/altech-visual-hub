@@ -160,7 +160,14 @@ export function CommandPalette({
                 <CommandItem
                   key={it.id}
                   value={`wi-${it.item_key}-${it.titulo}-${it.id}`}
-                  onSelect={() => go(`/work-items/${it.item_key ?? it.id}`)}
+                  onSelect={() => {
+                    onOpenChange(false);
+                    navigate({
+                      to: "/work-items/$itemId",
+                      params: { itemId: it.item_key ?? it.id },
+                      search: { from: currentPath },
+                    });
+                  }}
                 >
                   <FileText className="mr-2 h-4 w-4" aria-hidden="true" />
                   <span className="mr-2 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
