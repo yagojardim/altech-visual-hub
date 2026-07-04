@@ -219,8 +219,12 @@ function BacklogIndex() {
       )}
       <WorkItemDrawer
         itemId={openItemId}
-        open={!!openItemId}
-        onOpenChange={(o) => { if (!o) setOpenItemId(null); }}
+        open={!!openItemId || creating}
+        createMode={creating}
+        onOpenChange={(o) => {
+          if (!o) { setOpenItemId(null); setCreating(false); }
+        }}
+        onChanged={() => { void itemsQ.refetch(); }}
       />
     </div>
   );
