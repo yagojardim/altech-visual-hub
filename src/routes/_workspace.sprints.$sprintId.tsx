@@ -151,7 +151,7 @@ function SprintDetailBody({ sprint, projectName }: { sprint: SprintRow; projectN
                             <Badge variant="outline" className="text-[10px] uppercase">{it.tipo}</Badge>
                           </div>
                           <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
-                            <span>Prioridade: {it.prioridade}</span>
+                            <span className="truncate">{it.project_id}</span>
                             {it.responsavel ? (
                               <span className="inline-flex items-center gap-1">
                                 <User className="h-3 w-3" /> {it.responsavel}
