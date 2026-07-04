@@ -467,57 +467,61 @@ function DashboardPage() {
               </WidgetCard>
             </WidgetGrid>
 
-            <WidgetGrid columns={3}>
-              <WidgetCard className="lg:col-span-2">
-                <WidgetHeader
-                  title="Meus itens"
-                  description={`Atribuídos a ${user?.name ?? "você"}`}
-                  icon={ListTodo}
-                />
-                {!state.myItems.ok ? (
-                  <ErrorInline message={state.myItems.error} />
-                ) : state.myItems.value.length === 0 ? (
-                  <EmptyState
-                    title="Nada por aqui ainda"
-                    description="Você não tem work items atribuídos no momento."
-                  />
-                ) : (
-                  <ul className="mt-3 divide-y divide-border">
-                    {state.myItems.value.map((i) => (
-                      <li key={i.id} className="flex items-center justify-between gap-3 py-2 text-sm">
-                        <div className="flex min-w-0 items-center gap-2">
-                          <span className="font-mono text-[11px] text-muted-foreground">
-                            {i.itemKey ?? i.id.slice(0, 6)}
-                          </span>
-                          <span className="truncate text-foreground">{i.title}</span>
-                        </div>
-                        <div className="flex shrink-0 items-center gap-2">
-                          {i.type && (
-                            <Badge variant="outline" className="text-[10px] uppercase">
-                              {i.type}
-                            </Badge>
-                          )}
-                          {i.status && (
-                            <Badge
-                              className={cn(
-                                "text-[10px] uppercase",
-                                isDone(i.status)
-                                  ? "bg-emerald-500/15 text-emerald-600"
-                                  : "bg-primary/15 text-primary",
+            {(roleCfg.showMyItems || roleCfg.showQuickLinks) && (
+              <WidgetGrid columns={3}>
+                {roleCfg.showMyItems && (
+                  <WidgetCard className={roleCfg.showQuickLinks ? "lg:col-span-2" : "lg:col-span-3"}>
+                    <WidgetHeader
+                      title="Meus itens"
+                      description={`Atribuídos a ${user?.name ?? "você"}`}
+                      icon={ListTodo}
+                    />
+                    {!state.myItems.ok ? (
+                      <ErrorInline message={state.myItems.error} />
+                    ) : state.myItems.value.length === 0 ? (
+                      <EmptyState
+                        title="Nada por aqui ainda"
+                        description="Você não tem work items atribuídos no momento."
+                      />
+                    ) : (
+                      <ul className="mt-3 divide-y divide-border">
+                        {state.myItems.value.map((i) => (
+                          <li key={i.id} className="flex items-center justify-between gap-3 py-2 text-sm">
+                            <div className="flex min-w-0 items-center gap-2">
+                              <span className="font-mono text-[11px] text-muted-foreground">
+                                {i.itemKey ?? i.id.slice(0, 6)}
+                              </span>
+                              <span className="truncate text-foreground">{i.title}</span>
+                            </div>
+                            <div className="flex shrink-0 items-center gap-2">
+                              {i.type && (
+                                <Badge variant="outline" className="text-[10px] uppercase">
+                                  {i.type}
+                                </Badge>
                               )}
-                            >
-                              {i.status}
-                            </Badge>
-                          )}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+                              {i.status && (
+                                <Badge
+                                  className={cn(
+                                    "text-[10px] uppercase",
+                                    isDone(i.status)
+                                      ? "bg-emerald-500/15 text-emerald-600"
+                                      : "bg-primary/15 text-primary",
+                                  )}
+                                >
+                                  {i.status}
+                                </Badge>
+                              )}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </WidgetCard>
                 )}
-              </WidgetCard>
 
-              <QuickLinks />
-            </WidgetGrid>
+                {roleCfg.showQuickLinks && <QuickLinks />}
+              </WidgetGrid>
+            )}
           </>
         )}
       </DashboardContainer>
