@@ -661,11 +661,13 @@ function RelationsSection({
   relations,
   siblings,
   onChanged,
+  originPath,
 }: {
   itemId: string;
   relations: Awaited<ReturnType<typeof listRelations>>;
   siblings: Pick<WorkItemFull, "id" | "title" | "type">[];
   onChanged: () => void;
+  originPath?: string;
 }) {
   const [type, setType] = useState<RelationType>("relates_to");
   const [targetId, setTargetId] = useState<string>("");
