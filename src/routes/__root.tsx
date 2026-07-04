@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider } from "@/lib/theme";
+import { DevRoleProvider } from "@/lib/dev-role";
 import { Toaster } from "@/components/ui/sonner";
 
 const themeInitScript = `(function(){try{var s=localStorage.getItem('altech_theme');var t=(s==='light'||s==='dark')?s:(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'dark');var r=document.documentElement;r.classList.toggle('dark',t==='dark');r.classList.toggle('light',t==='light');r.setAttribute('data-theme',t);}catch(e){document.documentElement.classList.add('dark');}})();`;
@@ -131,8 +132,10 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <Outlet />
-          <Toaster />
+          <DevRoleProvider>
+            <Outlet />
+            <Toaster />
+          </DevRoleProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

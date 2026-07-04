@@ -12,10 +12,12 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/workspace";
+import { useDevRole, type DevRole } from "@/lib/dev-role";
 import { supabase } from "@/lib/supabase";
 import { toWorkItems, type WorkItem } from "@/lib/work-item-map";
 import { formatSupabaseError } from "@/lib/supabase-errors";
 import { DashboardContainer } from "@/components/dashboard/DashboardContainer";
+import { DashboardContextHeader } from "@/components/dashboard/DashboardContextHeader";
 import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
@@ -107,9 +109,27 @@ type DashboardState = {
   myItems: Result<MyItem[]>;
 };
 
+const ROLE_CONFIG: Record<
+  DevRole,
+  { focus: string; showEvolution: boolean; showMyItems: boolean; showQuickLinks: boolean }
+> = {
+  SUPER_ADMIN: { focus: "Visão global: tenants, workspaces e saúde da plataforma.", showEvolution: true, showMyItems: true, showQuickLinks: true },
+  "Admin Empresa": { focus: "Governança do tenant: projetos ativos, capacidade e riscos.", showEvolution: true, showMyItems: true, showQuickLinks: true },
+  PMO: { focus: "Portfólio: entrega vs. planejado, riscos e capacidade dos times.", showEvolution: true, showMyItems: false, showQuickLinks: true },
+  PM: { focus: "Projetos sob gestão: sprint atual, bloqueios e progresso.", showEvolution: true, showMyItems: true, showQuickLinks: true },
+  PO: { focus: "Backlog priorizado e progresso das histórias.", showEvolution: false, showMyItems: true, showQuickLinks: true },
+  "Tech Lead": { focus: "Fluxo técnico: WIP, bloqueios e capacidade do time.", showEvolution: true, showMyItems: true, showQuickLinks: true },
+  Dev: { focus: "Meus work items em andamento e próximos.", showEvolution: false, showMyItems: true, showQuickLinks: false },
+  QA: { focus: "Itens em validação e defeitos abertos.", showEvolution: false, showMyItems: true, showQuickLinks: false },
+  Cliente: { focus: "Progresso do projeto e entregas visíveis.", showEvolution: true, showMyItems: false, showQuickLinks: false },
+  Solicitante: { focus: "Status das suas solicitações.", showEvolution: false, showMyItems: false, showQuickLinks: false },
+};
+
 function DashboardPage() {
   const { user } = useAuth();
-  const { current } = useWorkspace();
+  useWorkspace();
+  const { role } = useDevRole();
+  const roleCfg = ROLE_CONFIG[role];
   const [state, setState] = useState<DashboardState | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -275,20 +295,14 @@ function DashboardPage() {
   return (
     <TooltipProvider delayDuration={200}>
       <DashboardContainer>
-        <header className="space-y-1">
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] uppercase tracking-wider text-primary">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            {current ? `${current.name} · ${current.plan}` : "Workspace ativo"}
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight">Bem-vindo, {user?.name}</h1>
-          <p className="text-sm text-muted-foreground">
-            Visão geral do seu workspace Altech Project. Use{" "}
-            <kbd className="rounded border border-border bg-panel px-1 py-0.5 text-[10px] font-mono">
-              ⌘K
-            </kbd>{" "}
-            para navegar.
-          </p>
-        </header>
+        <DashboardContextHeader />
+        <p className="text-sm text-muted-foreground">
+          {roleCfg.focus} Use{" "}
+          <kbd className="rounded border border-border bg-panel px-1 py-0.5 text-[10px] font-mono">
+            ⌘K
+          </kbd>{" "}
+          para navegar.
+        </p>
 
         {loading && <LoadingState label="Carregando dashboard…" variant="skeleton" rows={4} />}
 
@@ -345,7 +359,7 @@ function DashboardPage() {
               />
             </WidgetGrid>
 
-            {state.activity.ok && (
+            {roleCfg.showEvolution && state.activity.ok && (
               <WidgetGrid columns={1}>
                 <EvolutionTimeline
                   events={state.activity.value.map<EvolutionEvent>((a) => ({
@@ -453,57 +467,61 @@ function DashboardPage() {
               </WidgetCard>
             </WidgetGrid>
 
-            <WidgetGrid columns={3}>
-              <WidgetCard className="lg:col-span-2">
-                <WidgetHeader
-                  title="Meus itens"
-                  description={`Atribuídos a ${user?.name ?? "você"}`}
-                  icon={ListTodo}
-                />
-                {!state.myItems.ok ? (
-                  <ErrorInline message={state.myItems.error} />
-                ) : state.myItems.value.length === 0 ? (
-                  <EmptyState
-                    title="Nada por aqui ainda"
-                    description="Você não tem work items atribuídos no momento."
-                  />
-                ) : (
-                  <ul className="mt-3 divide-y divide-border">
-                    {state.myItems.value.map((i) => (
-                      <li key={i.id} className="flex items-center justify-between gap-3 py-2 text-sm">
-                        <div className="flex min-w-0 items-center gap-2">
-                          <span className="font-mono text-[11px] text-muted-foreground">
-                            {i.itemKey ?? i.id.slice(0, 6)}
-                          </span>
-                          <span className="truncate text-foreground">{i.title}</span>
-                        </div>
-                        <div className="flex shrink-0 items-center gap-2">
-                          {i.type && (
-                            <Badge variant="outline" className="text-[10px] uppercase">
-                              {i.type}
-                            </Badge>
-                          )}
-                          {i.status && (
-                            <Badge
-                              className={cn(
-                                "text-[10px] uppercase",
-                                isDone(i.status)
-                                  ? "bg-emerald-500/15 text-emerald-600"
-                                  : "bg-primary/15 text-primary",
+            {(roleCfg.showMyItems || roleCfg.showQuickLinks) && (
+              <WidgetGrid columns={3}>
+                {roleCfg.showMyItems && (
+                  <WidgetCard className={roleCfg.showQuickLinks ? "lg:col-span-2" : "lg:col-span-3"}>
+                    <WidgetHeader
+                      title="Meus itens"
+                      description={`Atribuídos a ${user?.name ?? "você"}`}
+                      icon={ListTodo}
+                    />
+                    {!state.myItems.ok ? (
+                      <ErrorInline message={state.myItems.error} />
+                    ) : state.myItems.value.length === 0 ? (
+                      <EmptyState
+                        title="Nada por aqui ainda"
+                        description="Você não tem work items atribuídos no momento."
+                      />
+                    ) : (
+                      <ul className="mt-3 divide-y divide-border">
+                        {state.myItems.value.map((i) => (
+                          <li key={i.id} className="flex items-center justify-between gap-3 py-2 text-sm">
+                            <div className="flex min-w-0 items-center gap-2">
+                              <span className="font-mono text-[11px] text-muted-foreground">
+                                {i.itemKey ?? i.id.slice(0, 6)}
+                              </span>
+                              <span className="truncate text-foreground">{i.title}</span>
+                            </div>
+                            <div className="flex shrink-0 items-center gap-2">
+                              {i.type && (
+                                <Badge variant="outline" className="text-[10px] uppercase">
+                                  {i.type}
+                                </Badge>
                               )}
-                            >
-                              {i.status}
-                            </Badge>
-                          )}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+                              {i.status && (
+                                <Badge
+                                  className={cn(
+                                    "text-[10px] uppercase",
+                                    isDone(i.status)
+                                      ? "bg-emerald-500/15 text-emerald-600"
+                                      : "bg-primary/15 text-primary",
+                                  )}
+                                >
+                                  {i.status}
+                                </Badge>
+                              )}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </WidgetCard>
                 )}
-              </WidgetCard>
 
-              <QuickLinks />
-            </WidgetGrid>
+                {roleCfg.showQuickLinks && <QuickLinks />}
+              </WidgetGrid>
+            )}
           </>
         )}
       </DashboardContainer>
