@@ -74,7 +74,40 @@ function prioridadeVariant(p: string): "default" | "secondary" | "outline" | "de
   return "secondary";
 }
 
-function BacklogIndex() {
+function initials(name: string | null | undefined): string {
+  if (!name) return "?";
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
+
+function ResponsavelCell({
+  name,
+  membersByName,
+}: {
+  name: string | null;
+  membersByName: Map<string, TeamMember>;
+}) {
+  if (!name) return <span className="text-sm text-muted-foreground">—</span>;
+  const member = membersByName.get(name);
+  const color = member?.avatar_color ?? "#94a3b8";
+  return (
+    <div className="inline-flex items-center gap-2 text-sm text-foreground">
+      <Avatar className="h-6 w-6 border text-[10px] font-medium" style={{ borderColor: color }}>
+        <AvatarFallback className="text-white" style={{ backgroundColor: color }}>
+          {initials(name)}
+        </AvatarFallback>
+      </Avatar>
+      <span className="truncate">{name}</span>
+    </div>
+  );
+}
+
+
   const queryClient = useQueryClient();
   const itemsQ = useQuery({ queryKey: qk.workItemsBacklog(), queryFn: listBacklogItems });
   const projectsQ = useQuery({ queryKey: qk.projects(), queryFn: listProjects });
