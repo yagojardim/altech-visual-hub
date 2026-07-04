@@ -227,7 +227,7 @@ function BacklogIndex() {
         onOpenChange={(o) => {
           if (!o) { setOpenItemId(null); setCreating(false); }
         }}
-        onChanged={() => { void itemsQ.refetch(); }}
+        onChanged={() => { void queryClient.invalidateQueries({ queryKey: qk.workItems() }); }}
       />
     </div>
   );
