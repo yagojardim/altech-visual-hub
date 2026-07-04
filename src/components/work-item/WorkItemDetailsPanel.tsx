@@ -733,6 +733,7 @@ function RelationsSection({
                   <Link
                     to="/work-items/$itemId"
                     params={{ itemId: r.target.id }}
+                    search={originPath ? { from: originPath } : undefined}
                     className="flex flex-1 items-center gap-2 rounded-md px-1.5 py-0.5 hover:bg-accent/40 transition-colors"
                   >
                     <Badge variant="outline" className={typeMeta(r.target.type).badge}>
