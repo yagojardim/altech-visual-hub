@@ -13,6 +13,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
 import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
@@ -20,6 +21,15 @@ import { LoadingState, ErrorState, EmptyState } from "@/components/states";
 import { getProjectBySlug, type ProjectRow } from "@/lib/projects-api";
 import { formatSupabaseError } from "@/lib/supabase-errors";
 import { qk } from "@/lib/query-keys";
+
+const STATUS_PROGRESS: Record<string, number> = {
+  "Planejamento": 15,
+  "Em progresso": 55,
+  "Pausado": 40,
+  "Concluído": 100,
+  "Arquivado": 100,
+};
+
 
 function fmtDate(s: string | null): string {
   if (!s) return "—";
@@ -117,6 +127,15 @@ function ProjectWorkspaceHeader({ project }: { project: ProjectRow }) {
           </p>
         </div>
       </div>
+
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>Progresso</span>
+          <span className="font-medium text-foreground">{STATUS_PROGRESS[project.status] ?? 0}%</span>
+        </div>
+        <Progress value={STATUS_PROGRESS[project.status] ?? 0} />
+      </div>
+
 
       <WidgetGrid columns={4}>
         <WidgetCard>
