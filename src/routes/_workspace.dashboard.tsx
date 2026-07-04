@@ -109,9 +109,27 @@ type DashboardState = {
   myItems: Result<MyItem[]>;
 };
 
+const ROLE_CONFIG: Record<
+  DevRole,
+  { focus: string; showEvolution: boolean; showMyItems: boolean; showQuickLinks: boolean }
+> = {
+  SUPER_ADMIN: { focus: "Visão global: tenants, workspaces e saúde da plataforma.", showEvolution: true, showMyItems: true, showQuickLinks: true },
+  "Admin Empresa": { focus: "Governança do tenant: projetos ativos, capacidade e riscos.", showEvolution: true, showMyItems: true, showQuickLinks: true },
+  PMO: { focus: "Portfólio: entrega vs. planejado, riscos e capacidade dos times.", showEvolution: true, showMyItems: false, showQuickLinks: true },
+  PM: { focus: "Projetos sob gestão: sprint atual, bloqueios e progresso.", showEvolution: true, showMyItems: true, showQuickLinks: true },
+  PO: { focus: "Backlog priorizado e progresso das histórias.", showEvolution: false, showMyItems: true, showQuickLinks: true },
+  "Tech Lead": { focus: "Fluxo técnico: WIP, bloqueios e capacidade do time.", showEvolution: true, showMyItems: true, showQuickLinks: true },
+  Dev: { focus: "Meus work items em andamento e próximos.", showEvolution: false, showMyItems: true, showQuickLinks: false },
+  QA: { focus: "Itens em validação e defeitos abertos.", showEvolution: false, showMyItems: true, showQuickLinks: false },
+  Cliente: { focus: "Progresso do projeto e entregas visíveis.", showEvolution: true, showMyItems: false, showQuickLinks: false },
+  Solicitante: { focus: "Status das suas solicitações.", showEvolution: false, showMyItems: false, showQuickLinks: false },
+};
+
 function DashboardPage() {
   const { user } = useAuth();
   const { current } = useWorkspace();
+  const { role } = useDevRole();
+  const roleCfg = ROLE_CONFIG[role];
   const [state, setState] = useState<DashboardState | null>(null);
   const [loading, setLoading] = useState(true);
 
