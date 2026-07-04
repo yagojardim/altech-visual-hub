@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { MessageSquare, Send, Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
+import { auditLog } from "@/lib/audit-log";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { LoadingState } from "@/components/states";
