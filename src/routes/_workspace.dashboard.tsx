@@ -182,7 +182,9 @@ function DashboardPage() {
       totalItems = { ok: true, value: items.length };
       backlogItems = {
         ok: true,
-        value: items.filter((i) => !i.sprintId && !linkedIds.has(i.id)).length,
+        value: items.filter(
+          (i) => isBacklog(i.status) || (!i.sprintId && !linkedIds.has(i.id) && !isDone(i.status)),
+        ).length,
       };
 
       try {
