@@ -1,32 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState, useRef, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronRight, SearchX, KanbanSquare, Plus } from "lucide-react";
-import {
-  DndContext,
-  PointerSensor,
-  useDraggable,
-  useDroppable,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import { toast } from "sonner";
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { ChevronRight, SearchX, KanbanSquare } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { logSupabaseError, formatSupabaseError } from "@/lib/supabase-errors";
 import { getBoard } from "@/lib/boards-api";
 import { listProjects } from "@/lib/projects-api";
-import { qk } from "@/lib/query-keys";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState } from "@/components/states";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { WorkItemDrawer } from "@/components/work-items/WorkItemDrawer";
 
-
+export const Route = createFileRoute("/_workspace/boards/$boardId")({
+  head: () => ({ meta: [{ title: "Board · Altech Project" }] }),
+  component: BoardKanbanPage,
+});
 
 interface BoardColumn {
   id: string;
@@ -39,11 +27,17 @@ interface KanbanItem {
   id: string;
   board_id: string | null;
   column_id: string | null;
-  titulo: string;
-  tipo: string;
-  prioridade: string;
-  responsavel: string | null;
-  position: number;
+  title: string;
+  type: string | null;
+  priority: string | null;
+  assignee_id: string | null;
+  position: number | null;
+}
+
+interface Member {
+  id: string;
+  name: string;
+  avatar_color: string | null;
 }
 
 async function listColumns(boardId: string): Promise<BoardColumn[]> {
@@ -59,17 +53,20 @@ async function listColumns(boardId: string): Promise<BoardColumn[]> {
 async function listBoardItems(boardId: string): Promise<KanbanItem[]> {
   const { data, error } = await supabase
     .from("work_items")
-    .select("id, board_id, column_id, titulo, tipo, prioridade, responsavel, position")
+    .select("id, board_id, column_id, title, type, priority, assignee_id, position")
     .eq("board_id", boardId)
     .order("position", { ascending: true });
   if (error) { logSupabaseError("work_items:byBoard", error); throw error; }
   return (data ?? []) as KanbanItem[];
 }
 
-export const Route = createFileRoute("/_workspace/boards/$boardId")({
-  head: () => ({ meta: [{ title: "Board · Altech Project" }] }),
-  component: BoardKanbanPage,
-});
+async function listMembers(): Promise<Member[]> {
+  const { data, error } = await supabase
+    .from("team_members")
+    .select("id, name, avatar_color");
+  if (error) { logSupabaseError("team_members:list", error); throw error; }
+  return (data ?? []) as Member[];
+}
 
 const TYPE_VARIANTS: Record<string, string> = {
   story: "bg-blue-500/10 text-blue-400 border-blue-500/30",
@@ -92,7 +89,7 @@ const PRIORITY_VARIANTS: Record<string, string> = {
   crítica: "bg-red-500/10 text-red-400 border-red-500/30",
 };
 
-function initials(name: string | null): string {
+function initials(name: string | null | undefined): string {
   if (!name) return "—";
   return name
     .split(/\s+/)
@@ -104,19 +101,21 @@ function initials(name: string | null): string {
 
 function BoardKanbanPage() {
   const { boardId } = Route.useParams();
-  const queryClient = useQueryClient();
-  const itemsKey = qk.workItemsByBoard(boardId);
-  const [openItemId, setOpenItemId] = useState<string | null>(null);
 
   const boardQ = useQuery({ queryKey: ["boards", "detail", boardId], queryFn: () => getBoard(boardId) });
-  const projectsQ = useQuery({ queryKey: qk.projects(), queryFn: listProjects });
+  const projectsQ = useQuery({ queryKey: ["projects"], queryFn: listProjects });
   const columnsQ = useQuery({ queryKey: ["board_columns", boardId], queryFn: () => listColumns(boardId) });
-  const itemsQ = useQuery({ queryKey: itemsKey, queryFn: () => listBoardItems(boardId) });
-
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  const itemsQ = useQuery({ queryKey: ["work_items", "by_board", boardId], queryFn: () => listBoardItems(boardId) });
+  const membersQ = useQuery({ queryKey: ["team_members"], queryFn: listMembers });
 
   const loading = boardQ.isLoading || columnsQ.isLoading || itemsQ.isLoading;
   const anyError = boardQ.error ?? columnsQ.error ?? itemsQ.error;
+
+  const membersById = useMemo(() => {
+    const m = new Map<string, Member>();
+    for (const it of membersQ.data ?? []) m.set(it.id, it);
+    return m;
+  }, [membersQ.data]);
 
   const itemsByColumn = useMemo(() => {
     const m = new Map<string, KanbanItem[]>();
@@ -127,37 +126,6 @@ function BoardKanbanPage() {
     }
     return m;
   }, [itemsQ.data]);
-
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const itemId = String(event.active.id);
-    const overId = event.over?.id ? String(event.over.id) : null;
-    if (!overId) return;
-    const current = itemsQ.data ?? [];
-    const item = current.find((i) => i.id === itemId);
-    if (!item || item.column_id === overId) return;
-
-    const targetItems = current.filter((i) => i.column_id === overId);
-    const nextPosition = targetItems.reduce((max, i) => Math.max(max, i.position ?? 0), 0) + 1;
-
-    const previous = current;
-    const optimistic = current.map((i) =>
-      i.id === itemId ? { ...i, column_id: overId, position: nextPosition } : i,
-    );
-    queryClient.setQueryData<KanbanItem[]>(itemsKey, optimistic);
-
-    const { error } = await supabase
-      .from("work_items")
-      .update({ column_id: overId, position: nextPosition })
-      .eq("id", itemId);
-
-    if (error) {
-      logSupabaseError("work_items:moveCard", error);
-      queryClient.setQueryData<KanbanItem[]>(itemsKey, previous);
-      toast.error(formatSupabaseError(error, "Não foi possível mover o card."));
-      return;
-    }
-    void queryClient.invalidateQueries({ queryKey: qk.workItems() });
-  };
 
   if (anyError) {
     return (
@@ -217,198 +185,98 @@ function BoardKanbanPage() {
         </p>
       </header>
 
-      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-        <div className="-mx-4 overflow-x-auto px-4 pb-2">
-          <div className="flex min-w-full gap-4">
-            {loading && columns.length === 0
-              ? Array.from({ length: 4 }).map((_, i) => <ColumnSkeleton key={i} />)
-              : columns.map((col) => (
-                  <DroppableColumn
-                    key={col.id}
-                    column={col}
-                    items={itemsByColumn.get(col.id) ?? []}
-                    boardId={boardId}
-                    projectId={board?.project_id ?? null}
-                    onCreated={() => void queryClient.invalidateQueries({ queryKey: qk.workItems() })}
-                    onOpenItem={setOpenItemId}
-                  />
-                ))}
-
-          </div>
+      <div className="-mx-4 overflow-x-auto px-4 pb-2">
+        <div className="flex min-w-full gap-4">
+          {loading && columns.length === 0
+            ? Array.from({ length: 4 }).map((_, i) => <ColumnSkeleton key={i} />)
+            : columns.map((col) => (
+                <BoardColumnView
+                  key={col.id}
+                  column={col}
+                  items={itemsByColumn.get(col.id) ?? []}
+                  membersById={membersById}
+                  loading={itemsQ.isLoading}
+                />
+              ))}
         </div>
-      </DndContext>
-      <WorkItemDrawer
-        itemId={openItemId}
-        open={!!openItemId}
-        onOpenChange={(o) => { if (!o) setOpenItemId(null); }}
-        onChanged={() => { void queryClient.invalidateQueries({ queryKey: qk.workItems() }); }}
-      />
+      </div>
     </div>
   );
 }
 
-function DroppableColumn({
+function BoardColumnView({
   column,
   items,
-  boardId,
-  projectId,
-  onCreated,
-  onOpenItem,
+  membersById,
+  loading,
 }: {
   column: BoardColumn;
   items: KanbanItem[];
-  boardId: string;
-  projectId: string | null;
-  onCreated: () => void;
-  onOpenItem: (id: string) => void;
+  membersById: Map<string, Member>;
+  loading: boolean;
 }) {
-  const { setNodeRef, isOver } = useDroppable({ id: column.id });
-  const [adding, setAdding] = useState(false);
-  const [title, setTitle] = useState("");
-  const [saving, setSaving] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (adding) inputRef.current?.focus();
-  }, [adding]);
-
-  const cancel = () => {
-    setAdding(false);
-    setTitle("");
-  };
-
-  const submit = async () => {
-    const titulo = title.trim();
-    if (!titulo) { cancel(); return; }
-    if (!projectId) {
-      toast.error("Board sem projeto associado.");
-      return;
-    }
-    setSaving(true);
-    const nextPosition = items.reduce((max, i) => Math.max(max, i.position ?? 0), 0) + 1;
-    const { error } = await supabase.from("work_items").insert({
-      board_id: boardId,
-      column_id: column.id,
-      project_id: projectId,
-      titulo,
-      tipo: "task",
-      prioridade: "media",
-      position: nextPosition,
-    });
-    setSaving(false);
-    if (error) {
-      logSupabaseError("work_items:insert", error);
-      toast.error(formatSupabaseError(error, "Não foi possível criar o card."));
-      return;
-    }
-    setTitle("");
-    setAdding(false);
-    onCreated();
-  };
-
   return (
-    <section
-      ref={setNodeRef}
-      className={cn(
-        "flex w-72 shrink-0 flex-col gap-3 rounded-xl border border-border bg-panel p-3 transition-colors",
-        isOver && "border-primary/60 bg-panel-elevated",
-      )}
-    >
+    <section className="flex w-72 shrink-0 flex-col gap-3 rounded-xl border border-border bg-panel p-3">
       <header className="flex items-center justify-between">
         <h2 className="text-sm font-medium text-foreground">{column.name}</h2>
         <span className="rounded-full bg-panel-elevated px-2 py-0.5 text-[11px] text-muted-foreground">
-          {items.length}
+          {loading ? "…" : items.length}
         </span>
       </header>
       <div className="flex min-h-[80px] flex-col gap-2">
-        {items.length === 0 && !adding ? (
+        {loading ? (
+          <>
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
+          </>
+        ) : items.length === 0 ? (
           <div className="rounded-md border border-dashed border-border px-3 py-6 text-center text-xs text-muted-foreground">
             Sem itens
           </div>
         ) : (
-          items.map((it) => <DraggableItemCard key={it.id} item={it} onOpen={onOpenItem} />)
+          items.map((it) => (
+            <ItemCard
+              key={it.id}
+              item={it}
+              member={it.assignee_id ? membersById.get(it.assignee_id) ?? null : null}
+            />
+          ))
         )}
       </div>
-
-      {adding ? (
-        <div className="space-y-2">
-          <Input
-            ref={inputRef}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") { e.preventDefault(); void submit(); }
-              if (e.key === "Escape") { e.preventDefault(); cancel(); }
-            }}
-            placeholder="Título do card"
-            disabled={saving}
-            className="h-8 text-sm"
-          />
-          <div className="flex items-center gap-2">
-            <Button size="sm" onClick={() => void submit()} disabled={saving} className="h-7">
-              {saving ? "Salvando..." : "Adicionar"}
-            </Button>
-            <Button size="sm" variant="ghost" onClick={cancel} disabled={saving} className="h-7">
-              Cancelar
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => setAdding(true)}
-          className="h-7 justify-start text-xs text-muted-foreground hover:text-foreground"
-        >
-          <Plus className="mr-1 h-3.5 w-3.5" /> Adicionar
-        </Button>
-      )}
     </section>
   );
 }
 
-
-function DraggableItemCard({ item, onOpen }: { item: KanbanItem; onOpen: (id: string) => void }) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: item.id });
-  const style = transform
-    ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
-    : undefined;
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...listeners}
-      {...attributes}
-      role="button"
-      tabIndex={0}
-      onClick={() => { if (!isDragging) onOpen(item.id); }}
-      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(item.id); } }}
-      className={cn("cursor-grab touch-none", isDragging && "cursor-grabbing opacity-60")}
-    >
-      <ItemCard item={item} />
-    </div>
-  );
-}
-
-function ItemCard({ item }: { item: KanbanItem }) {
-  const typeKey = item.tipo?.toLowerCase() ?? "";
-  const prioKey = item.prioridade?.toLowerCase() ?? "";
+function ItemCard({ item, member }: { item: KanbanItem; member: Member | null }) {
+  const typeKey = (item.type ?? "").toLowerCase();
+  const prioKey = (item.priority ?? "").toLowerCase();
+  const avatarBg = member?.avatar_color ?? "#3f3f46";
+  const label = member?.name ?? "Sem responsável";
   return (
     <article className="rounded-lg border border-border bg-panel-elevated p-3 shadow-sm transition-colors hover:border-primary/40">
-      <h3 className="text-sm font-medium text-foreground line-clamp-2">{item.titulo}</h3>
+      <h3 className="text-sm font-medium text-foreground line-clamp-2">{item.title}</h3>
       <div className="mt-2 flex flex-wrap items-center gap-1.5">
-        <Badge variant="outline" className={cn("text-[10px]", TYPE_VARIANTS[typeKey] ?? "")}>
-          {item.tipo}
-        </Badge>
-        <Badge variant="outline" className={cn("text-[10px]", PRIORITY_VARIANTS[prioKey] ?? "")}>
-          {item.prioridade}
-        </Badge>
+        {item.type && (
+          <Badge variant="outline" className={cn("text-[10px] capitalize", TYPE_VARIANTS[typeKey] ?? "")}>
+            {item.type}
+          </Badge>
+        )}
+        {item.priority && (
+          <Badge variant="outline" className={cn("text-[10px] capitalize", PRIORITY_VARIANTS[prioKey] ?? "")}>
+            {item.priority}
+          </Badge>
+        )}
       </div>
-      <div className="mt-3 flex items-center justify-between">
-        <Avatar className="h-6 w-6">
-          <AvatarFallback className="text-[10px]">{initials(item.responsavel)}</AvatarFallback>
-        </Avatar>
-        <span className="truncate text-[11px] text-muted-foreground">{item.responsavel ?? "—"}</span>
+      <div className="mt-3 flex items-center gap-2">
+        <div
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white"
+          style={{ background: avatarBg }}
+          aria-hidden="true"
+          title={label}
+        >
+          {initials(member?.name ?? null)}
+        </div>
+        <span className="truncate text-[11px] text-muted-foreground">{label}</span>
       </div>
     </article>
   );
@@ -424,4 +292,3 @@ function ColumnSkeleton() {
     </section>
   );
 }
-
