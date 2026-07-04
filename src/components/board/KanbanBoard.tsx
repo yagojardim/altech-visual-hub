@@ -257,7 +257,7 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
             <WorkItemDetailsPanel
               workItemId={openItemId}
               onChange={invalidate}
-              originPath={`/boards/${projectId}`}
+              originPath={originPath}
             />
           )}
         </SheetContent>
