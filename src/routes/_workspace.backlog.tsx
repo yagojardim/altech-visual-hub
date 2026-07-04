@@ -206,15 +206,10 @@ function BacklogIndex() {
                           {it.prioridade}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {it.responsavel ? (
-                          <span className="inline-flex items-center gap-1">
-                            <User className="h-3 w-3" /> {it.responsavel}
-                          </span>
-                        ) : (
-                          "—"
-                        )}
+                      <TableCell>
+                        <ResponsavelCell name={it.responsavel} membersByName={membersByName} />
                       </TableCell>
+
                       <TableCell className="text-sm text-muted-foreground">
                         {project?.nome ?? "—"}
                       </TableCell>
