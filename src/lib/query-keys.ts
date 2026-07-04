@@ -31,4 +31,8 @@ export const qk = {
 
   workItemsBacklog: (tenantId: string = DEFAULT_TENANT_ID) =>
     ["work_items", tenantId, "backlog"] as const,
+
+  teamMembers: (tenantId: string = DEFAULT_TENANT_ID) =>
+    ["team_members", tenantId] as const,
 };
+
