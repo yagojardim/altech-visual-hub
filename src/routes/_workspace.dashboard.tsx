@@ -94,6 +94,7 @@ type DashboardState = {
   activeProjects: Result<number>;
   activeSprints: Result<number>;
   openItems: Result<number>;
+  backlogItems: Result<number>;
   doneItems: Result<number>;
   totalItems: Result<number>;
   statusBreakdown: Result<Array<{ status: string; count: number }>>;
