@@ -299,6 +299,7 @@ export function WorkItemDetailsPanel({
           children={children}
           siblings={siblings}
           onSaveParent={(pid) => void save({ parent_id: pid })}
+          originPath={originPath}
         />
 
         {/* Relations */}
@@ -307,6 +308,7 @@ export function WorkItemDetailsPanel({
           relations={relations}
           siblings={siblings}
           onChanged={() => void refetchRel()}
+          originPath={originPath}
         />
 
         <WorkItemCommentsLive workItemId={item.id} />
