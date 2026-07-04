@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Calendar, FolderKanban, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
@@ -11,6 +11,7 @@ import {
   type WorkItemRow,
 } from "@/lib/work-items-api";
 import { listProjects, type ProjectRow } from "@/lib/projects-api";
+import { qk } from "@/lib/query-keys";
 import {
   Sheet,
   SheetContent,
