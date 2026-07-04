@@ -105,11 +105,11 @@ function initials(name: string | null): string {
 function BoardKanbanPage() {
   const { boardId } = Route.useParams();
   const queryClient = useQueryClient();
-  const itemsKey = ["work_items", "byBoard", boardId] as const;
+  const itemsKey = qk.workItemsByBoard(boardId);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
 
   const boardQ = useQuery({ queryKey: ["boards", "detail", boardId], queryFn: () => getBoard(boardId) });
-  const projectsQ = useQuery({ queryKey: ["projects", "all"], queryFn: listProjects });
+  const projectsQ = useQuery({ queryKey: qk.projects(), queryFn: listProjects });
   const columnsQ = useQuery({ queryKey: ["board_columns", boardId], queryFn: () => listColumns(boardId) });
   const itemsQ = useQuery({ queryKey: itemsKey, queryFn: () => listBoardItems(boardId) });
 
