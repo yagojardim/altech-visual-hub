@@ -63,16 +63,18 @@ function SprintDetailPage() {
 function SprintDetailBody({ sprint, projectName }: { sprint: SprintRow; projectName: string | null }) {
   const itemsQ = useQuery({
     queryKey: ["sprint_items", "byId", sprint.id],
-    queryFn: () => getSprintItems(sprint.id),
+    queryFn: () => listItemsBySprint(sprint.id),
   });
 
   const status = getSprintStatusLabel(sprint.status);
-  const items = itemsQ.data ?? [];
+  const items: SprintItemRow[] = itemsQ.data ?? [];
   const grouped = STATUS_COLUMNS.map((s) => ({
     status: s,
-    items: items.filter((it) => it.status === s),
+    items: items.filter((it: SprintItemRow) => it.status === s),
   }));
-  const extras = items.filter((it) => !STATUS_COLUMNS.includes(it.status as (typeof STATUS_COLUMNS)[number]));
+  const extras = items.filter(
+    (it: SprintItemRow) => !STATUS_COLUMNS.includes(it.status as (typeof STATUS_COLUMNS)[number]),
+  );
   if (extras.length) grouped.push({ status: "Outros" as (typeof STATUS_COLUMNS)[number], items: extras });
 
   return (
