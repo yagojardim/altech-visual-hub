@@ -193,9 +193,12 @@ export function WorkItemDrawer({
         if (error) throw error;
         toast.success("Work item atualizado.");
       }
+      await queryClient.invalidateQueries({ queryKey: qk.workItems() });
+      if (itemId) {
+        await queryClient.invalidateQueries({ queryKey: qk.workItem(itemId) });
+      }
       onChanged?.();
       onOpenChange(false);
-    } catch (err) {
       logSupabaseError("work_items:save", err);
       toast.error(formatSupabaseError(err, "Não foi possível salvar."));
     } finally {
