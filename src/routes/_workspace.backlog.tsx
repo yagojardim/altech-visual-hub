@@ -1,14 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ListTodo, Plus, Search, User } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ListTodo, Search } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { isMissingRelation, logSupabaseError, formatSupabaseError } from "@/lib/supabase-errors";
-import { TIPO_OPTIONS, PRIORIDADE_OPTIONS, type WorkItemRow } from "@/lib/work-items-api";
 import { listProjects, type ProjectRow } from "@/lib/projects-api";
 import { qk } from "@/lib/query-keys";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -25,11 +23,45 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
-import { WorkItemDrawer } from "@/components/work-items/WorkItemDrawer";
 
-async function listBacklogItems(): Promise<WorkItemRow[]> {
+interface BacklogItem {
+  id: string;
+  project_id: string;
+  title: string;
+  type: string;
+  priority: string;
+  status: string;
+  assignee_id: string | null;
+  description: string | null;
+  position: number;
+  created_at: string;
+}
+
+interface TeamMember {
+  id: string;
+  name: string;
+  avatar_color: string | null;
+}
+
+const TYPE_OPTIONS = [
+  { value: "story", label: "História" },
+  { value: "task", label: "Tarefa" },
+  { value: "bug", label: "Bug" },
+  { value: "risk", label: "Risco" },
+  { value: "epic", label: "Épico" },
+];
+
+const PRIORITY_OPTIONS = [
+  { value: "baixa", label: "Baixa" },
+  { value: "media", label: "Média" },
+  { value: "alta", label: "Alta" },
+  { value: "critica", label: "Crítica" },
+];
+
+async function listBacklogItems(): Promise<BacklogItem[]> {
   const { data: linked, error: linkedErr } = await supabase
     .from("sprint_items")
     .select("work_item_id");
@@ -37,20 +69,35 @@ async function listBacklogItems(): Promise<WorkItemRow[]> {
     logSupabaseError("backlog:sprint_items", linkedErr);
     throw linkedErr;
   }
-  const linkedIds = new Set<string>(((linked ?? []) as Array<{ work_item_id: string }>).map((r) => r.work_item_id));
+  const linkedIds = new Set<string>(
+    ((linked ?? []) as Array<{ work_item_id: string }>).map((r) => r.work_item_id),
+  );
 
-  let q = supabase
+  const { data, error } = await supabase
     .from("work_items")
-    .select("id, project_id, tenant_id, item_key, titulo, tipo, status, responsavel, descricao, prioridade, ordem, sprint_id, created_at, updated_at")
-    .is("sprint_id", null)
+    .select("id, project_id, title, type, priority, status, assignee_id, description, position, created_at")
     .order("created_at", { ascending: false });
-  const { data, error } = await q;
+
   if (error) {
-    if (isMissingRelation(error)) { logSupabaseError("backlog:work_items", error); return []; }
+    if (isMissingRelation(error)) {
+      logSupabaseError("backlog:work_items", error);
+      return [];
+    }
     throw error;
   }
-  const rows = (data ?? []) as WorkItemRow[];
-  return rows.filter((r) => !linkedIds.has(r.id));
+  return ((data ?? []) as BacklogItem[]).filter((r) => !linkedIds.has(r.id));
+}
+
+async function listMembers(): Promise<TeamMember[]> {
+  const { data, error } = await supabase
+    .from("team_members")
+    .select("id, name, avatar_color")
+    .order("name", { ascending: true });
+  if (error) {
+    logSupabaseError("backlog:team_members", error);
+    throw error;
+  }
+  return (data ?? []) as TeamMember[];
 }
 
 export const Route = createFileRoute("/_workspace/backlog")({
@@ -58,29 +105,73 @@ export const Route = createFileRoute("/_workspace/backlog")({
   component: BacklogIndex,
 });
 
-function tipoVariant(tipo: string): "default" | "secondary" | "outline" | "destructive" {
-  if (tipo === "Bug") return "destructive";
-  if (tipo === "Épico") return "default";
+function normalize(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function typeLabel(type: string): string {
+  return TYPE_OPTIONS.find((t) => t.value === normalize(type))?.label ?? type;
+}
+
+function priorityLabel(priority: string): string {
+  return PRIORITY_OPTIONS.find((p) => p.value === normalize(priority))?.label ?? priority;
+}
+
+function typeVariant(type: string): "default" | "secondary" | "outline" | "destructive" {
+  const t = normalize(type);
+  if (t === "bug" || t === "risk") return "destructive";
+  if (t === "epic") return "default";
   return "secondary";
 }
-function prioridadeVariant(p: string): "default" | "secondary" | "outline" | "destructive" {
-  if (p === "Crítica") return "destructive";
-  if (p === "Alta") return "default";
-  if (p === "Baixa") return "outline";
+
+function priorityVariant(priority: string): "default" | "secondary" | "outline" | "destructive" {
+  const p = normalize(priority);
+  if (p === "critica") return "destructive";
+  if (p === "alta") return "default";
+  if (p === "baixa") return "outline";
   return "secondary";
+}
+
+function initials(name: string | null | undefined): string {
+  if (!name) return "?";
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((s) => s[0]?.toUpperCase() ?? "")
+    .join("") || "?";
+}
+
+function ResponsavelCell({
+  member,
+}: {
+  member: TeamMember | undefined;
+}) {
+  if (!member) return <span className="text-sm text-muted-foreground">—</span>;
+  const color = member.avatar_color ?? "#94a3b8";
+  return (
+    <div className="inline-flex items-center gap-2 text-sm text-foreground">
+      <Avatar className="h-6 w-6 border text-[10px] font-medium" style={{ borderColor: color }}>
+        <AvatarFallback className="text-white" style={{ backgroundColor: color }}>
+          {initials(member.name)}
+        </AvatarFallback>
+      </Avatar>
+      <span className="truncate">{member.name}</span>
+    </div>
+  );
 }
 
 function BacklogIndex() {
-  const queryClient = useQueryClient();
   const itemsQ = useQuery({ queryKey: qk.workItemsBacklog(), queryFn: listBacklogItems });
   const projectsQ = useQuery({ queryKey: qk.projects(), queryFn: listProjects });
-
+  const membersQ = useQuery({ queryKey: qk.teamMembers(), queryFn: listMembers });
 
   const [search, setSearch] = useState("");
-  const [tipo, setTipo] = useState<string>("all");
-  const [prioridade, setPrioridade] = useState<string>("all");
-  const [openItemId, setOpenItemId] = useState<string | null>(null);
-  const [creating, setCreating] = useState(false);
+  const [type, setType] = useState<string>("all");
+  const [priority, setPriority] = useState<string>("all");
 
   const projectsById = useMemo(() => {
     const m = new Map<string, ProjectRow>();
@@ -88,15 +179,21 @@ function BacklogIndex() {
     return m;
   }, [projectsQ.data]);
 
+  const membersById = useMemo(() => {
+    const m = new Map<string, TeamMember>();
+    (membersQ.data ?? []).forEach((p) => m.set(p.id, p));
+    return m;
+  }, [membersQ.data]);
+
   const filtered = useMemo(() => {
-    const s = search.trim().toLowerCase();
+    const s = normalize(search);
     return (itemsQ.data ?? []).filter((it) => {
-      if (tipo !== "all" && it.tipo !== tipo) return false;
-      if (prioridade !== "all" && it.prioridade !== prioridade) return false;
-      if (s && !it.titulo.toLowerCase().includes(s)) return false;
+      if (type !== "all" && normalize(it.type) !== type) return false;
+      if (priority !== "all" && normalize(it.priority) !== priority) return false;
+      if (s && !normalize(it.title).includes(s)) return false;
       return true;
     });
-  }, [itemsQ.data, tipo, prioridade, search]);
+  }, [itemsQ.data, type, priority, search]);
 
   return (
     <div className="space-y-6">
@@ -107,9 +204,6 @@ function BacklogIndex() {
             Work items ainda não vinculados a nenhuma sprint no Altech Project.
           </p>
         </div>
-        <Button onClick={() => setCreating(true)} size="sm">
-          <Plus className="mr-1 h-4 w-4" /> Novo item
-        </Button>
       </header>
 
       <WidgetCard>
@@ -124,32 +218,32 @@ function BacklogIndex() {
               aria-label="Buscar work items"
             />
           </div>
-          <Select value={tipo} onValueChange={setTipo}>
+          <Select value={type} onValueChange={setType}>
             <SelectTrigger className="sm:w-40" aria-label="Filtrar por tipo">
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os tipos</SelectItem>
-              {TIPO_OPTIONS.map((t) => (
-                <SelectItem key={t} value={t}>{t}</SelectItem>
+              {TYPE_OPTIONS.map((t) => (
+                <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Select value={prioridade} onValueChange={setPrioridade}>
+          <Select value={priority} onValueChange={setPriority}>
             <SelectTrigger className="sm:w-44" aria-label="Filtrar por prioridade">
               <SelectValue placeholder="Prioridade" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas prioridades</SelectItem>
-              {PRIORIDADE_OPTIONS.map((p) => (
-                <SelectItem key={p} value={p}>{p}</SelectItem>
+              {PRIORITY_OPTIONS.map((p) => (
+                <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
       </WidgetCard>
 
-      {itemsQ.isLoading ? (
+      {itemsQ.isLoading || projectsQ.isLoading || membersQ.isLoading ? (
         <LoadingState variant="skeleton" rows={6} />
       ) : itemsQ.error ? (
         <ErrorState
@@ -183,31 +277,25 @@ function BacklogIndex() {
               <TableBody>
                 {filtered.map((it) => {
                   const project = projectsById.get(it.project_id);
+                  const member = it.assignee_id ? membersById.get(it.assignee_id) : undefined;
                   return (
                     <TableRow
                       key={it.id}
-                      onClick={() => setOpenItemId(it.id)}
                       className="cursor-pointer"
                     >
-                      <TableCell className="font-medium text-foreground">{it.titulo}</TableCell>
+                      <TableCell className="font-medium text-foreground">{it.title}</TableCell>
                       <TableCell>
-                        <Badge variant={tipoVariant(it.tipo)} className="text-[10px] uppercase">
-                          {it.tipo}
+                        <Badge variant={typeVariant(it.type)} className="text-[10px] uppercase">
+                          {typeLabel(it.type)}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={prioridadeVariant(it.prioridade)} className="text-[10px] uppercase">
-                          {it.prioridade}
+                        <Badge variant={priorityVariant(it.priority)} className="text-[10px] uppercase">
+                          {priorityLabel(it.priority)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {it.responsavel ? (
-                          <span className="inline-flex items-center gap-1">
-                            <User className="h-3 w-3" /> {it.responsavel}
-                          </span>
-                        ) : (
-                          "—"
-                        )}
+                      <TableCell>
+                        <ResponsavelCell member={member} />
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {project?.nome ?? "—"}
@@ -220,15 +308,6 @@ function BacklogIndex() {
           </div>
         </WidgetCard>
       )}
-      <WorkItemDrawer
-        itemId={openItemId}
-        open={!!openItemId || creating}
-        createMode={creating}
-        onOpenChange={(o) => {
-          if (!o) { setOpenItemId(null); setCreating(false); }
-        }}
-        onChanged={() => { void queryClient.invalidateQueries({ queryKey: qk.workItems() }); }}
-      />
     </div>
   );
 }
