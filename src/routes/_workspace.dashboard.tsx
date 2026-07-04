@@ -242,6 +242,7 @@ function DashboardPage() {
       }
     } else {
       openItems = itemsR;
+      backlogItems = itemsR;
       doneItems = itemsR;
       totalItems = itemsR;
       statusBreakdown = itemsR;
@@ -253,6 +254,7 @@ function DashboardPage() {
       activeProjects,
       activeSprints,
       openItems,
+      backlogItems,
       doneItems,
       totalItems,
       statusBreakdown,
