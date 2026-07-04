@@ -16,6 +16,7 @@ import { supabase } from "@/lib/supabase";
 import { logSupabaseError, formatSupabaseError } from "@/lib/supabase-errors";
 import { getBoard } from "@/lib/boards-api";
 import { listProjects } from "@/lib/projects-api";
+import { qk } from "@/lib/query-keys";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
