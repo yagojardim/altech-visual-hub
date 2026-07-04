@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronRight, SearchX, KanbanSquare } from "lucide-react";
+import { ChevronRight, SearchX, KanbanSquare, Plus } from "lucide-react";
 import {
   DndContext,
   PointerSensor,
