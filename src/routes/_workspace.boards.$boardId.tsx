@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronRight, SearchX, KanbanSquare } from "lucide-react";
+import { ChevronRight, SearchX, KanbanSquare, Plus } from "lucide-react";
 import {
   DndContext,
   PointerSensor,
@@ -20,7 +20,10 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState } from "@/components/states";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
 
 
 interface BoardColumn {
@@ -219,8 +222,12 @@ function BoardKanbanPage() {
                     key={col.id}
                     column={col}
                     items={itemsByColumn.get(col.id) ?? []}
+                    boardId={boardId}
+                    projectId={board?.project_id ?? null}
+                    onCreated={() => void itemsQ.refetch()}
                   />
                 ))}
+
           </div>
         </div>
       </DndContext>
@@ -228,8 +235,63 @@ function BoardKanbanPage() {
   );
 }
 
-function DroppableColumn({ column, items }: { column: BoardColumn; items: KanbanItem[] }) {
+function DroppableColumn({
+  column,
+  items,
+  boardId,
+  projectId,
+  onCreated,
+}: {
+  column: BoardColumn;
+  items: KanbanItem[];
+  boardId: string;
+  projectId: string | null;
+  onCreated: () => void;
+}) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
+  const [adding, setAdding] = useState(false);
+  const [title, setTitle] = useState("");
+  const [saving, setSaving] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (adding) inputRef.current?.focus();
+  }, [adding]);
+
+  const cancel = () => {
+    setAdding(false);
+    setTitle("");
+  };
+
+  const submit = async () => {
+    const titulo = title.trim();
+    if (!titulo) { cancel(); return; }
+    if (!projectId) {
+      toast.error("Board sem projeto associado.");
+      return;
+    }
+    setSaving(true);
+    const nextPosition = items.reduce((max, i) => Math.max(max, i.position ?? 0), 0) + 1;
+    const { error } = await supabase.from("work_items").insert({
+      board_id: boardId,
+      column_id: column.id,
+      project_id: projectId,
+      titulo,
+      tipo: "task",
+      prioridade: "media",
+      position: nextPosition,
+    });
+    setSaving(false);
+    if (error) {
+      logSupabaseError("work_items:insert", error);
+      toast.error(formatSupabaseError(error, "Não foi possível criar o card."));
+      return;
+    }
+    setTitle("");
+    setAdding(false);
+    onCreated();
+  };
+
   return (
     <section
       ref={setNodeRef}
@@ -245,7 +307,7 @@ function DroppableColumn({ column, items }: { column: BoardColumn; items: Kanban
         </span>
       </header>
       <div className="flex min-h-[80px] flex-col gap-2">
-        {items.length === 0 ? (
+        {items.length === 0 && !adding ? (
           <div className="rounded-md border border-dashed border-border px-3 py-6 text-center text-xs text-muted-foreground">
             Sem itens
           </div>
@@ -253,9 +315,44 @@ function DroppableColumn({ column, items }: { column: BoardColumn; items: Kanban
           items.map((it) => <DraggableItemCard key={it.id} item={it} />)
         )}
       </div>
+
+      {adding ? (
+        <div className="space-y-2">
+          <Input
+            ref={inputRef}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") { e.preventDefault(); void submit(); }
+              if (e.key === "Escape") { e.preventDefault(); cancel(); }
+            }}
+            placeholder="Título do card"
+            disabled={saving}
+            className="h-8 text-sm"
+          />
+          <div className="flex items-center gap-2">
+            <Button size="sm" onClick={() => void submit()} disabled={saving} className="h-7">
+              {saving ? "Salvando..." : "Adicionar"}
+            </Button>
+            <Button size="sm" variant="ghost" onClick={cancel} disabled={saving} className="h-7">
+              Cancelar
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => setAdding(true)}
+          className="h-7 justify-start text-xs text-muted-foreground hover:text-foreground"
+        >
+          <Plus className="mr-1 h-3.5 w-3.5" /> Adicionar
+        </Button>
+      )}
     </section>
   );
 }
+
 
 function DraggableItemCard({ item }: { item: KanbanItem }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: item.id });
