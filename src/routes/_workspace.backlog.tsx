@@ -107,11 +107,12 @@ function ResponsavelCell({
   );
 }
 
-
+function BacklogIndex() {
   const queryClient = useQueryClient();
   const itemsQ = useQuery({ queryKey: qk.workItemsBacklog(), queryFn: listBacklogItems });
   const projectsQ = useQuery({ queryKey: qk.projects(), queryFn: listProjects });
   const membersQ = useQuery({ queryKey: qk.teamMembers(), queryFn: listTeamMembers });
+
 
 
 
