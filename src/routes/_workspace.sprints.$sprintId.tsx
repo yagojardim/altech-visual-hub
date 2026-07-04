@@ -1,11 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, SearchX, Calendar, Target, Timer, User } from "lucide-react";
 import { formatSupabaseError } from "@/lib/supabase-errors";
 import { listProjects } from "@/lib/projects-api";
+import { listTeamMembers, type TeamMember } from "@/lib/team-members-api";
 import { getSprint, listItemsBySprint, type SprintRow, type SprintItemRow } from "@/lib/sprints-api";
 import { getSprintStatusColor, getSprintStatusLabel } from "@/lib/sprint-status";
 import { STATUS_COLUMNS } from "@/lib/work-items-api";
+import { typeMeta, typeBadgeStyle, priorityMeta } from "@/lib/work-item-type-style";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { Badge } from "@/components/ui/badge";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
