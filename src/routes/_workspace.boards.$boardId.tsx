@@ -229,7 +229,7 @@ function BoardKanbanPage() {
                     items={itemsByColumn.get(col.id) ?? []}
                     boardId={boardId}
                     projectId={board?.project_id ?? null}
-                    onCreated={() => void itemsQ.refetch()}
+                    onCreated={() => void queryClient.invalidateQueries({ queryKey: qk.workItems() })}
                     onOpenItem={setOpenItemId}
                   />
                 ))}
@@ -241,7 +241,7 @@ function BoardKanbanPage() {
         itemId={openItemId}
         open={!!openItemId}
         onOpenChange={(o) => { if (!o) setOpenItemId(null); }}
-        onChanged={() => { void itemsQ.refetch(); }}
+        onChanged={() => { void queryClient.invalidateQueries({ queryKey: qk.workItems() }); }}
       />
     </div>
   );
