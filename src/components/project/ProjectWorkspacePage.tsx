@@ -128,6 +128,15 @@ function ProjectWorkspaceHeader({ project }: { project: ProjectRow }) {
         </div>
       </div>
 
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>Progresso</span>
+          <span className="font-medium text-foreground">{STATUS_PROGRESS[project.status] ?? 0}%</span>
+        </div>
+        <Progress value={STATUS_PROGRESS[project.status] ?? 0} />
+      </div>
+
+
       <WidgetGrid columns={4}>
         <WidgetCard>
           <WidgetHeader
