@@ -1,25 +1,35 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { WorkItemDetails } from "@/components/work-item/WorkItemDetails";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { WorkItemDetailsPanel } from "@/components/work-item/WorkItemDetailsPanel";
 
 export const Route = createFileRoute("/_workspace/work-items/$itemId")({
-  head: ({ params }) => ({ meta: [{ title: `${params.itemId} · Work Item` }] }),
+  head: ({ params }) => ({ meta: [{ title: `Work Item · ${params.itemId.slice(0, 6)}` }] }),
   component: WorkItemPage,
 });
 
 function WorkItemPage() {
   const { itemId } = Route.useParams();
+  const router = useRouter();
 
   return (
-    <WorkItemDetails
-      itemId={itemId}
-      title="Definir arquitetura de permissões"
-      project="Altech Core"
-      status="Em progresso"
-      priority="Prioridade média"
-      description="Modelar o sistema de roles e permissões do Altech Project. Deve suportar permission-driven UI em todos os módulos e integrar com o Supabase usando policies RLS."
-      owner="Ana Silva"
-      dueDate="12 jul 2026"
-      type="Arquitetura"
-    />
+    <div className="space-y-4 p-4 lg:p-6">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => {
+          // Preserva origem (Backlog/Board/Sprint) sem trocar de projeto
+          if (typeof window !== "undefined" && window.history.length > 1) {
+            router.history.back();
+          } else {
+            void router.navigate({ to: "/backlog" });
+          }
+        }}
+      >
+        <ArrowLeft className="mr-1.5 h-4 w-4" />
+        Voltar
+      </Button>
+      <WorkItemDetailsPanel workItemId={itemId} />
+    </div>
   );
 }
