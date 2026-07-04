@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ListTodo, Search, User } from "lucide-react";
+import { ListTodo, Plus, Search, User } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { isMissingRelation, logSupabaseError, formatSupabaseError } from "@/lib/supabase-errors";
 import { TIPO_OPTIONS, PRIORIDADE_OPTIONS, type WorkItemRow } from "@/lib/work-items-api";
 import { listProjects, type ProjectRow } from "@/lib/projects-api";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -76,6 +77,7 @@ function BacklogIndex() {
   const [tipo, setTipo] = useState<string>("all");
   const [prioridade, setPrioridade] = useState<string>("all");
   const [openItemId, setOpenItemId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
 
   const projectsById = useMemo(() => {
     const m = new Map<string, ProjectRow>();
@@ -95,11 +97,16 @@ function BacklogIndex() {
 
   return (
     <div className="space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Backlog</h1>
-        <p className="text-sm text-muted-foreground">
-          Work items ainda não vinculados a nenhuma sprint no Altech Project.
-        </p>
+      <header className="flex items-start justify-between gap-3">
+        <div className="space-y-1">
+          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Backlog</h1>
+          <p className="text-sm text-muted-foreground">
+            Work items ainda não vinculados a nenhuma sprint no Altech Project.
+          </p>
+        </div>
+        <Button onClick={() => setCreating(true)} size="sm">
+          <Plus className="mr-1 h-4 w-4" /> Novo item
+        </Button>
       </header>
 
       <WidgetCard>
