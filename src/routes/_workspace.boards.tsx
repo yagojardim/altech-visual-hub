@@ -88,9 +88,10 @@ function BoardsPage() {
               value={projectFilter ?? "all"}
               onValueChange={(v) =>
                 navigate({
-                  search: (prev) => ({ ...prev, project: v === "all" ? undefined : v }),
+                  search: { project: v === "all" ? undefined : v },
                 })
               }
+
             >
               <SelectTrigger>
                 <SelectValue placeholder="Filtrar por projeto" />
