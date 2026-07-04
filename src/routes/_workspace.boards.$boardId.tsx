@@ -1,15 +1,28 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, SearchX, KanbanSquare } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ChevronRight, SearchX, KanbanSquare, MoveRight } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { logSupabaseError, formatSupabaseError } from "@/lib/supabase-errors";
 import { getBoard } from "@/lib/boards-api";
 import { listProjects } from "@/lib/projects-api";
+import { useAuth } from "@/lib/auth";
+import { auditLog } from "@/lib/audit-log";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState } from "@/components/states";
 import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/_workspace/boards/$boardId")({
   head: () => ({ meta: [{ title: "Board · Altech Project" }] }),
