@@ -115,16 +115,14 @@ function DashboardPage() {
       safe("projects", async () => {
         const { data, error } = await supabase
           .from("projects")
-          .select("id, status")
-          .eq("tenant_id", DEFAULT_TENANT_ID);
+          .select("id, status");
         if (error) throw error;
         return (data ?? []) as Array<{ id: string; status: string | null }>;
       }),
       safe("sprints", async () => {
         const { data, error } = await supabase
           .from("sprints")
-          .select("id, status")
-          .eq("tenant_id", DEFAULT_TENANT_ID);
+          .select("id, status");
         if (error) throw error;
         return (data ?? []) as Array<{ id: string; status: string | null }>;
       }),
@@ -132,8 +130,7 @@ function DashboardPage() {
         const { data, error } = await supabase
           .from("work_items")
           .select("*")
-          .eq("tenant_id", DEFAULT_TENANT_ID)
-          .order("updated_at", { ascending: false })
+          .order("created_at", { ascending: false })
           .limit(200);
         if (error) throw error;
         return toWorkItems(data ?? []) as WorkItem[];
