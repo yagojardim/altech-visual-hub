@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as WorkspaceSupportRouteImport } from './routes/_workspace.support'
 import { Route as WorkspaceSprintsRouteImport } from './routes/_workspace.sprints'
 import { Route as WorkspaceSettingsRouteImport } from './routes/_workspace.settings'
+import { Route as WorkspacePessoasRouteImport } from './routes/_workspace.pessoas'
 import { Route as WorkspaceDashboardRouteImport } from './routes/_workspace.dashboard'
 import { Route as WorkspaceBoardsRouteImport } from './routes/_workspace.boards'
 import { Route as WorkspaceBacklogRouteImport } from './routes/_workspace.backlog'
@@ -60,6 +61,11 @@ const WorkspaceSprintsRoute = WorkspaceSprintsRouteImport.update({
 const WorkspaceSettingsRoute = WorkspaceSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
+const WorkspacePessoasRoute = WorkspacePessoasRouteImport.update({
+  id: '/pessoas',
+  path: '/pessoas',
   getParentRoute: () => WorkspaceRoute,
 } as any)
 const WorkspaceDashboardRoute = WorkspaceDashboardRouteImport.update({
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/backlog': typeof WorkspaceBacklogRoute
   '/boards': typeof WorkspaceBoardsRouteWithChildren
   '/dashboard': typeof WorkspaceDashboardRoute
+  '/pessoas': typeof WorkspacePessoasRoute
   '/settings': typeof WorkspaceSettingsRouteWithChildren
   '/sprints': typeof WorkspaceSprintsRouteWithChildren
   '/support': typeof WorkspaceSupportRoute
@@ -149,6 +156,7 @@ export interface FileRoutesByTo {
   '/backlog': typeof WorkspaceBacklogRoute
   '/boards': typeof WorkspaceBoardsRouteWithChildren
   '/dashboard': typeof WorkspaceDashboardRoute
+  '/pessoas': typeof WorkspacePessoasRoute
   '/sprints': typeof WorkspaceSprintsRouteWithChildren
   '/support': typeof WorkspaceSupportRoute
   '/boards/$boardId': typeof WorkspaceBoardsBoardIdRoute
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   '/_workspace/backlog': typeof WorkspaceBacklogRoute
   '/_workspace/boards': typeof WorkspaceBoardsRouteWithChildren
   '/_workspace/dashboard': typeof WorkspaceDashboardRoute
+  '/_workspace/pessoas': typeof WorkspacePessoasRoute
   '/_workspace/settings': typeof WorkspaceSettingsRouteWithChildren
   '/_workspace/sprints': typeof WorkspaceSprintsRouteWithChildren
   '/_workspace/support': typeof WorkspaceSupportRoute
@@ -190,6 +199,7 @@ export interface FileRouteTypes {
     | '/backlog'
     | '/boards'
     | '/dashboard'
+    | '/pessoas'
     | '/settings'
     | '/sprints'
     | '/support'
@@ -209,6 +219,7 @@ export interface FileRouteTypes {
     | '/backlog'
     | '/boards'
     | '/dashboard'
+    | '/pessoas'
     | '/sprints'
     | '/support'
     | '/boards/$boardId'
@@ -228,6 +239,7 @@ export interface FileRouteTypes {
     | '/_workspace/backlog'
     | '/_workspace/boards'
     | '/_workspace/dashboard'
+    | '/_workspace/pessoas'
     | '/_workspace/settings'
     | '/_workspace/sprints'
     | '/_workspace/support'
@@ -296,6 +308,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof WorkspaceSettingsRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/_workspace/pessoas': {
+      id: '/_workspace/pessoas'
+      path: '/pessoas'
+      fullPath: '/pessoas'
+      preLoaderRoute: typeof WorkspacePessoasRouteImport
       parentRoute: typeof WorkspaceRoute
     }
     '/_workspace/dashboard': {
@@ -419,6 +438,7 @@ interface WorkspaceRouteChildren {
   WorkspaceBacklogRoute: typeof WorkspaceBacklogRoute
   WorkspaceBoardsRoute: typeof WorkspaceBoardsRouteWithChildren
   WorkspaceDashboardRoute: typeof WorkspaceDashboardRoute
+  WorkspacePessoasRoute: typeof WorkspacePessoasRoute
   WorkspaceSettingsRoute: typeof WorkspaceSettingsRouteWithChildren
   WorkspaceSprintsRoute: typeof WorkspaceSprintsRouteWithChildren
   WorkspaceSupportRoute: typeof WorkspaceSupportRoute
@@ -432,6 +452,7 @@ const WorkspaceRouteChildren: WorkspaceRouteChildren = {
   WorkspaceBacklogRoute: WorkspaceBacklogRoute,
   WorkspaceBoardsRoute: WorkspaceBoardsRouteWithChildren,
   WorkspaceDashboardRoute: WorkspaceDashboardRoute,
+  WorkspacePessoasRoute: WorkspacePessoasRoute,
   WorkspaceSettingsRoute: WorkspaceSettingsRouteWithChildren,
   WorkspaceSprintsRoute: WorkspaceSprintsRouteWithChildren,
   WorkspaceSupportRoute: WorkspaceSupportRoute,
