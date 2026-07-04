@@ -114,15 +114,61 @@ function initials(name: string | null | undefined): string {
 
 function BoardKanbanPage() {
   const { boardId } = Route.useParams();
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const itemsKey = ["work_items", "by_board", boardId] as const;
 
   const boardQ = useQuery({ queryKey: ["boards", "detail", boardId], queryFn: () => getBoard(boardId) });
   const projectsQ = useQuery({ queryKey: ["projects"], queryFn: listProjects });
   const columnsQ = useQuery({ queryKey: ["board_columns", boardId], queryFn: () => listColumns(boardId) });
-  const itemsQ = useQuery({ queryKey: ["work_items", "by_board", boardId], queryFn: () => listBoardItems(boardId) });
+  const itemsQ = useQuery({ queryKey: itemsKey, queryFn: () => listBoardItems(boardId) });
   const membersQ = useQuery({ queryKey: ["team_members"], queryFn: listMembers });
 
   const loading = boardQ.isLoading || columnsQ.isLoading || itemsQ.isLoading;
   const anyError = boardQ.error ?? columnsQ.error ?? itemsQ.error;
+
+  const moveItem = async (item: KanbanItem, target: BoardColumn) => {
+    if (item.column_id === target.id) return;
+    const columns = columnsQ.data ?? [];
+    const beforeCol = columns.find((c) => c.id === item.column_id) ?? null;
+    const current = itemsQ.data ?? [];
+    const targetItems = current.filter((i) => i.column_id === target.id);
+    const nextPosition = targetItems.reduce((max, i) => Math.max(max, i.position ?? 0), 0) + 1;
+
+    // Optimistic update
+    const previous = current;
+    const optimistic = current.map((i) =>
+      i.id === item.id
+        ? { ...i, column_id: target.id, status: target.name, position: nextPosition }
+        : i,
+    );
+    queryClient.setQueryData<KanbanItem[]>([...itemsKey], optimistic);
+
+    const { error } = await supabase
+      .from("work_items")
+      .update({ column_id: target.id, status: target.name, position: nextPosition })
+      .eq("id", item.id);
+
+    if (error) {
+      logSupabaseError("work_items:moveCard", error);
+      queryClient.setQueryData<KanbanItem[]>([...itemsKey], previous);
+      toast.error(formatSupabaseError(error, "Não foi possível mover o card."));
+      return;
+    }
+
+    toast.success(`Movido para “${target.name}”`);
+    void auditLog({
+      event: "work_item.status.changed",
+      actor_id: user?.id ?? null,
+      actor_name: user?.name ?? null,
+      entity_type: "work_item",
+      entity_id: item.id,
+      before: { column_id: item.column_id, column_name: beforeCol?.name ?? null, status: item.status ?? null },
+      after: { column_id: target.id, column_name: target.name, status: target.name },
+    });
+    void queryClient.invalidateQueries({ queryKey: [...itemsKey] });
+  };
+
 
   const membersById = useMemo(() => {
     const m = new Map<string, Member>();
