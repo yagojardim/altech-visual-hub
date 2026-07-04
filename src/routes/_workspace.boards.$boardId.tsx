@@ -99,11 +99,15 @@ function initials(name: string | null): string {
 
 function BoardKanbanPage() {
   const { boardId } = Route.useParams();
+  const queryClient = useQueryClient();
+  const itemsKey = ["work_items", "byBoard", boardId] as const;
 
   const boardQ = useQuery({ queryKey: ["boards", "detail", boardId], queryFn: () => getBoard(boardId) });
   const projectsQ = useQuery({ queryKey: ["projects", "all"], queryFn: listProjects });
   const columnsQ = useQuery({ queryKey: ["board_columns", boardId], queryFn: () => listColumns(boardId) });
-  const itemsQ = useQuery({ queryKey: ["work_items", "byBoard", boardId], queryFn: () => listBoardItems(boardId) });
+  const itemsQ = useQuery({ queryKey: itemsKey, queryFn: () => listBoardItems(boardId) });
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
   const loading = boardQ.isLoading || columnsQ.isLoading || itemsQ.isLoading;
   const anyError = boardQ.error ?? columnsQ.error ?? itemsQ.error;
@@ -117,6 +121,35 @@ function BoardKanbanPage() {
     }
     return m;
   }, [itemsQ.data]);
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const itemId = String(event.active.id);
+    const overId = event.over?.id ? String(event.over.id) : null;
+    if (!overId) return;
+    const current = itemsQ.data ?? [];
+    const item = current.find((i) => i.id === itemId);
+    if (!item || item.column_id === overId) return;
+
+    const targetItems = current.filter((i) => i.column_id === overId);
+    const nextPosition = targetItems.reduce((max, i) => Math.max(max, i.position ?? 0), 0) + 1;
+
+    const previous = current;
+    const optimistic = current.map((i) =>
+      i.id === itemId ? { ...i, column_id: overId, position: nextPosition } : i,
+    );
+    queryClient.setQueryData<KanbanItem[]>(itemsKey, optimistic);
+
+    const { error } = await supabase
+      .from("work_items")
+      .update({ column_id: overId, position: nextPosition })
+      .eq("id", itemId);
+
+    if (error) {
+      logSupabaseError("work_items:moveCard", error);
+      queryClient.setQueryData<KanbanItem[]>(itemsKey, previous);
+      toast.error(formatSupabaseError(error, "Não foi possível mover o card."));
+    }
+  };
 
   if (anyError) {
     return (
@@ -172,42 +205,72 @@ function BoardKanbanPage() {
           <Badge variant="secondary"><KanbanSquare className="mr-1 h-3 w-3" /> Board</Badge>
         </div>
         <p className="text-sm text-muted-foreground">
-          {project ? `Projeto: ${project.nome}` : "Kanban read-only do Altech Project."}
+          {project ? `Projeto: ${project.nome}` : "Kanban do Altech Project."}
         </p>
       </header>
 
-      <div className="-mx-4 overflow-x-auto px-4 pb-2">
-        <div className="flex min-w-full gap-4">
-          {loading && columns.length === 0
-            ? Array.from({ length: 4 }).map((_, i) => <ColumnSkeleton key={i} />)
-            : columns.map((col) => {
-                const items = itemsByColumn.get(col.id) ?? [];
-                return (
-                  <section
+      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+        <div className="-mx-4 overflow-x-auto px-4 pb-2">
+          <div className="flex min-w-full gap-4">
+            {loading && columns.length === 0
+              ? Array.from({ length: 4 }).map((_, i) => <ColumnSkeleton key={i} />)
+              : columns.map((col) => (
+                  <DroppableColumn
                     key={col.id}
-                    className="flex w-72 shrink-0 flex-col gap-3 rounded-xl border border-border bg-panel p-3"
-                  >
-                    <header className="flex items-center justify-between">
-                      <h2 className="text-sm font-medium text-foreground">{col.name}</h2>
-                      <span className="rounded-full bg-panel-elevated px-2 py-0.5 text-[11px] text-muted-foreground">
-                        {items.length}
-                      </span>
-                    </header>
-
-                    <div className="flex flex-col gap-2">
-                      {items.length === 0 ? (
-                        <div className="rounded-md border border-dashed border-border px-3 py-6 text-center text-xs text-muted-foreground">
-                          Sem itens
-                        </div>
-                      ) : (
-                        items.map((it) => <ItemCard key={it.id} item={it} />)
-                      )}
-                    </div>
-                  </section>
-                );
-              })}
+                    column={col}
+                    items={itemsByColumn.get(col.id) ?? []}
+                  />
+                ))}
+          </div>
         </div>
+      </DndContext>
+    </div>
+  );
+}
+
+function DroppableColumn({ column, items }: { column: BoardColumn; items: KanbanItem[] }) {
+  const { setNodeRef, isOver } = useDroppable({ id: column.id });
+  return (
+    <section
+      ref={setNodeRef}
+      className={cn(
+        "flex w-72 shrink-0 flex-col gap-3 rounded-xl border border-border bg-panel p-3 transition-colors",
+        isOver && "border-primary/60 bg-panel-elevated",
+      )}
+    >
+      <header className="flex items-center justify-between">
+        <h2 className="text-sm font-medium text-foreground">{column.name}</h2>
+        <span className="rounded-full bg-panel-elevated px-2 py-0.5 text-[11px] text-muted-foreground">
+          {items.length}
+        </span>
+      </header>
+      <div className="flex min-h-[80px] flex-col gap-2">
+        {items.length === 0 ? (
+          <div className="rounded-md border border-dashed border-border px-3 py-6 text-center text-xs text-muted-foreground">
+            Sem itens
+          </div>
+        ) : (
+          items.map((it) => <DraggableItemCard key={it.id} item={it} />)
+        )}
       </div>
+    </section>
+  );
+}
+
+function DraggableItemCard({ item }: { item: KanbanItem }) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: item.id });
+  const style = transform
+    ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
+    : undefined;
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      className={cn("cursor-grab touch-none", isDragging && "cursor-grabbing opacity-60")}
+    >
+      <ItemCard item={item} />
     </div>
   );
 }
@@ -246,3 +309,4 @@ function ColumnSkeleton() {
     </section>
   );
 }
+
