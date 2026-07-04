@@ -62,9 +62,14 @@ function initials(name?: string | null) {
 export function WorkItemDetailsPanel({
   workItemId,
   onChange,
+  originPath,
 }: {
   workItemId: string;
   onChange?: () => void;
+  /** Rota (com search) que originou a abertura — Backlog/Board/Sprint.
+   *  Propagada nos links internos para que o botão Voltar do detalhe
+   *  retorne à origem, sem trocar de projeto. */
+  originPath?: string;
 }) {
   const qc = useQueryClient();
   const { user } = useAuth();
