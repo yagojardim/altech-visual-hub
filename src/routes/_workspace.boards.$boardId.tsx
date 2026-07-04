@@ -346,13 +346,17 @@ function ItemCard({
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-1.5">
         {item.type && (
-          <Badge variant="outline" className={cn("text-[10px] capitalize", TYPE_VARIANTS[typeKey] ?? "")}>
-            {item.type}
+          <Badge
+            variant="outline"
+            className="text-[10px] font-medium uppercase tracking-wide"
+            style={typeBadgeStyle(item.type)}
+          >
+            {tMeta.label}
           </Badge>
         )}
-        {item.priority && (
-          <Badge variant="outline" className={cn("text-[10px] capitalize", PRIORITY_VARIANTS[prioKey] ?? "")}>
-            {item.priority}
+        {pMeta && (
+          <Badge variant="outline" className={cn("text-[10px] capitalize", pMeta.className)}>
+            {pMeta.label}
           </Badge>
         )}
       </div>
