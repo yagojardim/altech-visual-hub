@@ -505,12 +505,14 @@ function HierarchySection({
   children,
   siblings,
   onSaveParent,
+  originPath,
 }: {
   item: WorkItemFull;
   parent: WorkItemFull | Pick<WorkItemFull, "id" | "title" | "type"> | null;
   children: WorkItemFull[];
   siblings: Pick<WorkItemFull, "id" | "title" | "type">[];
   onSaveParent: (parentId: string | null) => void;
+  originPath?: string;
 }) {
   const isEpic = item.type === "epic";
   const isSubtask = item.type === "subtask";
