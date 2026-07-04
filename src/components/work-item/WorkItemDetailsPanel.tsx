@@ -717,12 +717,17 @@ function RelationsSection({
               <li key={r.id} className="flex items-center gap-2 text-sm">
                 <Badge variant="outline">{RELATION_LABEL[r.relation_type]}</Badge>
                 {r.target ? (
-                  <>
+                  <Link
+                    to="/work-items/$itemId"
+                    params={{ itemId: r.target.id }}
+                    className="flex flex-1 items-center gap-2 rounded-md px-1.5 py-0.5 hover:bg-accent/40 transition-colors"
+                  >
                     <Badge variant="outline" className={typeMeta(r.target.type).badge}>
                       {typeMeta(r.target.type).label}
                     </Badge>
                     <span className="truncate">{r.target.title}</span>
-                  </>
+                    <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                  </Link>
                 ) : (
                   <span className="text-muted-foreground">(alvo removido)</span>
                 )}
