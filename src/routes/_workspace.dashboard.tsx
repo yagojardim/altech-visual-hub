@@ -293,7 +293,7 @@ function DashboardPage() {
             <WidgetGrid columns={4}>
               <KpiCard label="Projetos ativos" result={state.activeProjects} icon={FolderKanban} />
               <KpiCard label="Sprints em andamento" result={state.activeSprints} icon={Timer} />
-              <KpiCard label="Itens abertos" result={state.openItems} icon={Activity} />
+              <KpiCard label="Itens em backlog" result={state.backlogItems} icon={ListTodo} />
               <KpiCard label="Itens concluídos" result={state.doneItems} icon={Zap} />
             </WidgetGrid>
 
