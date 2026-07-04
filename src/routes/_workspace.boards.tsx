@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { listBoards } from "@/lib/boards-api";
 import { listProjects } from "@/lib/projects-api";
+import { qk } from "@/lib/query-keys";
 import { formatSupabaseError } from "@/lib/supabase-errors";
 
 const searchSchema = z.object({
