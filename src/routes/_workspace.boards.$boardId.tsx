@@ -82,26 +82,7 @@ async function listMembers(): Promise<Member[]> {
   return (data ?? []) as Member[];
 }
 
-const TYPE_VARIANTS: Record<string, string> = {
-  story: "bg-blue-500/10 text-blue-400 border-blue-500/30",
-  história: "bg-blue-500/10 text-blue-400 border-blue-500/30",
-  historia: "bg-blue-500/10 text-blue-400 border-blue-500/30",
-  task: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
-  tarefa: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
-  bug: "bg-red-500/10 text-red-400 border-red-500/30",
-  risk: "bg-amber-500/10 text-amber-400 border-amber-500/30",
-  épico: "bg-purple-500/10 text-purple-400 border-purple-500/30",
-  epico: "bg-purple-500/10 text-purple-400 border-purple-500/30",
-};
-
-const PRIORITY_VARIANTS: Record<string, string> = {
-  baixa: "bg-muted text-muted-foreground border-border",
-  media: "bg-blue-500/10 text-blue-400 border-blue-500/30",
-  média: "bg-blue-500/10 text-blue-400 border-blue-500/30",
-  alta: "bg-amber-500/10 text-amber-400 border-amber-500/30",
-  critica: "bg-red-500/10 text-red-400 border-red-500/30",
-  crítica: "bg-red-500/10 text-red-400 border-red-500/30",
-};
+import { typeMeta, typeBadgeStyle, priorityMeta } from "@/lib/work-item-type-style";
 
 function initials(name: string | null | undefined): string {
   if (!name) return "—";
