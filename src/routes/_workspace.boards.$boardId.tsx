@@ -222,8 +222,12 @@ function BoardKanbanPage() {
                     key={col.id}
                     column={col}
                     items={itemsByColumn.get(col.id) ?? []}
+                    boardId={boardId}
+                    projectId={board?.project_id ?? null}
+                    onCreated={() => void itemsQ.refetch()}
                   />
                 ))}
+
           </div>
         </div>
       </DndContext>
