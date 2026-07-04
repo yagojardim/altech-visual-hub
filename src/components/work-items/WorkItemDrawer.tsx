@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Calendar, FolderKanban, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
@@ -11,6 +11,7 @@ import {
   type WorkItemRow,
 } from "@/lib/work-items-api";
 import { listProjects, type ProjectRow } from "@/lib/projects-api";
+import { qk } from "@/lib/query-keys";
 import {
   Sheet,
   SheetContent,
@@ -117,14 +118,15 @@ export function WorkItemDrawer({
   onChanged,
 }: WorkItemDrawerProps) {
   const isCreate = createMode && !itemId;
+  const queryClient = useQueryClient();
 
   const itemQ = useQuery({
-    queryKey: ["work_items", "detail", itemId],
+    queryKey: itemId ? qk.workItem(itemId) : ["work_items", "detail", "__none__"],
     queryFn: () => getWorkItem(itemId as string),
     enabled: !!itemId && open,
   });
   const projectsQ = useQuery({
-    queryKey: ["projects", "all"],
+    queryKey: qk.projects(),
     queryFn: listProjects,
     enabled: open,
   });
@@ -191,6 +193,10 @@ export function WorkItemDrawer({
         if (error) throw error;
         toast.success("Work item atualizado.");
       }
+      await queryClient.invalidateQueries({ queryKey: qk.workItems() });
+      if (itemId) {
+        await queryClient.invalidateQueries({ queryKey: qk.workItem(itemId) });
+      }
       onChanged?.();
       onOpenChange(false);
     } catch (err) {
@@ -208,6 +214,7 @@ export function WorkItemDrawer({
       const { error } = await supabase.from("work_items").delete().eq("id", itemId);
       if (error) throw error;
       toast.success("Work item excluído.");
+      await queryClient.invalidateQueries({ queryKey: qk.workItems() });
       onChanged?.();
       setConfirmDelete(false);
       onOpenChange(false);

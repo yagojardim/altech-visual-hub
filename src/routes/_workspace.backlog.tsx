@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ListTodo, Plus, Search, User } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { isMissingRelation, logSupabaseError, formatSupabaseError } from "@/lib/supabase-errors";
 import { TIPO_OPTIONS, PRIORIDADE_OPTIONS, type WorkItemRow } from "@/lib/work-items-api";
 import { listProjects, type ProjectRow } from "@/lib/projects-api";
+import { qk } from "@/lib/query-keys";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,8 +71,10 @@ function prioridadeVariant(p: string): "default" | "secondary" | "outline" | "de
 }
 
 function BacklogIndex() {
-  const itemsQ = useQuery({ queryKey: ["backlog", "unassigned"], queryFn: listBacklogItems });
-  const projectsQ = useQuery({ queryKey: ["projects", "all"], queryFn: listProjects });
+  const queryClient = useQueryClient();
+  const itemsQ = useQuery({ queryKey: qk.workItemsBacklog(), queryFn: listBacklogItems });
+  const projectsQ = useQuery({ queryKey: qk.projects(), queryFn: listProjects });
+
 
   const [search, setSearch] = useState("");
   const [tipo, setTipo] = useState<string>("all");
@@ -224,7 +227,7 @@ function BacklogIndex() {
         onOpenChange={(o) => {
           if (!o) { setOpenItemId(null); setCreating(false); }
         }}
-        onChanged={() => { void itemsQ.refetch(); }}
+        onChanged={() => { void queryClient.invalidateQueries({ queryKey: qk.workItems() }); }}
       />
     </div>
   );

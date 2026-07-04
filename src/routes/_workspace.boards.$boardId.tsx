@@ -16,6 +16,7 @@ import { supabase } from "@/lib/supabase";
 import { logSupabaseError, formatSupabaseError } from "@/lib/supabase-errors";
 import { getBoard } from "@/lib/boards-api";
 import { listProjects } from "@/lib/projects-api";
+import { qk } from "@/lib/query-keys";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -104,11 +105,11 @@ function initials(name: string | null): string {
 function BoardKanbanPage() {
   const { boardId } = Route.useParams();
   const queryClient = useQueryClient();
-  const itemsKey = ["work_items", "byBoard", boardId] as const;
+  const itemsKey = qk.workItemsByBoard(boardId);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
 
   const boardQ = useQuery({ queryKey: ["boards", "detail", boardId], queryFn: () => getBoard(boardId) });
-  const projectsQ = useQuery({ queryKey: ["projects", "all"], queryFn: listProjects });
+  const projectsQ = useQuery({ queryKey: qk.projects(), queryFn: listProjects });
   const columnsQ = useQuery({ queryKey: ["board_columns", boardId], queryFn: () => listColumns(boardId) });
   const itemsQ = useQuery({ queryKey: itemsKey, queryFn: () => listBoardItems(boardId) });
 
@@ -153,7 +154,9 @@ function BoardKanbanPage() {
       logSupabaseError("work_items:moveCard", error);
       queryClient.setQueryData<KanbanItem[]>(itemsKey, previous);
       toast.error(formatSupabaseError(error, "Não foi possível mover o card."));
+      return;
     }
+    void queryClient.invalidateQueries({ queryKey: qk.workItems() });
   };
 
   if (anyError) {
@@ -226,7 +229,7 @@ function BoardKanbanPage() {
                     items={itemsByColumn.get(col.id) ?? []}
                     boardId={boardId}
                     projectId={board?.project_id ?? null}
-                    onCreated={() => void itemsQ.refetch()}
+                    onCreated={() => void queryClient.invalidateQueries({ queryKey: qk.workItems() })}
                     onOpenItem={setOpenItemId}
                   />
                 ))}
@@ -238,7 +241,7 @@ function BoardKanbanPage() {
         itemId={openItemId}
         open={!!openItemId}
         onOpenChange={(o) => { if (!o) setOpenItemId(null); }}
-        onChanged={() => { void itemsQ.refetch(); }}
+        onChanged={() => { void queryClient.invalidateQueries({ queryKey: qk.workItems() }); }}
       />
     </div>
   );

@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { listBoards } from "@/lib/boards-api";
 import { listProjects } from "@/lib/projects-api";
+import { qk } from "@/lib/query-keys";
 import { formatSupabaseError } from "@/lib/supabase-errors";
 
 const searchSchema = z.object({
@@ -35,7 +36,7 @@ function BoardsPage() {
   const navigate = Route.useNavigate();
   const { project: projectFilter } = Route.useSearch();
 
-  const projectsQ = useQuery({ queryKey: ["projects", "all"], queryFn: listProjects });
+  const projectsQ = useQuery({ queryKey: qk.projects(), queryFn: listProjects });
   const boardsQ = useQuery({ queryKey: ["boards", "all"], queryFn: listBoards });
 
   const projectById = useMemo(() => {
