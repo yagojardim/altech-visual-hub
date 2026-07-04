@@ -25,7 +25,8 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/_workspace/boards")({
   head: () => ({ meta: [{ title: "Boards · Altech Project" }] }),
-  validateSearch: zodValidator(searchSchema),
+  validateSearch: (search) => searchSchema.parse(search),
+
   component: BoardsPage,
 });
 
