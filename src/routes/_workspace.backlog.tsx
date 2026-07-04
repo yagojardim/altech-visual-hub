@@ -94,6 +94,13 @@ function BacklogIndex() {
     return m;
   }, [projectsQ.data]);
 
+  const membersByName = useMemo(() => {
+    const m = new Map<string, TeamMember>();
+    (membersQ.data ?? []).forEach((p) => m.set(p.name, p));
+    return m;
+  }, [membersQ.data]);
+
+
   const filtered = useMemo(() => {
     const s = search.trim().toLowerCase();
     return (itemsQ.data ?? []).filter((it) => {
