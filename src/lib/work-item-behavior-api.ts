@@ -127,9 +127,11 @@ export async function listProjectAssignees(projectId: string): Promise<TeamMembe
     .select("member:team_members(id, name, email, role, avatar_color, created_at)")
     .eq("project_id", projectId);
   if (error) throw error;
-  const members = (data ?? [])
-    .map((r: { member: TeamMember | null }) => r.member)
-    .filter(Boolean) as TeamMember[];
+  const rows = (data ?? []) as Array<{ member: TeamMember | TeamMember[] | null }>;
+  const members: TeamMember[] = rows.flatMap((r) => {
+    if (!r.member) return [];
+    return Array.isArray(r.member) ? (r.member as TeamMember[]) : [r.member];
+  });
   if (members.length > 0) return members;
   // Fallback: any team member (dev-friendly)
   try {
