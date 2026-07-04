@@ -1,12 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ListTodo, Search } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  ListTodo,
+  Search,
+  Target,
+  Puzzle,
+  BookOpen,
+  CheckSquare,
+  ListChecks,
+  Bug,
+  AlertTriangle,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { isMissingRelation, logSupabaseError, formatSupabaseError } from "@/lib/supabase-errors";
 import { listProjects, type ProjectRow } from "@/lib/projects-api";
 import { qk } from "@/lib/query-keys";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -15,29 +29,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
+
+type WIType = "epic" | "feature" | "story" | "task" | "subtask" | "bug" | "risk";
 
 interface BacklogItem {
   id: string;
   project_id: string;
   title: string;
-  type: string;
+  type: WIType | string;
   priority: string;
   status: string;
   assignee_id: string | null;
-  description: string | null;
-  position: number;
-  created_at: string;
+  parent_id: string | null;
 }
 
 interface TeamMember {
@@ -46,12 +52,14 @@ interface TeamMember {
   avatar_color: string | null;
 }
 
-const TYPE_OPTIONS = [
+const TYPE_OPTIONS: { value: WIType; label: string }[] = [
+  { value: "epic", label: "Épico" },
+  { value: "feature", label: "Feature" },
   { value: "story", label: "História" },
   { value: "task", label: "Tarefa" },
+  { value: "subtask", label: "Subtarefa" },
   { value: "bug", label: "Bug" },
   { value: "risk", label: "Risco" },
-  { value: "epic", label: "Épico" },
 ];
 
 const PRIORITY_OPTIONS = [
@@ -60,6 +68,41 @@ const PRIORITY_OPTIONS = [
   { value: "alta", label: "Alta" },
   { value: "critica", label: "Crítica" },
 ];
+
+const TYPE_META: Record<
+  WIType,
+  { label: string; icon: React.ComponentType<{ className?: string }>; badge: string; color: string }
+> = {
+  epic:    { label: "Épico",     icon: Target,       badge: "bg-purple-500/15 text-purple-300 border-purple-500/30",   color: "text-purple-300" },
+  feature: { label: "Feature",   icon: Puzzle,       badge: "bg-blue-500/15 text-blue-300 border-blue-500/30",         color: "text-blue-300" },
+  story:   { label: "História",  icon: BookOpen,     badge: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30", color: "text-emerald-300" },
+  task:    { label: "Tarefa",    icon: CheckSquare,  badge: "bg-slate-500/15 text-slate-200 border-slate-500/30",      color: "text-slate-200" },
+  subtask: { label: "Subtarefa", icon: ListChecks,   badge: "bg-slate-500/10 text-slate-300 border-slate-500/20",      color: "text-slate-300" },
+  bug:     { label: "Bug",       icon: Bug,          badge: "bg-red-500/15 text-red-300 border-red-500/30",            color: "text-red-300" },
+  risk:    { label: "Risco",     icon: AlertTriangle,badge: "bg-amber-500/15 text-amber-300 border-amber-500/30",      color: "text-amber-300" },
+};
+
+function normalize(value: string): string {
+  return value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+function typeKey(t: string): WIType {
+  const k = normalize(t) as WIType;
+  return (TYPE_META[k] ? k : "task");
+}
+function priorityLabel(p: string): string {
+  return PRIORITY_OPTIONS.find((o) => o.value === normalize(p))?.label ?? p;
+}
+function priorityVariant(p: string): "default" | "secondary" | "outline" | "destructive" {
+  const n = normalize(p);
+  if (n === "critica") return "destructive";
+  if (n === "alta") return "default";
+  if (n === "baixa") return "outline";
+  return "secondary";
+}
+function initials(name?: string | null): string {
+  if (!name) return "?";
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((s) => s[0]?.toUpperCase() ?? "").join("") || "?";
+}
 
 async function listBacklogItems(): Promise<BacklogItem[]> {
   const { data: linked, error: linkedErr } = await supabase
@@ -75,8 +118,8 @@ async function listBacklogItems(): Promise<BacklogItem[]> {
 
   const { data, error } = await supabase
     .from("work_items")
-    .select("id, project_id, title, type, priority, status, assignee_id, description, position, created_at")
-    .order("created_at", { ascending: false });
+    .select("id, project_id, title, type, priority, status, assignee_id, parent_id")
+    .order("created_at", { ascending: true });
 
   if (error) {
     if (isMissingRelation(error)) {
@@ -105,62 +148,145 @@ export const Route = createFileRoute("/_workspace/backlog")({
   component: BacklogIndex,
 });
 
-function normalize(value: string): string {
-  return value
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+interface TreeNode {
+  item: BacklogItem;
+  children: TreeNode[];
 }
 
-function typeLabel(type: string): string {
-  return TYPE_OPTIONS.find((t) => t.value === normalize(type))?.label ?? type;
+function buildTree(items: BacklogItem[]): { hierarchy: TreeNode[]; standalone: TreeNode[] } {
+  const byId = new Map<string, TreeNode>();
+  items.forEach((it) => byId.set(it.id, { item: it, children: [] }));
+
+  const roots: TreeNode[] = [];
+  items.forEach((it) => {
+    const node = byId.get(it.id)!;
+    if (it.parent_id && byId.has(it.parent_id)) {
+      byId.get(it.parent_id)!.children.push(node);
+    } else {
+      roots.push(node);
+    }
+  });
+
+  const HIER: WIType[] = ["epic", "feature", "story", "task", "subtask"];
+  const hierarchy: TreeNode[] = [];
+  const standalone: TreeNode[] = [];
+  roots.forEach((n) => {
+    const t = typeKey(n.item.type);
+    if (HIER.includes(t)) hierarchy.push(n);
+    else standalone.push(n); // bug, risk (or unknown) without parent
+  });
+  // Bugs/risks that ARE nested under a hierarchical parent stay inside `hierarchy`.
+  return { hierarchy, standalone };
 }
 
-function priorityLabel(priority: string): string {
-  return PRIORITY_OPTIONS.find((p) => p.value === normalize(priority))?.label ?? priority;
+function filterTree(
+  nodes: TreeNode[],
+  matches: (it: BacklogItem) => boolean,
+): TreeNode[] {
+  const out: TreeNode[] = [];
+  nodes.forEach((n) => {
+    const kids = filterTree(n.children, matches);
+    if (matches(n.item) || kids.length > 0) {
+      out.push({ item: n.item, children: kids });
+    }
+  });
+  return out;
 }
 
-function typeVariant(type: string): "default" | "secondary" | "outline" | "destructive" {
-  const t = normalize(type);
-  if (t === "bug" || t === "risk") return "destructive";
-  if (t === "epic") return "default";
-  return "secondary";
-}
-
-function priorityVariant(priority: string): "default" | "secondary" | "outline" | "destructive" {
-  const p = normalize(priority);
-  if (p === "critica") return "destructive";
-  if (p === "alta") return "default";
-  if (p === "baixa") return "outline";
-  return "secondary";
-}
-
-function initials(name: string | null | undefined): string {
-  if (!name) return "?";
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((s) => s[0]?.toUpperCase() ?? "")
-    .join("") || "?";
-}
-
-function ResponsavelCell({
-  member,
-}: {
-  member: TeamMember | undefined;
-}) {
-  if (!member) return <span className="text-sm text-muted-foreground">—</span>;
+function ResponsavelCell({ member }: { member?: TeamMember }) {
+  if (!member) return <span className="text-xs text-muted-foreground">—</span>;
   const color = member.avatar_color ?? "#94a3b8";
   return (
-    <div className="inline-flex items-center gap-2 text-sm text-foreground">
-      <Avatar className="h-6 w-6 border text-[10px] font-medium" style={{ borderColor: color }}>
-        <AvatarFallback className="text-white" style={{ backgroundColor: color }}>
+    <div className="inline-flex items-center gap-2 text-xs text-foreground">
+      <Avatar className="h-6 w-6 border" style={{ borderColor: color }}>
+        <AvatarFallback className="text-[10px] text-white" style={{ backgroundColor: color }}>
           {initials(member.name)}
         </AvatarFallback>
       </Avatar>
-      <span className="truncate">{member.name}</span>
+      <span className="truncate max-w-[120px]">{member.name}</span>
     </div>
+  );
+}
+
+function TreeRow({
+  node,
+  depth,
+  expanded,
+  onToggle,
+  membersById,
+  projectsById,
+}: {
+  node: TreeNode;
+  depth: number;
+  expanded: Set<string>;
+  onToggle: (id: string) => void;
+  membersById: Map<string, TeamMember>;
+  projectsById: Map<string, ProjectRow>;
+}) {
+  const t = typeKey(node.item.type);
+  const meta = TYPE_META[t];
+  const Icon = meta.icon;
+  const hasChildren = node.children.length > 0;
+  const isOpen = expanded.has(node.item.id);
+  const member = node.item.assignee_id ? membersById.get(node.item.assignee_id) : undefined;
+  const project = projectsById.get(node.item.project_id);
+
+  return (
+    <>
+      <div
+        className="group flex items-center gap-2 rounded-md px-2 py-2 hover:bg-accent/40 transition-colors"
+        style={{ paddingLeft: `${depth * 20 + 8}px` }}
+      >
+        {hasChildren ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-5 w-5 shrink-0"
+            onClick={() => onToggle(node.item.id)}
+            aria-label={isOpen ? "Recolher" : "Expandir"}
+          >
+            {isOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+          </Button>
+        ) : (
+          <span className="inline-block h-5 w-5 shrink-0" />
+        )}
+
+        <Icon className={cn("h-4 w-4 shrink-0", meta.color)} />
+
+        <Badge variant="outline" className={cn("text-[10px] uppercase shrink-0", meta.badge)}>
+          {meta.label}
+        </Badge>
+
+        <span className="flex-1 truncate text-sm text-foreground" title={node.item.title}>
+          {node.item.title}
+        </span>
+
+        <Badge variant={priorityVariant(node.item.priority)} className="text-[10px] uppercase shrink-0">
+          {priorityLabel(node.item.priority)}
+        </Badge>
+
+        <div className="w-[140px] shrink-0 hidden md:flex justify-end">
+          <ResponsavelCell member={member} />
+        </div>
+
+        <div className="w-[120px] shrink-0 hidden lg:block truncate text-right text-xs text-muted-foreground">
+          {project?.nome ?? "—"}
+        </div>
+      </div>
+
+      {hasChildren && isOpen &&
+        node.children.map((child) => (
+          <TreeRow
+            key={child.item.id}
+            node={child}
+            depth={depth + 1}
+            expanded={expanded}
+            onToggle={onToggle}
+            membersById={membersById}
+            projectsById={projectsById}
+          />
+        ))}
+    </>
   );
 }
 
@@ -172,6 +298,7 @@ function BacklogIndex() {
   const [search, setSearch] = useState("");
   const [type, setType] = useState<string>("all");
   const [priority, setPriority] = useState<string>("all");
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   const projectsById = useMemo(() => {
     const m = new Map<string, ProjectRow>();
@@ -185,15 +312,46 @@ function BacklogIndex() {
     return m;
   }, [membersQ.data]);
 
+  const tree = useMemo(() => buildTree(itemsQ.data ?? []), [itemsQ.data]);
+
   const filtered = useMemo(() => {
     const s = normalize(search);
-    return (itemsQ.data ?? []).filter((it) => {
-      if (type !== "all" && normalize(it.type) !== type) return false;
+    const match = (it: BacklogItem) => {
+      if (type !== "all" && typeKey(it.type) !== type) return false;
       if (priority !== "all" && normalize(it.priority) !== priority) return false;
       if (s && !normalize(it.title).includes(s)) return false;
       return true;
+    };
+    return {
+      hierarchy: filterTree(tree.hierarchy, match),
+      standalone: filterTree(tree.standalone, match),
+    };
+  }, [tree, type, priority, search]);
+
+  const toggle = (id: string) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
     });
-  }, [itemsQ.data, type, priority, search]);
+
+  const expandAll = () => {
+    const ids = new Set<string>();
+    const walk = (nodes: TreeNode[]) =>
+      nodes.forEach((n) => {
+        if (n.children.length) {
+          ids.add(n.item.id);
+          walk(n.children);
+        }
+      });
+    walk(filtered.hierarchy);
+    walk(filtered.standalone);
+    setExpanded(ids);
+  };
+  const collapseAll = () => setExpanded(new Set());
+
+  const totalVisible = filtered.hierarchy.length + filtered.standalone.length;
 
   return (
     <div className="space-y-6">
@@ -201,8 +359,12 @@ function BacklogIndex() {
         <div className="space-y-1">
           <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Backlog</h1>
           <p className="text-sm text-muted-foreground">
-            Work items ainda não vinculados a nenhuma sprint no Altech Project.
+            Work items ainda não vinculados a nenhuma sprint no Altech Project, organizados por hierarquia.
           </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={expandAll}>Expandir tudo</Button>
+          <Button variant="outline" size="sm" onClick={collapseAll}>Recolher tudo</Button>
         </div>
       </header>
 
@@ -251,7 +413,7 @@ function BacklogIndex() {
           description={formatSupabaseError(itemsQ.error, "Erro ao carregar work items.")}
           onRetry={() => void itemsQ.refetch()}
         />
-      ) : filtered.length === 0 ? (
+      ) : totalVisible === 0 ? (
         <EmptyState
           icon={<ListTodo className="h-5 w-5" />}
           title="Backlog vazio"
@@ -262,51 +424,51 @@ function BacklogIndex() {
           }
         />
       ) : (
-        <WidgetCard>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Título</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Prioridade</TableHead>
-                  <TableHead>Responsável</TableHead>
-                  <TableHead>Projeto</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((it) => {
-                  const project = projectsById.get(it.project_id);
-                  const member = it.assignee_id ? membersById.get(it.assignee_id) : undefined;
-                  return (
-                    <TableRow
-                      key={it.id}
-                      className="cursor-pointer"
-                    >
-                      <TableCell className="font-medium text-foreground">{it.title}</TableCell>
-                      <TableCell>
-                        <Badge variant={typeVariant(it.type)} className="text-[10px] uppercase">
-                          {typeLabel(it.type)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={priorityVariant(it.priority)} className="text-[10px] uppercase">
-                          {priorityLabel(it.priority)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <ResponsavelCell member={member} />
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {project?.nome ?? "—"}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        </WidgetCard>
+        <div className="space-y-4">
+          {filtered.hierarchy.length > 0 && (
+            <WidgetCard>
+              <div className="mb-2 flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-foreground">Hierarquia</h2>
+                <span className="text-xs text-muted-foreground">{filtered.hierarchy.length} raízes</span>
+              </div>
+              <div className="divide-y divide-border/40">
+                {filtered.hierarchy.map((n) => (
+                  <TreeRow
+                    key={n.item.id}
+                    node={n}
+                    depth={0}
+                    expanded={expanded}
+                    onToggle={toggle}
+                    membersById={membersById}
+                    projectsById={projectsById}
+                  />
+                ))}
+              </div>
+            </WidgetCard>
+          )}
+
+          {filtered.standalone.length > 0 && (
+            <WidgetCard>
+              <div className="mb-2 flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-foreground">Bugs & Riscos</h2>
+                <span className="text-xs text-muted-foreground">{filtered.standalone.length} itens</span>
+              </div>
+              <div className="divide-y divide-border/40">
+                {filtered.standalone.map((n) => (
+                  <TreeRow
+                    key={n.item.id}
+                    node={n}
+                    depth={0}
+                    expanded={expanded}
+                    onToggle={toggle}
+                    membersById={membersById}
+                    projectsById={projectsById}
+                  />
+                ))}
+              </div>
+            </WidgetCard>
+          )}
+        </div>
       )}
     </div>
   );
