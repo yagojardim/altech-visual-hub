@@ -146,6 +146,9 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
   const [items, setItems] = useState<WorkItem[]>([]);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+  const originPath = useRouterState({
+    select: (s) => `${s.location.pathname}${s.location.searchStr ?? ""}`,
+  });
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
