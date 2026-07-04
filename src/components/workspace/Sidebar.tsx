@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Settings, LifeBuoy, Zap } from "lucide-react";
+import { LayoutDashboard, Settings, LifeBuoy, Zap, Users } from "lucide-react";
 import { ConceptIcon, type ConceptIconName } from "@/components/icons/ConceptIcon";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { cn } from "@/lib/utils";
@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 type IconRender = React.ComponentType<{ className?: string }>;
 
 interface NavItem {
-  to: "/dashboard" | "/projects" | "/boards" | "/sprints" | "/backlog" | "/settings" | "/support" | "/automation";
+  to: "/dashboard" | "/projects" | "/pessoas" | "/boards" | "/sprints" | "/backlog" | "/settings" | "/support" | "/automation";
   label: string;
   icon?: IconRender;
   concept?: ConceptIconName;
@@ -25,6 +25,7 @@ const GROUPS: NavGroup[] = [
     items: [
       { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { to: "/projects", label: "Projetos", concept: "projeto" },
+      { to: "/pessoas", label: "Pessoas", icon: Users },
     ],
   },
   {
