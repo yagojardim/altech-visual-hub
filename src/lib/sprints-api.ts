@@ -166,6 +166,7 @@ export interface SprintItemRow {
   titulo: string;
   status: string;
   tipo: string;
+  prioridade: string | null;
   responsavel: string | null;
   project_id: string;
   sprint_id: string | null;
@@ -178,10 +179,11 @@ interface WorkItemDBRow {
   title: string | null;
   type: string | null;
   status: string | null;
+  priority: string | null;
   assignee_id: string | null;
 }
 
-const WORK_ITEM_SELECT = "id, project_id, title, type, status, assignee_id, position";
+const WORK_ITEM_SELECT = "id, project_id, title, type, status, priority, assignee_id, position";
 
 function toSprintItem(raw: WorkItemDBRow, sprintId: string | null): SprintItemRow {
   return {
@@ -189,6 +191,7 @@ function toSprintItem(raw: WorkItemDBRow, sprintId: string | null): SprintItemRo
     item_key: null,
     titulo: raw.title ?? "(sem título)",
     tipo: raw.type ?? "task",
+    prioridade: raw.priority,
     status: raw.status ?? "Backlog",
     responsavel: raw.assignee_id,
     project_id: raw.project_id,
