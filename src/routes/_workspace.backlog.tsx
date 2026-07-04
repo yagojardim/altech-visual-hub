@@ -5,7 +5,7 @@ import { ListTodo, Search, User } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { isMissingRelation, logSupabaseError, formatSupabaseError } from "@/lib/supabase-errors";
 import { TIPO_OPTIONS, PRIORIDADE_OPTIONS, type WorkItemRow } from "@/lib/work-items-api";
-import { listProjects, type Project } from "@/lib/projects-api";
+import { listProjects, type ProjectRow } from "@/lib/projects-api";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
@@ -76,7 +76,7 @@ function BacklogIndex() {
   const [prioridade, setPrioridade] = useState<string>("all");
 
   const projectsById = useMemo(() => {
-    const m = new Map<string, Project>();
+    const m = new Map<string, ProjectRow>();
     (projectsQ.data ?? []).forEach((p) => m.set(p.id, p));
     return m;
   }, [projectsQ.data]);
