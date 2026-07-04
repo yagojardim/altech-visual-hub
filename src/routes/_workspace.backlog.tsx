@@ -174,7 +174,11 @@ function BacklogIndex() {
                 {filtered.map((it) => {
                   const project = projectsById.get(it.project_id);
                   return (
-                    <TableRow key={it.id}>
+                    <TableRow
+                      key={it.id}
+                      onClick={() => setOpenItemId(it.id)}
+                      className="cursor-pointer"
+                    >
                       <TableCell className="font-medium text-foreground">{it.titulo}</TableCell>
                       <TableCell>
                         <Badge variant={tipoVariant(it.tipo)} className="text-[10px] uppercase">
@@ -206,6 +210,11 @@ function BacklogIndex() {
           </div>
         </WidgetCard>
       )}
+      <WorkItemDrawer
+        itemId={openItemId}
+        open={!!openItemId}
+        onOpenChange={(o) => { if (!o) setOpenItemId(null); }}
+      />
     </div>
   );
 }
