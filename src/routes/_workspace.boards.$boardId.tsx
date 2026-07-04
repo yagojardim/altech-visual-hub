@@ -1,7 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronRight, SearchX, KanbanSquare } from "lucide-react";
+import {
+  DndContext,
+  PointerSensor,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { logSupabaseError, formatSupabaseError } from "@/lib/supabase-errors";
 import { getBoard } from "@/lib/boards-api";
@@ -11,6 +21,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState } from "@/components/states";
 import { cn } from "@/lib/utils";
+
 
 interface BoardColumn {
   id: string;
