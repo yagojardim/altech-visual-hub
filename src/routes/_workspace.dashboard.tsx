@@ -165,6 +165,7 @@ function DashboardPage() {
       : sprintsR;
 
     let openItems: Result<number>;
+    let backlogItems: Result<number>;
     let doneItems: Result<number>;
     let totalItems: Result<number>;
     let statusBreakdown: Result<Array<{ status: string; count: number }>>;
@@ -173,9 +174,14 @@ function DashboardPage() {
 
     if (itemsR.ok) {
       const items = itemsR.value;
+      const linkedIds = linkedR.ok ? linkedR.value : new Set<string>();
       openItems = { ok: true, value: items.filter((i) => !isDone(i.status)).length };
       doneItems = { ok: true, value: items.filter((i) => isDone(i.status)).length };
       totalItems = { ok: true, value: items.length };
+      backlogItems = {
+        ok: true,
+        value: items.filter((i) => !i.sprintId && !linkedIds.has(i.id)).length,
+      };
 
       try {
         const statusMap = new Map<string, number>();
