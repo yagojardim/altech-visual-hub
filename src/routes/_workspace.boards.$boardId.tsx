@@ -307,8 +307,8 @@ function ItemCard({
   columns: BoardColumn[];
   onMove: (item: KanbanItem, target: BoardColumn) => void | Promise<void>;
 }) {
-  const typeKey = (item.type ?? "").toLowerCase();
-  const prioKey = (item.priority ?? "").toLowerCase();
+  const tMeta = typeMeta(item.type);
+  const pMeta = priorityMeta(item.priority);
   const avatarBg = member?.avatar_color ?? "#3f3f46";
   const label = member?.name ?? "Sem responsável";
   const others = columns.filter((c) => c.id !== item.column_id);
