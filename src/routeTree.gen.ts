@@ -25,6 +25,7 @@ import { Route as WorkspaceProjectsIndexRouteImport } from './routes/_workspace.
 import { Route as WorkspaceWorkItemsItemIdRouteImport } from './routes/_workspace.work-items.$itemId'
 import { Route as WorkspaceSettingsMembersRouteImport } from './routes/_workspace.settings.members'
 import { Route as WorkspaceProjectsProjectIdRouteImport } from './routes/_workspace.projects.$projectId'
+import { Route as WorkspaceBoardsBoardIdRouteImport } from './routes/_workspace.boards.$boardId'
 
 const UnauthorizedRoute = UnauthorizedRouteImport.update({
   id: '/unauthorized',
@@ -108,6 +109,11 @@ const WorkspaceProjectsProjectIdRoute =
     path: '/projects/$projectId',
     getParentRoute: () => WorkspaceRoute,
   } as any)
+const WorkspaceBoardsBoardIdRoute = WorkspaceBoardsBoardIdRouteImport.update({
+  id: '/$boardId',
+  path: '/$boardId',
+  getParentRoute: () => WorkspaceBoardsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -115,11 +121,12 @@ export interface FileRoutesByFullPath {
   '/unauthorized': typeof UnauthorizedRoute
   '/automation': typeof WorkspaceAutomationRoute
   '/backlog': typeof WorkspaceBacklogRoute
-  '/boards': typeof WorkspaceBoardsRoute
+  '/boards': typeof WorkspaceBoardsRouteWithChildren
   '/dashboard': typeof WorkspaceDashboardRoute
   '/settings': typeof WorkspaceSettingsRouteWithChildren
   '/sprints': typeof WorkspaceSprintsRoute
   '/support': typeof WorkspaceSupportRoute
+  '/boards/$boardId': typeof WorkspaceBoardsBoardIdRoute
   '/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
   '/settings/members': typeof WorkspaceSettingsMembersRoute
   '/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
@@ -132,10 +139,11 @@ export interface FileRoutesByTo {
   '/unauthorized': typeof UnauthorizedRoute
   '/automation': typeof WorkspaceAutomationRoute
   '/backlog': typeof WorkspaceBacklogRoute
-  '/boards': typeof WorkspaceBoardsRoute
+  '/boards': typeof WorkspaceBoardsRouteWithChildren
   '/dashboard': typeof WorkspaceDashboardRoute
   '/sprints': typeof WorkspaceSprintsRoute
   '/support': typeof WorkspaceSupportRoute
+  '/boards/$boardId': typeof WorkspaceBoardsBoardIdRoute
   '/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
   '/settings/members': typeof WorkspaceSettingsMembersRoute
   '/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
@@ -150,11 +158,12 @@ export interface FileRoutesById {
   '/unauthorized': typeof UnauthorizedRoute
   '/_workspace/automation': typeof WorkspaceAutomationRoute
   '/_workspace/backlog': typeof WorkspaceBacklogRoute
-  '/_workspace/boards': typeof WorkspaceBoardsRoute
+  '/_workspace/boards': typeof WorkspaceBoardsRouteWithChildren
   '/_workspace/dashboard': typeof WorkspaceDashboardRoute
   '/_workspace/settings': typeof WorkspaceSettingsRouteWithChildren
   '/_workspace/sprints': typeof WorkspaceSprintsRoute
   '/_workspace/support': typeof WorkspaceSupportRoute
+  '/_workspace/boards/$boardId': typeof WorkspaceBoardsBoardIdRoute
   '/_workspace/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
   '/_workspace/settings/members': typeof WorkspaceSettingsMembersRoute
   '/_workspace/work-items/$itemId': typeof WorkspaceWorkItemsItemIdRoute
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sprints'
     | '/support'
+    | '/boards/$boardId'
     | '/projects/$projectId'
     | '/settings/members'
     | '/work-items/$itemId'
@@ -190,6 +200,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/sprints'
     | '/support'
+    | '/boards/$boardId'
     | '/projects/$projectId'
     | '/settings/members'
     | '/work-items/$itemId'
@@ -208,6 +219,7 @@ export interface FileRouteTypes {
     | '/_workspace/settings'
     | '/_workspace/sprints'
     | '/_workspace/support'
+    | '/_workspace/boards/$boardId'
     | '/_workspace/projects/$projectId'
     | '/_workspace/settings/members'
     | '/_workspace/work-items/$itemId'
@@ -336,8 +348,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceProjectsProjectIdRouteImport
       parentRoute: typeof WorkspaceRoute
     }
+    '/_workspace/boards/$boardId': {
+      id: '/_workspace/boards/$boardId'
+      path: '/$boardId'
+      fullPath: '/boards/$boardId'
+      preLoaderRoute: typeof WorkspaceBoardsBoardIdRouteImport
+      parentRoute: typeof WorkspaceBoardsRoute
+    }
   }
 }
+
+interface WorkspaceBoardsRouteChildren {
+  WorkspaceBoardsBoardIdRoute: typeof WorkspaceBoardsBoardIdRoute
+}
+
+const WorkspaceBoardsRouteChildren: WorkspaceBoardsRouteChildren = {
+  WorkspaceBoardsBoardIdRoute: WorkspaceBoardsBoardIdRoute,
+}
+
+const WorkspaceBoardsRouteWithChildren = WorkspaceBoardsRoute._addFileChildren(
+  WorkspaceBoardsRouteChildren,
+)
 
 interface WorkspaceSettingsRouteChildren {
   WorkspaceSettingsMembersRoute: typeof WorkspaceSettingsMembersRoute
@@ -355,7 +386,7 @@ const WorkspaceSettingsRouteWithChildren =
 interface WorkspaceRouteChildren {
   WorkspaceAutomationRoute: typeof WorkspaceAutomationRoute
   WorkspaceBacklogRoute: typeof WorkspaceBacklogRoute
-  WorkspaceBoardsRoute: typeof WorkspaceBoardsRoute
+  WorkspaceBoardsRoute: typeof WorkspaceBoardsRouteWithChildren
   WorkspaceDashboardRoute: typeof WorkspaceDashboardRoute
   WorkspaceSettingsRoute: typeof WorkspaceSettingsRouteWithChildren
   WorkspaceSprintsRoute: typeof WorkspaceSprintsRoute
@@ -368,7 +399,7 @@ interface WorkspaceRouteChildren {
 const WorkspaceRouteChildren: WorkspaceRouteChildren = {
   WorkspaceAutomationRoute: WorkspaceAutomationRoute,
   WorkspaceBacklogRoute: WorkspaceBacklogRoute,
-  WorkspaceBoardsRoute: WorkspaceBoardsRoute,
+  WorkspaceBoardsRoute: WorkspaceBoardsRouteWithChildren,
   WorkspaceDashboardRoute: WorkspaceDashboardRoute,
   WorkspaceSettingsRoute: WorkspaceSettingsRouteWithChildren,
   WorkspaceSprintsRoute: WorkspaceSprintsRoute,
