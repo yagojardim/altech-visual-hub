@@ -94,6 +94,7 @@ type DashboardState = {
   activeProjects: Result<number>;
   activeSprints: Result<number>;
   openItems: Result<number>;
+  backlogItems: Result<number>;
   doneItems: Result<number>;
   totalItems: Result<number>;
   statusBreakdown: Result<Array<{ status: string; count: number }>>;
@@ -111,7 +112,7 @@ function DashboardPage() {
     setLoading(true);
 
     // Cada métrica roda de forma isolada: falha de uma não afeta as outras.
-    const [projectsR, sprintsR, itemsR] = await Promise.all([
+    const [projectsR, sprintsR, itemsR, linkedR] = await Promise.all([
       safe("projects", async () => {
         const { data, error } = await supabase
           .from("projects")
@@ -138,6 +139,11 @@ function DashboardPage() {
         if (error) throw error;
         return toWorkItems(data ?? []) as WorkItem[];
       }),
+      safe("sprint_items", async () => {
+        const { data, error } = await supabase.from("sprint_items").select("work_item_id");
+        if (error) throw error;
+        return new Set<string>(((data ?? []) as Array<{ work_item_id: string }>).map((r) => r.work_item_id));
+      }),
     ]);
 
     const activeProjects: Result<number> = projectsR.ok
@@ -159,6 +165,7 @@ function DashboardPage() {
       : sprintsR;
 
     let openItems: Result<number>;
+    let backlogItems: Result<number>;
     let doneItems: Result<number>;
     let totalItems: Result<number>;
     let statusBreakdown: Result<Array<{ status: string; count: number }>>;
@@ -167,9 +174,14 @@ function DashboardPage() {
 
     if (itemsR.ok) {
       const items = itemsR.value;
+      const linkedIds = linkedR.ok ? linkedR.value : new Set<string>();
       openItems = { ok: true, value: items.filter((i) => !isDone(i.status)).length };
       doneItems = { ok: true, value: items.filter((i) => isDone(i.status)).length };
       totalItems = { ok: true, value: items.length };
+      backlogItems = {
+        ok: true,
+        value: items.filter((i) => !i.sprintId && !linkedIds.has(i.id)).length,
+      };
 
       try {
         const statusMap = new Map<string, number>();
@@ -230,6 +242,7 @@ function DashboardPage() {
       }
     } else {
       openItems = itemsR;
+      backlogItems = itemsR;
       doneItems = itemsR;
       totalItems = itemsR;
       statusBreakdown = itemsR;
@@ -241,6 +254,7 @@ function DashboardPage() {
       activeProjects,
       activeSprints,
       openItems,
+      backlogItems,
       doneItems,
       totalItems,
       statusBreakdown,
@@ -279,7 +293,7 @@ function DashboardPage() {
             <WidgetGrid columns={4}>
               <KpiCard label="Projetos ativos" result={state.activeProjects} icon={FolderKanban} />
               <KpiCard label="Sprints em andamento" result={state.activeSprints} icon={Timer} />
-              <KpiCard label="Itens abertos" result={state.openItems} icon={Activity} />
+              <KpiCard label="Itens em backlog" result={state.backlogItems} icon={ListTodo} />
               <KpiCard label="Itens concluídos" result={state.doneItems} icon={Zap} />
             </WidgetGrid>
 
