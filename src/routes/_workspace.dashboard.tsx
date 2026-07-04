@@ -127,7 +127,7 @@ const ROLE_CONFIG: Record<
 
 function DashboardPage() {
   const { user } = useAuth();
-  const { current } = useWorkspace();
+  useWorkspace();
   const { role } = useDevRole();
   const roleCfg = ROLE_CONFIG[role];
   const [state, setState] = useState<DashboardState | null>(null);
