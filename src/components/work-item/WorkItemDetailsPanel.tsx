@@ -13,7 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Trash2, GitBranch, Link2, History, Users } from "lucide-react";
+import { Trash2, GitBranch, Link2, History, Users, ExternalLink } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { qk } from "@/lib/query-keys";
@@ -504,51 +505,137 @@ function HierarchySection({
   siblings: Pick<WorkItemFull, "id" | "title" | "type">[];
   onSaveParent: (parentId: string | null) => void;
 }) {
+  const isEpic = item.type === "epic";
+  const isSubtask = item.type === "subtask";
+
+  // Valid parent types by current item type
+  const validParentTypes: Record<WorkItemType, WorkItemType[]> = {
+    epic: [],
+    feature: ["epic"],
+    story: ["epic", "feature"],
+    task: ["story", "feature", "epic"],
+    subtask: ["task"],
+    bug: ["epic", "feature", "story", "task"],
+    risk: ["epic", "feature", "story"],
+  };
+  const allowed = validParentTypes[item.type as WorkItemType] ?? [];
+  const parentOptions = siblings.filter((s) =>
+    allowed.includes(s.type as WorkItemType),
+  );
+
+  // Group children by type
+  const grouped = useMemo(() => {
+    const map = new Map<WorkItemType, WorkItemFull[]>();
+    children.forEach((c) => {
+      const k = (c.type as WorkItemType) ?? "task";
+      if (!map.has(k)) map.set(k, []);
+      map.get(k)!.push(c);
+    });
+    return Array.from(map.entries()).sort(([a], [b]) =>
+      WORK_ITEM_TYPES.indexOf(a) - WORK_ITEM_TYPES.indexOf(b),
+    );
+  }, [children]);
+
+  function handleParentChange(v: string) {
+    if (v === "__none") {
+      if (isSubtask) {
+        toast.error("Subtarefa exige um item pai.");
+        return;
+      }
+      onSaveParent(null);
+    } else {
+      onSaveParent(v);
+    }
+  }
+
   return (
     <section className="space-y-3">
       <h3 className="flex items-center gap-2 text-sm font-medium">
         <GitBranch className="h-4 w-4" /> Hierarquia
       </h3>
-      <div className="grid gap-2 rounded-xl border border-border bg-panel/40 p-3 text-sm">
-        <div className="flex items-center gap-2">
-          <span className="w-20 text-xs text-muted-foreground">Pai</span>
-          <Select
-            value={item.parent_id ?? "__none"}
-            onValueChange={(v) => onSaveParent(v === "__none" ? null : v)}
-          >
-            <SelectTrigger className="h-8 flex-1"><SelectValue placeholder="—" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__none">Sem pai</SelectItem>
-              {siblings.map((s) => (
-                <SelectItem key={s.id} value={s.id}>
-                  [{typeMeta(s.type).label}] {s.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {parent && (
-            <Badge variant="outline" className={typeMeta(parent.type).badge}>
-              {parent.title}
-            </Badge>
+      <div className="grid gap-3 rounded-xl border border-border bg-panel/40 p-3 text-sm">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="w-20 text-xs text-muted-foreground">
+            Pai{isSubtask ? " *" : ""}
+          </span>
+          {isEpic ? (
+            <span className="text-xs text-muted-foreground">
+              Épicos não possuem pai.
+            </span>
+          ) : (
+            <>
+              <Select
+                value={item.parent_id ?? "__none"}
+                onValueChange={handleParentChange}
+              >
+                <SelectTrigger className="h-8 flex-1 min-w-52">
+                  <SelectValue placeholder="—" />
+                </SelectTrigger>
+                <SelectContent>
+                  {!isSubtask && <SelectItem value="__none">Sem pai</SelectItem>}
+                  {parentOptions.length === 0 ? (
+                    <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                      Nenhum item elegível
+                    </div>
+                  ) : (
+                    parentOptions.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        [{typeMeta(s.type).label}] {s.title}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+              {parent && (
+                <Link
+                  to="/work-items/$itemId"
+                  params={{ itemId: parent.id }}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1 text-xs hover:bg-accent/40 transition-colors"
+                >
+                  <Badge variant="outline" className={typeMeta(parent.type).badge}>
+                    {typeMeta(parent.type).label}
+                  </Badge>
+                  <span className="max-w-[220px] truncate">{parent.title}</span>
+                  <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                </Link>
+              )}
+            </>
           )}
         </div>
-        <div className="pt-1">
+
+        <div>
           <div className="mb-1 text-xs text-muted-foreground">
             Filhos ({children.length})
           </div>
           {children.length === 0 ? (
             <p className="text-xs text-muted-foreground">Nenhum item filho.</p>
           ) : (
-            <ul className="space-y-1">
-              {children.map((c) => (
-                <li key={c.id} className="flex items-center gap-2 text-sm">
-                  <Badge variant="outline" className={typeMeta(c.type).badge}>
-                    {typeMeta(c.type).label}
-                  </Badge>
-                  <span className="truncate">{c.title}</span>
-                </li>
+            <div className="space-y-2">
+              {grouped.map(([tp, list]) => (
+                <div key={tp} className="space-y-1">
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                    {typeMeta(tp).label} ({list.length})
+                  </div>
+                  <ul className="space-y-1">
+                    {list.map((c) => (
+                      <li key={c.id}>
+                        <Link
+                          to="/work-items/$itemId"
+                          params={{ itemId: c.id }}
+                          className="flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-accent/40 transition-colors"
+                        >
+                          <Badge variant="outline" className={typeMeta(c.type).badge}>
+                            {typeMeta(c.type).label}
+                          </Badge>
+                          <span className="flex-1 truncate">{c.title}</span>
+                          <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
       </div>
@@ -630,12 +717,17 @@ function RelationsSection({
               <li key={r.id} className="flex items-center gap-2 text-sm">
                 <Badge variant="outline">{RELATION_LABEL[r.relation_type]}</Badge>
                 {r.target ? (
-                  <>
+                  <Link
+                    to="/work-items/$itemId"
+                    params={{ itemId: r.target.id }}
+                    className="flex flex-1 items-center gap-2 rounded-md px-1.5 py-0.5 hover:bg-accent/40 transition-colors"
+                  >
                     <Badge variant="outline" className={typeMeta(r.target.type).badge}>
                       {typeMeta(r.target.type).label}
                     </Badge>
                     <span className="truncate">{r.target.title}</span>
-                  </>
+                    <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                  </Link>
                 ) : (
                   <span className="text-muted-foreground">(alvo removido)</span>
                 )}
