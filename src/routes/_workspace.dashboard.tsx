@@ -12,10 +12,12 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useWorkspace } from "@/lib/workspace";
+import { useDevRole, type DevRole } from "@/lib/dev-role";
 import { supabase } from "@/lib/supabase";
 import { toWorkItems, type WorkItem } from "@/lib/work-item-map";
 import { formatSupabaseError } from "@/lib/supabase-errors";
 import { DashboardContainer } from "@/components/dashboard/DashboardContainer";
+import { DashboardContextHeader } from "@/components/dashboard/DashboardContextHeader";
 import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
