@@ -70,6 +70,7 @@ function prioridadeVariant(p: string): "default" | "secondary" | "outline" | "de
   return "secondary";
 }
 
+function BacklogIndex() {
   const queryClient = useQueryClient();
   const itemsQ = useQuery({ queryKey: qk.workItemsBacklog(), queryFn: listBacklogItems });
   const projectsQ = useQuery({ queryKey: qk.projects(), queryFn: listProjects });
