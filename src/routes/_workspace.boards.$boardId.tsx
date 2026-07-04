@@ -268,14 +268,18 @@ function BoardKanbanPage() {
 
 function BoardColumnView({
   column,
+  columns,
   items,
   membersById,
   loading,
+  onMove,
 }: {
   column: BoardColumn;
+  columns: BoardColumn[];
   items: KanbanItem[];
   membersById: Map<string, Member>;
   loading: boolean;
+  onMove: (item: KanbanItem, target: BoardColumn) => void | Promise<void>;
 }) {
   return (
     <section className="flex w-72 shrink-0 flex-col gap-3 rounded-xl border border-border bg-panel p-3">
@@ -301,6 +305,8 @@ function BoardColumnView({
               key={it.id}
               item={it}
               member={it.assignee_id ? membersById.get(it.assignee_id) ?? null : null}
+              columns={columns}
+              onMove={onMove}
             />
           ))
         )}
@@ -309,7 +315,17 @@ function BoardColumnView({
   );
 }
 
-function ItemCard({ item, member }: { item: KanbanItem; member: Member | null }) {
+function ItemCard({
+  item,
+  member,
+  columns,
+  onMove,
+}: {
+  item: KanbanItem;
+  member: Member | null;
+  columns: BoardColumn[];
+  onMove: (item: KanbanItem, target: BoardColumn) => void | Promise<void>;
+}) {
   const typeKey = (item.type ?? "").toLowerCase();
   const prioKey = (item.priority ?? "").toLowerCase();
   const avatarBg = member?.avatar_color ?? "#3f3f46";
