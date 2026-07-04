@@ -43,6 +43,7 @@ interface KanbanItem {
   title: string;
   type: string | null;
   priority: string | null;
+  status: string | null;
   assignee_id: string | null;
   position: number | null;
 }
