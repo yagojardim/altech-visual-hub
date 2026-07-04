@@ -13,7 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Trash2, GitBranch, Link2, History, Users } from "lucide-react";
+import { Trash2, GitBranch, Link2, History, Users, ExternalLink } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { qk } from "@/lib/query-keys";
