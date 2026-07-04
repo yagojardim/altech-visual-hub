@@ -154,7 +154,9 @@ function BoardKanbanPage() {
       logSupabaseError("work_items:moveCard", error);
       queryClient.setQueryData<KanbanItem[]>(itemsKey, previous);
       toast.error(formatSupabaseError(error, "Não foi possível mover o card."));
+      return;
     }
+    void queryClient.invalidateQueries({ queryKey: qk.workItems() });
   };
 
   if (anyError) {
