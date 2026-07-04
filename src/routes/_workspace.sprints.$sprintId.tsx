@@ -153,22 +153,55 @@ function SprintDetailBody({ sprint, projectName }: { sprint: SprintRow; projectN
                     <p className="text-xs text-muted-foreground">Sem itens neste status.</p>
                   ) : (
                     <ul className="space-y-2">
-                      {group.items.map((it) => (
-                        <li key={it.id} className="rounded-md border border-border/60 bg-card/40 p-3">
-                          <div className="flex items-start justify-between gap-2">
-                            <p className="text-sm font-medium text-foreground">{it.titulo}</p>
-                            <Badge variant="outline" className="text-[10px] uppercase">{it.tipo}</Badge>
-                          </div>
-                          <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
-                            <span className="truncate">{it.project_id}</span>
-                            {it.responsavel ? (
-                              <span className="inline-flex items-center gap-1">
-                                <User className="h-3 w-3" /> {it.responsavel}
-                              </span>
-                            ) : null}
-                          </div>
-                        </li>
-                      ))}
+                      {group.items.map((it) => {
+                        const tMeta = typeMeta(it.tipo);
+                        const pMeta = priorityMeta(it.prioridade);
+                        const member = it.responsavel ? membersById.get(it.responsavel) ?? null : null;
+                        const memberName = member?.name ?? (it.responsavel ? "Responsável" : null);
+                        const memberInitials = memberName
+                          ? memberName.split(/\s+/).filter(Boolean).slice(0, 2).map((s) => s[0]?.toUpperCase() ?? "").join("") || "—"
+                          : "—";
+                        return (
+                          <li key={it.id} className="rounded-md border border-border/60 bg-card/40 p-3">
+                            <div className="flex items-start justify-between gap-2">
+                              <p className="text-sm font-medium text-foreground">{it.titulo}</p>
+                              <Badge
+                                variant="outline"
+                                className="shrink-0 text-[10px] font-medium uppercase tracking-wide"
+                                style={typeBadgeStyle(it.tipo)}
+                              >
+                                {tMeta.label}
+                              </Badge>
+                            </div>
+                            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                              {pMeta && (
+                                <Badge variant="outline" className={cn("text-[10px] capitalize", pMeta.className)}>
+                                  {pMeta.label}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                              <span className="truncate">{it.project_id}</span>
+                              {memberName ? (
+                                <span className="inline-flex items-center gap-1.5">
+                                  <span
+                                    className="flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-semibold text-white"
+                                    style={{ background: member?.avatar_color ?? "#3f3f46" }}
+                                    aria-hidden="true"
+                                  >
+                                    {memberInitials}
+                                  </span>
+                                  <span className="truncate">{memberName}</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-muted-foreground/70">
+                                  <User className="h-3 w-3" /> Sem responsável
+                                </span>
+                              )}
+                            </div>
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
                 </div>
