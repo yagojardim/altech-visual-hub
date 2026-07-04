@@ -67,7 +67,7 @@ async function listColumns(boardId: string): Promise<BoardColumn[]> {
 async function listBoardItems(boardId: string): Promise<KanbanItem[]> {
   const { data, error } = await supabase
     .from("work_items")
-    .select("id, board_id, column_id, title, type, priority, assignee_id, position")
+    .select("id, board_id, column_id, title, type, priority, status, assignee_id, position")
     .eq("board_id", boardId)
     .order("position", { ascending: true });
   if (error) { logSupabaseError("work_items:byBoard", error); throw error; }
