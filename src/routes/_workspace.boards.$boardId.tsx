@@ -330,9 +330,39 @@ function ItemCard({
   const prioKey = (item.priority ?? "").toLowerCase();
   const avatarBg = member?.avatar_color ?? "#3f3f46";
   const label = member?.name ?? "Sem responsável";
+  const others = columns.filter((c) => c.id !== item.column_id);
   return (
     <article className="rounded-lg border border-border bg-panel-elevated p-3 shadow-sm transition-colors hover:border-primary/40">
-      <h3 className="text-sm font-medium text-foreground line-clamp-2">{item.title}</h3>
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="text-sm font-medium text-foreground line-clamp-2">{item.title}</h3>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="-mr-1 h-6 w-6 shrink-0 text-muted-foreground hover:text-foreground"
+              aria-label="Mover card"
+            >
+              <MoveRight className="h-3.5 w-3.5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuLabel className="text-[11px] uppercase tracking-wider text-muted-foreground">
+              Mover para
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {others.length === 0 ? (
+              <DropdownMenuItem disabled>Sem outras colunas</DropdownMenuItem>
+            ) : (
+              others.map((c) => (
+                <DropdownMenuItem key={c.id} onSelect={() => void onMove(item, c)}>
+                  {c.name}
+                </DropdownMenuItem>
+              ))
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
       <div className="mt-2 flex flex-wrap items-center gap-1.5">
         {item.type && (
           <Badge variant="outline" className={cn("text-[10px] capitalize", TYPE_VARIANTS[typeKey] ?? "")}>
