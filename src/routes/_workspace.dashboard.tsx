@@ -60,10 +60,16 @@ type Result<T> = { ok: true; value: T } | { ok: false; error: string };
 const PROJECT_INACTIVE = new Set(["arquivado", "arquivada", "concluido", "concluído", "cancelado", "cancelada", "encerrado"]);
 const SPRINT_ACTIVE = new Set(["ativa", "ativo", "em andamento", "andamento", "em progresso", "iniciada", "active", "in_progress"]);
 const DONE_STATUSES = new Set(["done", "concluido", "concluído", "completed", "closed", "resolved"]);
+const BACKLOG_STATUSES = new Set(["backlog", "a fazer", "afazer", "to do", "todo", "aberto"]);
 
 function isDone(status?: string | null) {
   if (!status) return false;
   return DONE_STATUSES.has(status.toLowerCase());
+}
+
+function isBacklog(status?: string | null) {
+  if (!status) return false;
+  return BACKLOG_STATUSES.has(status.toLowerCase());
 }
 
 function fmtRelative(iso?: string | null) {
@@ -176,7 +182,9 @@ function DashboardPage() {
       totalItems = { ok: true, value: items.length };
       backlogItems = {
         ok: true,
-        value: items.filter((i) => !i.sprintId && !linkedIds.has(i.id)).length,
+        value: items.filter(
+          (i) => isBacklog(i.status) || (!i.sprintId && !linkedIds.has(i.id) && !isDone(i.status)),
+        ).length,
       };
 
       try {

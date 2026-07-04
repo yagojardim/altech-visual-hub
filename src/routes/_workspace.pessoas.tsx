@@ -135,7 +135,12 @@ function PessoasPage() {
         </nav>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0 space-y-1">
-            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Pessoas</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Pessoas</h1>
+              <Badge variant="outline" className="font-mono text-[11px]">
+                {membersQ.isLoading ? "…" : `${(membersQ.data ?? []).length} pessoas`}
+              </Badge>
+            </div>
             <p className="text-sm text-muted-foreground">
               Time do workspace Altech Project.
             </p>
