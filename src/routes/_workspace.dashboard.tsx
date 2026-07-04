@@ -112,7 +112,7 @@ function DashboardPage() {
     setLoading(true);
 
     // Cada métrica roda de forma isolada: falha de uma não afeta as outras.
-    const [projectsR, sprintsR, itemsR] = await Promise.all([
+    const [projectsR, sprintsR, itemsR, linkedR] = await Promise.all([
       safe("projects", async () => {
         const { data, error } = await supabase
           .from("projects")
@@ -138,6 +138,11 @@ function DashboardPage() {
           .limit(200);
         if (error) throw error;
         return toWorkItems(data ?? []) as WorkItem[];
+      }),
+      safe("sprint_items", async () => {
+        const { data, error } = await supabase.from("sprint_items").select("work_item_id");
+        if (error) throw error;
+        return new Set<string>(((data ?? []) as Array<{ work_item_id: string }>).map((r) => r.work_item_id));
       }),
     ]);
 
