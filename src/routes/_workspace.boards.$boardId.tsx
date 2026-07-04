@@ -23,6 +23,7 @@ import { EmptyState, ErrorState } from "@/components/states";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { WorkItemDrawer } from "@/components/work-items/WorkItemDrawer";
 
 
 
@@ -104,6 +105,7 @@ function BoardKanbanPage() {
   const { boardId } = Route.useParams();
   const queryClient = useQueryClient();
   const itemsKey = ["work_items", "byBoard", boardId] as const;
+  const [openItemId, setOpenItemId] = useState<string | null>(null);
 
   const boardQ = useQuery({ queryKey: ["boards", "detail", boardId], queryFn: () => getBoard(boardId) });
   const projectsQ = useQuery({ queryKey: ["projects", "all"], queryFn: listProjects });
@@ -225,12 +227,14 @@ function BoardKanbanPage() {
                     boardId={boardId}
                     projectId={board?.project_id ?? null}
                     onCreated={() => void itemsQ.refetch()}
+                    onOpenItem={setOpenItemId}
                   />
                 ))}
 
           </div>
         </div>
       </DndContext>
+      <WorkItemDrawer itemId={openItemId} open={!!openItemId} onOpenChange={(o) => { if (!o) setOpenItemId(null); }} />
     </div>
   );
 }
@@ -241,12 +245,14 @@ function DroppableColumn({
   boardId,
   projectId,
   onCreated,
+  onOpenItem,
 }: {
   column: BoardColumn;
   items: KanbanItem[];
   boardId: string;
   projectId: string | null;
   onCreated: () => void;
+  onOpenItem: (id: string) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
   const [adding, setAdding] = useState(false);
@@ -312,7 +318,7 @@ function DroppableColumn({
             Sem itens
           </div>
         ) : (
-          items.map((it) => <DraggableItemCard key={it.id} item={it} />)
+          items.map((it) => <DraggableItemCard key={it.id} item={it} onOpen={onOpenItem} />)
         )}
       </div>
 
@@ -354,7 +360,7 @@ function DroppableColumn({
 }
 
 
-function DraggableItemCard({ item }: { item: KanbanItem }) {
+function DraggableItemCard({ item, onOpen }: { item: KanbanItem; onOpen: (id: string) => void }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: item.id });
   const style = transform
     ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
@@ -365,6 +371,10 @@ function DraggableItemCard({ item }: { item: KanbanItem }) {
       style={style}
       {...listeners}
       {...attributes}
+      role="button"
+      tabIndex={0}
+      onClick={() => { if (!isDragging) onOpen(item.id); }}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(item.id); } }}
       className={cn("cursor-grab touch-none", isDragging && "cursor-grabbing opacity-60")}
     >
       <ItemCard item={item} />
