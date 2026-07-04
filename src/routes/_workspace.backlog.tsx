@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/table";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { LoadingState, EmptyState, ErrorState } from "@/components/states";
+import { WorkItemDrawer } from "@/components/work-items/WorkItemDrawer";
 
 async function listBacklogItems(): Promise<WorkItemRow[]> {
   const { data: linked, error: linkedErr } = await supabase
@@ -74,6 +75,7 @@ function BacklogIndex() {
   const [search, setSearch] = useState("");
   const [tipo, setTipo] = useState<string>("all");
   const [prioridade, setPrioridade] = useState<string>("all");
+  const [openItemId, setOpenItemId] = useState<string | null>(null);
 
   const projectsById = useMemo(() => {
     const m = new Map<string, ProjectRow>();
