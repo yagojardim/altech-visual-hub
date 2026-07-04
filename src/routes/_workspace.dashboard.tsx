@@ -295,20 +295,14 @@ function DashboardPage() {
   return (
     <TooltipProvider delayDuration={200}>
       <DashboardContainer>
-        <header className="space-y-1">
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] uppercase tracking-wider text-primary">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            {current ? `${current.name} · ${current.plan}` : "Workspace ativo"}
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight">Bem-vindo, {user?.name}</h1>
-          <p className="text-sm text-muted-foreground">
-            Visão geral do seu workspace Altech Project. Use{" "}
-            <kbd className="rounded border border-border bg-panel px-1 py-0.5 text-[10px] font-mono">
-              ⌘K
-            </kbd>{" "}
-            para navegar.
-          </p>
-        </header>
+        <DashboardContextHeader />
+        <p className="text-sm text-muted-foreground">
+          {roleCfg.focus} Use{" "}
+          <kbd className="rounded border border-border bg-panel px-1 py-0.5 text-[10px] font-mono">
+            ⌘K
+          </kbd>{" "}
+          para navegar.
+        </p>
 
         {loading && <LoadingState label="Carregando dashboard…" variant="skeleton" rows={4} />}
 
