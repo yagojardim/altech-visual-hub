@@ -40,7 +40,7 @@ function fmtRange(a: string | null, b: string | null) {
 }
 
 function SprintsPage() {
-  const canView = useCan("sprint.view");
+  const canView = useCan("workitem.view");
   const navigate = Route.useNavigate();
   const { project: projectFilter } = Route.useSearch();
 
