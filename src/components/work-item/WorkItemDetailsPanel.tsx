@@ -599,6 +599,7 @@ function HierarchySection({
                 <Link
                   to="/work-items/$itemId"
                   params={{ itemId: parent.id }}
+                  search={originPath ? { from: originPath } : undefined}
                   className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1 text-xs hover:bg-accent/40 transition-colors"
                 >
                   <Badge variant="outline" className={typeMeta(parent.type).badge}>
