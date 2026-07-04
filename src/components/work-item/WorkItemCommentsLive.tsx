@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { MessageSquare, Send, Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
+import { auditLog } from "@/lib/audit-log";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { LoadingState } from "@/components/states";
@@ -49,6 +50,7 @@ export function WorkItemCommentsLive({ workItemId }: { workItemId: string }) {
       .insert({
         work_item_id: workItemId,
         author: user?.name ?? user?.id ?? "Dev Altech",
+        author_id: user?.id ?? null,
         body,
       })
       .select()
@@ -60,6 +62,14 @@ export function WorkItemCommentsLive({ workItemId }: { workItemId: string }) {
     }
     setItems((cur) => [data as Comment, ...cur]);
     setDraft("");
+    void auditLog({
+      event: "comment.created",
+      actor_id: user?.id ?? null,
+      actor_name: user?.name ?? null,
+      entity_type: "work_item",
+      entity_id: workItemId,
+      after: { id: (data as Comment).id, body },
+    });
   };
 
   const remove = async (c: Comment) => {
