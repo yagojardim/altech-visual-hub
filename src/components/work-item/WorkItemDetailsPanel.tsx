@@ -62,9 +62,14 @@ function initials(name?: string | null) {
 export function WorkItemDetailsPanel({
   workItemId,
   onChange,
+  originPath,
 }: {
   workItemId: string;
   onChange?: () => void;
+  /** Rota (com search) que originou a abertura — Backlog/Board/Sprint.
+   *  Propagada nos links internos para que o botão Voltar do detalhe
+   *  retorne à origem, sem trocar de projeto. */
+  originPath?: string;
 }) {
   const qc = useQueryClient();
   const { user } = useAuth();
@@ -294,6 +299,7 @@ export function WorkItemDetailsPanel({
           children={children}
           siblings={siblings}
           onSaveParent={(pid) => void save({ parent_id: pid })}
+          originPath={originPath}
         />
 
         {/* Relations */}
@@ -302,6 +308,7 @@ export function WorkItemDetailsPanel({
           relations={relations}
           siblings={siblings}
           onChanged={() => void refetchRel()}
+          originPath={originPath}
         />
 
         <WorkItemCommentsLive workItemId={item.id} />
@@ -498,12 +505,14 @@ function HierarchySection({
   children,
   siblings,
   onSaveParent,
+  originPath,
 }: {
   item: WorkItemFull;
   parent: WorkItemFull | Pick<WorkItemFull, "id" | "title" | "type"> | null;
   children: WorkItemFull[];
   siblings: Pick<WorkItemFull, "id" | "title" | "type">[];
   onSaveParent: (parentId: string | null) => void;
+  originPath?: string;
 }) {
   const isEpic = item.type === "epic";
   const isSubtask = item.type === "subtask";
@@ -590,6 +599,7 @@ function HierarchySection({
                 <Link
                   to="/work-items/$itemId"
                   params={{ itemId: parent.id }}
+                  search={originPath ? { from: originPath } : undefined}
                   className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1 text-xs hover:bg-accent/40 transition-colors"
                 >
                   <Badge variant="outline" className={typeMeta(parent.type).badge}>
@@ -622,6 +632,7 @@ function HierarchySection({
                         <Link
                           to="/work-items/$itemId"
                           params={{ itemId: c.id }}
+                          search={originPath ? { from: originPath } : undefined}
                           className="flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-accent/40 transition-colors"
                         >
                           <Badge variant="outline" className={typeMeta(c.type).badge}>
@@ -650,11 +661,13 @@ function RelationsSection({
   relations,
   siblings,
   onChanged,
+  originPath,
 }: {
   itemId: string;
   relations: Awaited<ReturnType<typeof listRelations>>;
   siblings: Pick<WorkItemFull, "id" | "title" | "type">[];
   onChanged: () => void;
+  originPath?: string;
 }) {
   const [type, setType] = useState<RelationType>("relates_to");
   const [targetId, setTargetId] = useState<string>("");
@@ -720,6 +733,7 @@ function RelationsSection({
                   <Link
                     to="/work-items/$itemId"
                     params={{ itemId: r.target.id }}
+                    search={originPath ? { from: originPath } : undefined}
                     className="flex flex-1 items-center gap-2 rounded-md px-1.5 py-0.5 hover:bg-accent/40 transition-colors"
                   >
                     <Badge variant="outline" className={typeMeta(r.target.type).badge}>

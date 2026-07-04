@@ -162,43 +162,50 @@ function SprintDetailBody({ sprint, projectName }: { sprint: SprintRow; projectN
                           ? memberName.split(/\s+/).filter(Boolean).slice(0, 2).map((s) => s[0]?.toUpperCase() ?? "").join("") || "—"
                           : "—";
                         return (
-                          <li key={it.id} className="rounded-md border border-border/60 bg-card/40 p-3">
-                            <div className="flex items-start justify-between gap-2">
-                              <p className="text-sm font-medium text-foreground">{it.titulo}</p>
-                              <Badge
-                                variant="outline"
-                                className="shrink-0 text-[10px] font-medium uppercase tracking-wide"
-                                style={typeBadgeStyle(it.tipo)}
-                              >
-                                {tMeta.label}
-                              </Badge>
-                            </div>
-                            <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                              {pMeta && (
-                                <Badge variant="outline" className={cn("text-[10px] capitalize", pMeta.className)}>
-                                  {pMeta.label}
+                          <li key={it.id}>
+                            <Link
+                              to="/work-items/$itemId"
+                              params={{ itemId: it.id }}
+                              search={{ from: `/sprints/${sprint.id}` }}
+                              className="block rounded-md border border-border/60 bg-card/40 p-3 transition-colors hover:border-primary/40 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <p className="text-sm font-medium text-foreground">{it.titulo}</p>
+                                <Badge
+                                  variant="outline"
+                                  className="shrink-0 text-[10px] font-medium uppercase tracking-wide"
+                                  style={typeBadgeStyle(it.tipo)}
+                                >
+                                  {tMeta.label}
                                 </Badge>
-                              )}
-                            </div>
-                            <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-                              <span className="truncate">{it.project_id}</span>
-                              {memberName ? (
-                                <span className="inline-flex items-center gap-1.5">
-                                  <span
-                                    className="flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-semibold text-white"
-                                    style={{ background: member?.avatar_color ?? "#3f3f46" }}
-                                    aria-hidden="true"
-                                  >
-                                    {memberInitials}
+                              </div>
+                              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                                {pMeta && (
+                                  <Badge variant="outline" className={cn("text-[10px] capitalize", pMeta.className)}>
+                                    {pMeta.label}
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                                <span className="truncate">{it.project_id}</span>
+                                {memberName ? (
+                                  <span className="inline-flex items-center gap-1.5">
+                                    <span
+                                      className="flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-semibold text-white"
+                                      style={{ background: member?.avatar_color ?? "#3f3f46" }}
+                                      aria-hidden="true"
+                                    >
+                                      {memberInitials}
+                                    </span>
+                                    <span className="truncate">{memberName}</span>
                                   </span>
-                                  <span className="truncate">{memberName}</span>
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 text-muted-foreground/70">
-                                  <User className="h-3 w-3" /> Sem responsável
-                                </span>
-                              )}
-                            </div>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 text-muted-foreground/70">
+                                    <User className="h-3 w-3" /> Sem responsável
+                                  </span>
+                                )}
+                              </div>
+                            </Link>
                           </li>
                         );
                       })}

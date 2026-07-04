@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   DndContext,
@@ -145,6 +146,9 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
   const [items, setItems] = useState<WorkItem[]>([]);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+  const originPath = useRouterState({
+    select: (s) => `${s.location.pathname}${s.location.searchStr ?? ""}`,
+  });
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -253,6 +257,7 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
             <WorkItemDetailsPanel
               workItemId={openItemId}
               onChange={invalidate}
+              originPath={originPath}
             />
           )}
         </SheetContent>

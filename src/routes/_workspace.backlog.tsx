@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -251,27 +251,34 @@ function TreeRow({
           <span className="inline-block h-5 w-5 shrink-0" />
         )}
 
-        <Icon className={cn("h-4 w-4 shrink-0", meta.color)} />
+        <Link
+          to="/work-items/$itemId"
+          params={{ itemId: node.item.id }}
+          search={{ from: "/backlog" }}
+          className="flex flex-1 items-center gap-2 min-w-0 rounded-md focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        >
+          <Icon className={cn("h-4 w-4 shrink-0", meta.color)} />
 
-        <Badge variant="outline" className={cn("text-[10px] uppercase shrink-0", meta.badge)}>
-          {meta.label}
-        </Badge>
+          <Badge variant="outline" className={cn("text-[10px] uppercase shrink-0", meta.badge)}>
+            {meta.label}
+          </Badge>
 
-        <span className="flex-1 truncate text-sm text-foreground" title={node.item.title}>
-          {node.item.title}
-        </span>
+          <span className="flex-1 truncate text-sm text-foreground" title={node.item.title}>
+            {node.item.title}
+          </span>
 
-        <Badge variant={priorityVariant(node.item.priority)} className="text-[10px] uppercase shrink-0">
-          {priorityLabel(node.item.priority)}
-        </Badge>
+          <Badge variant={priorityVariant(node.item.priority)} className="text-[10px] uppercase shrink-0">
+            {priorityLabel(node.item.priority)}
+          </Badge>
 
-        <div className="w-[140px] shrink-0 hidden md:flex justify-end">
-          <ResponsavelCell member={member} />
-        </div>
+          <div className="w-[140px] shrink-0 hidden md:flex justify-end">
+            <ResponsavelCell member={member} />
+          </div>
 
-        <div className="w-[120px] shrink-0 hidden lg:block truncate text-right text-xs text-muted-foreground">
-          {project?.nome ?? "—"}
-        </div>
+          <div className="w-[120px] shrink-0 hidden lg:block truncate text-right text-xs text-muted-foreground">
+            {project?.nome ?? "—"}
+          </div>
+        </Link>
       </div>
 
       {hasChildren && isOpen &&
