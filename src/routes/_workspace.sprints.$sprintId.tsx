@@ -68,6 +68,12 @@ function SprintDetailBody({ sprint, projectName }: { sprint: SprintRow; projectN
     queryKey: ["sprint_items", "byId", sprint.id],
     queryFn: () => listItemsBySprint(sprint.id),
   });
+  const membersQ = useQuery({ queryKey: ["team_members"], queryFn: listTeamMembers });
+  const membersById = useMemo(() => {
+    const m = new Map<string, TeamMember>();
+    for (const it of membersQ.data ?? []) m.set(it.id, it);
+    return m;
+  }, [membersQ.data]);
 
   const status = getSprintStatusLabel(sprint.status);
   const items: SprintItemRow[] = itemsQ.data ?? [];
