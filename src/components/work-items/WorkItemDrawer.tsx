@@ -118,14 +118,15 @@ export function WorkItemDrawer({
   onChanged,
 }: WorkItemDrawerProps) {
   const isCreate = createMode && !itemId;
+  const queryClient = useQueryClient();
 
   const itemQ = useQuery({
-    queryKey: ["work_items", "detail", itemId],
+    queryKey: itemId ? qk.workItem(itemId) : ["work_items", "detail", "__none__"],
     queryFn: () => getWorkItem(itemId as string),
     enabled: !!itemId && open,
   });
   const projectsQ = useQuery({
-    queryKey: ["projects", "all"],
+    queryKey: qk.projects(),
     queryFn: listProjects,
     enabled: open,
   });
