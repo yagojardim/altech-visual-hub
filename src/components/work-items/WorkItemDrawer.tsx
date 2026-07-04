@@ -199,6 +199,7 @@ export function WorkItemDrawer({
       }
       onChanged?.();
       onOpenChange(false);
+    } catch (err) {
       logSupabaseError("work_items:save", err);
       toast.error(formatSupabaseError(err, "Não foi possível salvar."));
     } finally {
