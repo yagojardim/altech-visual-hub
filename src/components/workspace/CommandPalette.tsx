@@ -38,6 +38,9 @@ export function CommandPalette({
   onOpenChange: (v: boolean) => void;
 }) {
   const navigate = useNavigate();
+  const currentPath = useRouterState({
+    select: (s) => `${s.location.pathname}${s.location.searchStr ?? ""}`,
+  });
   const [query, setQuery] = useState("");
   const [projects, setProjects] = useState<ProjectHit[]>([]);
   const [items, setItems] = useState<WorkItemHit[]>([]);
