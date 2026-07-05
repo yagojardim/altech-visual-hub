@@ -59,6 +59,50 @@ function initials(name?: string | null) {
     .join("") || "?";
 }
 
+function formatError(e: unknown): string {
+  if (!e) return "Erro desconhecido.";
+  if (e instanceof Error) return e.message || "Erro desconhecido.";
+  if (typeof e === "string") return e;
+  if (typeof e === "object") {
+    const obj = e as { message?: unknown; details?: unknown; hint?: unknown; code?: unknown };
+    return (
+      (typeof obj.message === "string" && obj.message) ||
+      (typeof obj.details === "string" && obj.details) ||
+      (typeof obj.hint === "string" && obj.hint) ||
+      (typeof obj.code === "string" && `Erro ${obj.code}`) ||
+      "Erro ao carregar dados."
+    );
+  }
+  return String(e);
+}
+
+class PanelErrorBoundary extends React.Component<
+  { children: React.ReactNode; onReset?: () => void },
+  { err: Error | null }
+> {
+  state = { err: null as Error | null };
+  static getDerivedStateFromError(err: Error) {
+    return { err };
+  }
+  componentDidCatch(err: Error) {
+    console.error("[WorkItemDetailsPanel] render error:", err);
+  }
+  render() {
+    if (this.state.err) {
+      return (
+        <ErrorState
+          description={this.state.err.message || "Falha ao renderizar o painel."}
+          onRetry={() => {
+            this.setState({ err: null });
+            this.props.onReset?.();
+          }}
+        />
+      );
+    }
+    return this.props.children;
+  }
+
+
 export function WorkItemDetailsPanel({
   workItemId,
   onChange,
