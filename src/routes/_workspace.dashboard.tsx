@@ -17,6 +17,7 @@ import { supabase } from "@/lib/supabase";
 import { toWorkItems, type WorkItem } from "@/lib/work-item-map";
 import { formatSupabaseError } from "@/lib/supabase-errors";
 import { DashboardContainer } from "@/components/dashboard/DashboardContainer";
+import { PMDashboard, PODashboard } from "@/components/dashboard/RoleDashboards";
 import { DashboardContextHeader } from "@/components/dashboard/DashboardContextHeader";
 import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
@@ -304,9 +305,14 @@ function DashboardPage() {
           para navegar.
         </p>
 
-        {loading && <LoadingState label="Carregando dashboard…" variant="skeleton" rows={4} />}
+        {role === "PM" && <PMDashboard />}
+        {role === "PO" && <PODashboard />}
 
-        {!loading && state && (
+        {role !== "PM" && role !== "PO" && loading && (
+          <LoadingState label="Carregando dashboard…" variant="skeleton" rows={4} />
+        )}
+
+        {role !== "PM" && role !== "PO" && !loading && state && (
           <>
             <WidgetGrid columns={4}>
               <KpiCard label="Projetos ativos" result={state.activeProjects} icon={FolderKanban} />

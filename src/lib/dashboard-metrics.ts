@@ -51,6 +51,16 @@ export interface DashboardMetrics {
   activeSprint: SprintProgress | null;
   criticalBugs: WorkItem[];
   storiesMissingAcceptance: WorkItem[];
+  /** Itens sem responsável (assignee_id null). */
+  unassigned: WorkItem[];
+  /** Itens sem prioridade definida. */
+  missingPriority: WorkItem[];
+  /** Histórias/épicos/features prontos para entrar em sprint. */
+  readyForSprint: WorkItem[];
+  /** Itens aguardando validação (review/QA/validação). */
+  awaitingValidation: WorkItem[];
+  /** Itens vinculados à sprint ativa. */
+  activeSprintItems: WorkItem[];
   /** projetos considerados no escopo (após tenant + project_members). */
   projectIds: string[];
   /** total de work items lidos no escopo (base das agregações). */
@@ -74,7 +84,37 @@ const BLOCKED_STATUSES = new Set([
   "impedido",
 ]);
 
+const READY_STATUSES = new Set([
+  "pronto",
+  "pronta",
+  "pronto para sprint",
+  "pronta para sprint",
+  "ready",
+  "ready for sprint",
+  "refinado",
+  "refinada",
+]);
+
+const REVIEW_STATUSES = new Set([
+  "em validação",
+  "em validacao",
+  "validação",
+  "validacao",
+  "aguardando validação",
+  "aguardando validacao",
+  "review",
+  "code review",
+  "em revisão",
+  "em revisao",
+  "qa",
+  "em qa",
+  "testing",
+  "em teste",
+]);
+
 const CRITICAL_PRIORITIES = new Set(["critica", "crítica", "critical"]);
+const EMPTY_PRIORITIES = new Set(["", "sem prioridade", "none", "nenhuma", "-"]);
+const VALUE_TYPES = new Set(["story", "epic", "feature", "história", "historia", "épico", "epico"]);
 
 function isDone(status?: string | null): boolean {
   return !!status && DONE_STATUSES.has(status.toLowerCase());
@@ -84,8 +124,25 @@ function isBlocked(status?: string | null): boolean {
   return !!status && BLOCKED_STATUSES.has(status.toLowerCase());
 }
 
+function isReady(status?: string | null): boolean {
+  return !!status && READY_STATUSES.has(status.toLowerCase());
+}
+
+function isReview(status?: string | null): boolean {
+  return !!status && REVIEW_STATUSES.has(status.toLowerCase());
+}
+
 function isCritical(priority?: string | null): boolean {
   return !!priority && CRITICAL_PRIORITIES.has(priority.toLowerCase());
+}
+
+function hasPriority(priority?: string | null): boolean {
+  if (!priority) return false;
+  return !EMPTY_PRIORITIES.has(priority.toLowerCase().trim());
+}
+
+function isValueType(type?: string | null): boolean {
+  return !!type && VALUE_TYPES.has(type.toLowerCase());
 }
 
 /** YYYY-MM-DD no fuso local (compatível com coluna `date`). */
@@ -154,6 +211,11 @@ export async function fetchDashboardMetrics(
     activeSprint: null,
     criticalBugs: [],
     storiesMissingAcceptance: [],
+    unassigned: [],
+    missingPriority: [],
+    readyForSprint: [],
+    awaitingValidation: [],
+    activeSprintItems: [],
     projectIds,
     totalItems: 0,
   };
@@ -203,10 +265,9 @@ export async function fetchDashboardMetrics(
   }) ?? null;
 
   let activeSprint: SprintProgress | null = null;
+  const activeSprintLinkedIds = new Set<string>();
   if (activeSprintRow) {
-    // Itens da sprint ativa: via work_items.sprint_id OR sprint_items.
-    const linkedIds = new Set<string>();
-    for (const it of items) if (it.sprintId === activeSprintRow.id) linkedIds.add(it.id);
+    for (const it of items) if (it.sprintId === activeSprintRow.id) activeSprintLinkedIds.add(it.id);
 
     const { data: si, error: siErr } = await supabase
       .from("sprint_items")
@@ -214,10 +275,10 @@ export async function fetchDashboardMetrics(
       .eq("sprint_id", activeSprintRow.id);
     if (siErr) throw siErr;
     for (const row of (si ?? []) as Array<{ work_item_id: string }>) {
-      linkedIds.add(row.work_item_id);
+      activeSprintLinkedIds.add(row.work_item_id);
     }
 
-    const planned = items.filter((it) => linkedIds.has(it.id));
+    const planned = items.filter((it) => activeSprintLinkedIds.has(it.id));
     const done = planned.filter((it) => isDone(it.status)).length;
     const total = planned.length;
     activeSprint = {
@@ -236,6 +297,11 @@ export async function fetchDashboardMetrics(
   const myItems: WorkItem[] = [];
   const criticalBugs: WorkItem[] = [];
   const storiesMissingAcceptance: WorkItem[] = [];
+  const unassigned: WorkItem[] = [];
+  const missingPriority: WorkItem[] = [];
+  const readyForSprint: WorkItem[] = [];
+  const awaitingValidation: WorkItem[] = [];
+  const activeSprintItems: WorkItem[] = [];
   const statusMap = new Map<string, number>();
 
   for (const it of items) {
@@ -244,21 +310,28 @@ export async function fetchDashboardMetrics(
     const assigneeId = (raw.assignee_id as string | null | undefined) ?? null;
     const acceptance = (raw.acceptance_criteria as string | null | undefined) ?? null;
 
-    // Vencendo hoje / atrasados (ignoram concluídos).
     if (dueDate && !isDone(it.status)) {
       if (dueDate === today) dueToday.push(it);
       else if (dueDate < today) overdue.push(it);
     }
 
     if (isBlocked(it.status)) blocked.push(it);
+    if (isReview(it.status) && !isDone(it.status)) awaitingValidation.push(it);
 
     if (scope.assigneeId && assigneeId === scope.assigneeId) myItems.push(it);
+
+    if (!assigneeId && !isDone(it.status)) unassigned.push(it);
+    if (!hasPriority(it.priority) && !isDone(it.status)) missingPriority.push(it);
 
     const t = (it.type || "").toLowerCase();
     if (t === "bug" && isCritical(it.priority)) criticalBugs.push(it);
     if (t === "story" && (!acceptance || acceptance.trim().length === 0)) {
       storiesMissingAcceptance.push(it);
     }
+    if (isValueType(it.type) && isReady(it.status) && !it.sprintId && !activeSprintLinkedIds.has(it.id)) {
+      readyForSprint.push(it);
+    }
+    if (activeSprintLinkedIds.has(it.id)) activeSprintItems.push(it);
 
     const key = (it.status || "sem status").toString();
     statusMap.set(key, (statusMap.get(key) ?? 0) + 1);
@@ -277,6 +350,11 @@ export async function fetchDashboardMetrics(
     activeSprint,
     criticalBugs,
     storiesMissingAcceptance,
+    unassigned,
+    missingPriority,
+    readyForSprint,
+    awaitingValidation,
+    activeSprintItems,
     projectIds,
     totalItems: items.length,
   };
