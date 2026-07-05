@@ -548,3 +548,74 @@ function TeamLoadWidget({ members }: { members: TeamLoadRow[] }) {
     </WidgetCard>
   );
 }
+
+// ----------------------------------------------------------------------------
+// KPI footer helpers
+// ----------------------------------------------------------------------------
+
+function MiniBars({ values }: { values: number[] }) {
+  const max = Math.max(1, ...values);
+  return (
+    <div className="flex h-6 items-end gap-1">
+      {values.map((v, i) => {
+        const isLast = i === values.length - 1;
+        const h = Math.max(15, (v / max) * 100);
+        return (
+          <div
+            key={i}
+            className={cn(
+              "w-3 rounded-sm",
+              isLast ? "bg-[var(--blue-500,#3b82f6)]" : "bg-[var(--blue-500,#3b82f6)]/25",
+            )}
+            style={{ height: `${h}%` }}
+            aria-hidden="true"
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function MiniProgress({ value }: { value: number }) {
+  const pct = Math.max(0, Math.min(1, value)) * 100;
+  return (
+    <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-panel">
+      <div
+        className="absolute inset-y-0 left-0 rounded-full"
+        style={{
+          width: `${pct}%`,
+          background:
+            "linear-gradient(90deg, var(--blue-500,#3b82f6), var(--success-500,#10b981))",
+        }}
+      />
+    </div>
+  );
+}
+
+function DotBars({ dots }: { dots: Array<"success" | "warning"> }) {
+  if (dots.length === 0) {
+    return (
+      <div className="flex h-1.5 items-center gap-1">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="h-1.5 flex-1 rounded-full bg-panel" />
+        ))}
+      </div>
+    );
+  }
+  return (
+    <div className="flex h-1.5 items-center gap-1">
+      {dots.map((d, i) => (
+        <div
+          key={i}
+          className="h-1.5 flex-1 rounded-full"
+          style={{
+            backgroundColor:
+              d === "warning"
+                ? "var(--warning-500, #f59e0b)"
+                : "var(--success-500, #10b981)",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
