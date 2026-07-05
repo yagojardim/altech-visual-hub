@@ -28,7 +28,7 @@ function isDone(s?: string | null) {
   return !!s && DONE.has(s.toLowerCase());
 }
 
-interface Project { id: string; name: string; status: string | null }
+interface Project { id: string; name: string; status: string | null; created_at: string | null }
 interface Sprint { id: string; name: string; status: string | null; project_id: string | null; start_date: string | null; end_date: string | null }
 interface Item { id: string; project_id: string | null; status: string | null; type: string | null; assignee_id: string | null }
 interface Member { id: string; name: string; avatar_color: string | null }
