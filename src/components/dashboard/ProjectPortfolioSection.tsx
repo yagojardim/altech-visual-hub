@@ -7,7 +7,7 @@
  * priority, contagem de itens, etc.). NÃO altera o banco.
  */
 import { useEffect, useMemo, useState } from "react";
-import { Sparkles, ShieldAlert } from "lucide-react";
+import { ConceptIcon } from "@/components/icons/ConceptIcon";
 import { supabase } from "@/lib/supabase";
 import { pickAvatarColor } from "@/lib/team-members-api";
 import { formatSupabaseError } from "@/lib/supabase-errors";
