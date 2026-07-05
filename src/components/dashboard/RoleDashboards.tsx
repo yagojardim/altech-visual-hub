@@ -44,7 +44,14 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 function ErrorState({ message }: { message: string }) {
   return (
-    <div className="rounded-lg border border-danger/30 bg-danger/5 p-4 text-sm text-danger">
+    <div
+      className="rounded-lg border p-4 text-sm"
+      style={{
+        borderColor: "color-mix(in oklab, var(--danger-500) 30%, transparent)",
+        backgroundColor: "color-mix(in oklab, var(--danger-500) 8%, transparent)",
+        color: "var(--danger-500)",
+      }}
+    >
       {message}
     </div>
   );
