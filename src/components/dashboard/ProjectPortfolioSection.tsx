@@ -343,7 +343,7 @@ function ProjetoCard({ row, tone }: { row: ProjetoRow; tone: Tone }) {
     <CardShell tone={tone}>
       <div className="flex items-center justify-between">
         <div className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider" style={{ color }}>
-          <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />
+          <ConceptIcon name="projeto" size={14} style={{ color }} />
           {row.sprintLabel}
         </div>
         {tone === "success" ? (
