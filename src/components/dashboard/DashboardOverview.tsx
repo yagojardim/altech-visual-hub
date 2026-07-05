@@ -94,24 +94,61 @@ export function DashboardOverview() {
           value={metrics.activeProjects}
           icon={FolderKanban}
           severity="info"
+          trend={
+            metrics.projectsDelta !== 0
+              ? {
+                  value: Math.abs(metrics.projectsDelta),
+                  direction: metrics.projectsDelta > 0 ? "up" : "down",
+                }
+              : undefined
+          }
+          caption="vs. mês anterior"
+          footer={<MiniBars values={metrics.monthlyProjects} />}
         />
         <KpiCard
           label="Velocidade média"
           value={metrics.avgVelocity != null ? `${metrics.avgVelocity}` : "—"}
           icon={Gauge}
           severity="default"
+          caption={
+            metrics.stabilitySprints > 0
+              ? `${metrics.stability} — ${metrics.stabilitySprints} sprints`
+              : "Sem histórico ainda"
+          }
+          footer={<MiniProgress value={metrics.velocityRatio} />}
         />
         <KpiCard
           label="Histórias entregues"
           value={metrics.storiesDone}
           icon={ListChecks}
           severity="success"
+          trend={
+            metrics.storiesTotal > 0
+              ? { value: metrics.storiesPct, direction: "up" }
+              : undefined
+          }
+          caption="este trimestre"
+          footer={
+            metrics.storiesTotal > 0 ? (
+              <span className="inline-flex items-center rounded-md bg-[var(--success-500,#10b981)]/15 px-2 py-0.5 text-[11px] font-medium text-[var(--success-500,#10b981)]">
+                Meta: {metrics.storiesTarget} — {metrics.storiesPct}%
+              </span>
+            ) : null
+          }
         />
         <KpiCard
           label="Sprints em risco"
           value={`${metrics.sprintsAtRisk} de ${metrics.activeSprintsCount}`}
           icon={AlertTriangle}
           severity={metrics.sprintsAtRisk > 0 ? "warning" : "success"}
+          caption={
+            metrics.activeSprintsCount === 0
+              ? "Sem sprints ativas"
+              : metrics.sprintsAtRisk > 0
+              ? "Requer atenção"
+              : "Tudo dentro do prazo"
+          }
+          footer={<DotBars dots={metrics.sprintDots} />}
         />
       </div>
 
