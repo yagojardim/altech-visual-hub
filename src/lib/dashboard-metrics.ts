@@ -211,6 +211,11 @@ export async function fetchDashboardMetrics(
     activeSprint: null,
     criticalBugs: [],
     storiesMissingAcceptance: [],
+    unassigned: [],
+    missingPriority: [],
+    readyForSprint: [],
+    awaitingValidation: [],
+    activeSprintItems: [],
     projectIds,
     totalItems: 0,
   };
