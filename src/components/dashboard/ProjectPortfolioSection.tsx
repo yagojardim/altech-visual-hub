@@ -7,7 +7,7 @@
  * priority, contagem de itens, etc.). NÃO altera o banco.
  */
 import { useEffect, useMemo, useState } from "react";
-import { Sparkles, ShieldAlert } from "lucide-react";
+import { ConceptIcon } from "@/components/icons/ConceptIcon";
 import { supabase } from "@/lib/supabase";
 import { pickAvatarColor } from "@/lib/team-members-api";
 import { formatSupabaseError } from "@/lib/supabase-errors";
@@ -343,7 +343,7 @@ function ProjetoCard({ row, tone }: { row: ProjetoRow; tone: Tone }) {
     <CardShell tone={tone}>
       <div className="flex items-center justify-between">
         <div className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider" style={{ color }}>
-          <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />
+          <ConceptIcon name="projeto" size={14} style={{ color }} />
           {row.sprintLabel}
         </div>
         {tone === "success" ? (
@@ -483,7 +483,7 @@ function EpicCard({
   return (
     <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
       <div className="flex items-center gap-2">
-        <Sparkles className="h-4 w-4" style={{ color }} />
+        <ConceptIcon name="epic" size={16} style={{ color }} />
         <Pill tone={pillTone}>{pillLabel}</Pill>
       </div>
       <h3 className="mt-3 text-lg font-semibold leading-tight text-foreground">{row.title}</h3>
@@ -726,7 +726,7 @@ function RiscoCard({ row, tone, sevLabel }: { row: RiscoRow; tone: Tone; sevLabe
     <CardShell tone={tone}>
       <div className="flex items-center justify-between">
         <div className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider" style={{ color }}>
-          <ShieldAlert className="h-3.5 w-3.5" />
+          <ConceptIcon name="risco" size={14} style={{ color }} />
           {sevLabel}
         </div>
         <Pill tone={catTone}>{row.category}</Pill>
