@@ -51,6 +51,16 @@ export interface DashboardMetrics {
   activeSprint: SprintProgress | null;
   criticalBugs: WorkItem[];
   storiesMissingAcceptance: WorkItem[];
+  /** Itens sem responsável (assignee_id null). */
+  unassigned: WorkItem[];
+  /** Itens sem prioridade definida. */
+  missingPriority: WorkItem[];
+  /** Histórias/épicos/features prontos para entrar em sprint. */
+  readyForSprint: WorkItem[];
+  /** Itens aguardando validação (review/QA/validação). */
+  awaitingValidation: WorkItem[];
+  /** Itens vinculados à sprint ativa. */
+  activeSprintItems: WorkItem[];
   /** projetos considerados no escopo (após tenant + project_members). */
   projectIds: string[];
   /** total de work items lidos no escopo (base das agregações). */
