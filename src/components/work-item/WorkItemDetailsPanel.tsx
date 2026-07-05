@@ -101,15 +101,28 @@ class PanelErrorBoundary extends React.Component<
     }
     return this.props.children;
   }
+}
 
+export function WorkItemDetailsPanel(props: {
+  workItemId: string;
+  onChange?: () => void;
+  originPath?: string;
+}) {
+  return (
+    <PanelErrorBoundary>
+      <WorkItemDetailsPanelInner {...props} />
+    </PanelErrorBoundary>
+  );
+}
 
-export function WorkItemDetailsPanel({
+function WorkItemDetailsPanelInner({
   workItemId,
   onChange,
   originPath,
 }: {
   workItemId: string;
   onChange?: () => void;
+
   /** Rota (com search) que originou a abertura — Backlog/Board/Sprint.
    *  Propagada nos links internos para que o botão Voltar do detalhe
    *  retorne à origem, sem trocar de projeto. */
