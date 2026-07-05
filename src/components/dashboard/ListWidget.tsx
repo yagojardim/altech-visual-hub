@@ -146,7 +146,7 @@ export function ListWidget({
   ...props
 }: ListWidgetProps) {
   return (
-    <WidgetCard className={cn("rounded-lg keep-radius", className)} {...props}>
+    <WidgetCard className={cn("!rounded-lg keep-radius", className)} {...props}>
       <WidgetHeader title={title} description={description} icon={Icon} />
       {items.length === 0 ? (
         <div className="mt-4">

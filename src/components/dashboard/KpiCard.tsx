@@ -53,7 +53,7 @@ export function KpiCard({
   const Trend = trend ? TrendIcon[trend.direction] : null;
 
   return (
-    <WidgetCard className={cn("relative overflow-hidden rounded-lg keep-radius p-0", className)} {...props}>
+    <WidgetCard className={cn("relative overflow-hidden !rounded-lg keep-radius p-0", className)} {...props}>
       <div className={cn("absolute left-0 top-0 h-1 w-full", accent.split(" ")[0])} />
       <div className="p-5 pt-6">
         <WidgetHeader

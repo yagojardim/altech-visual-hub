@@ -95,7 +95,7 @@ export function QuickActions({
   }
 
   return (
-    <WidgetCard className={cn("rounded-lg keep-radius", className)} {...props}>
+    <WidgetCard className={cn("!rounded-lg keep-radius", className)} {...props}>
       <WidgetHeader title={title} description={description} icon={Icon} />
       <div className="mt-3">{body}</div>
     </WidgetCard>
