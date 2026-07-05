@@ -149,7 +149,9 @@ export function ListWidget({
     <WidgetCard className={cn("rounded-lg keep-radius", className)} {...props}>
       <WidgetHeader title={title} description={description} icon={Icon} />
       {items.length === 0 ? (
-        <EmptyState title={emptyTitle} description={emptyDescription} className="mt-4" />
+        <div className="mt-4">
+          <EmptyState title={emptyTitle} description={emptyDescription} />
+        </div>
       ) : (
         <ul className="mt-3 space-y-1">
           {items.map((item) => (
