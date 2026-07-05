@@ -54,7 +54,7 @@ export function DashboardOverview() {
       setError(null);
       try {
         const [p, s, w, m, si] = await Promise.all([
-          supabase.from("projects").select("id, name, status"),
+          supabase.from("projects").select("id, name, status, created_at"),
           supabase.from("sprints").select("id, name, status, project_id, start_date, end_date").order("start_date", { ascending: true }),
           supabase.from("work_items").select("id, project_id, status, type, assignee_id"),
           supabase.from("team_members").select("id, name, avatar_color"),
