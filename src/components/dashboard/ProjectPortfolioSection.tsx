@@ -726,7 +726,7 @@ function RiscoCard({ row, tone, sevLabel }: { row: RiscoRow; tone: Tone; sevLabe
     <CardShell tone={tone}>
       <div className="flex items-center justify-between">
         <div className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider" style={{ color }}>
-          <ShieldAlert className="h-3.5 w-3.5" />
+          <ConceptIcon name="risco" size={14} style={{ color }} />
           {sevLabel}
         </div>
         <Pill tone={catTone}>{row.category}</Pill>
