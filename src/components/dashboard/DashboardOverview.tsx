@@ -395,30 +395,29 @@ function shortSprintLabel(name: string) {
 // ----------------------------------------------------------------------------
 
 function ProgressRing({ value, color }: { value: number; color: string }) {
-  const r = 22;
+  const r = 20;
   const c = 2 * Math.PI * r;
   const offset = c - (Math.min(100, Math.max(0, value)) / 100) * c;
   return (
-    <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
-      <circle cx="28" cy="28" r={r} fill="none" stroke="var(--border)" strokeWidth="5" />
+    <svg width="52" height="52" viewBox="0 0 52 52" aria-hidden="true">
+      <circle cx="26" cy="26" r={r} fill="none" stroke="var(--border)" strokeWidth="4" opacity="0.35" />
       <circle
-        cx="28"
-        cy="28"
+        cx="26"
+        cy="26"
         r={r}
         fill="none"
         stroke={color}
-        strokeWidth="5"
+        strokeWidth="4"
         strokeDasharray={c}
         strokeDashoffset={offset}
         strokeLinecap="round"
-        transform="rotate(-90 28 28)"
+        transform="rotate(-90 26 26)"
       />
       <text
-        x="28"
-        y="32"
+        x="26"
+        y="30"
         textAnchor="middle"
-        className="fill-foreground"
-        style={{ fontSize: 12, fontWeight: 600 }}
+        style={{ fontSize: 11, fontWeight: 700, fill: color }}
       >
         {value}%
       </text>
@@ -442,21 +441,23 @@ function ProjectHealthWidget({ projects }: { projects: ProjectHealth[] }) {
       {projects.length === 0 ? (
         <div className="mt-3"><EmptyState title="Sem projetos" description="Nenhum projeto ativo encontrado." /></div>
       ) : (
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {projects.map((p) => {
             const color = healthColor(p.status);
             return (
-              <div key={p.id} className="flex items-center gap-3 rounded-lg border border-border bg-panel/40 p-3">
+              <div
+                key={p.id}
+                className="flex items-center gap-3 rounded-xl bg-muted/40 p-3"
+              >
                 <ProgressRing value={p.progress} color={color} />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-foreground">{p.name}</div>
+                  <div className="truncate text-sm font-semibold text-foreground">{p.name}</div>
                   <div className="mt-0.5 text-xs text-muted-foreground">{p.label}</div>
-                  <div className="mt-1 flex items-center gap-1.5">
-                    <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />
-                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                      {p.status === "on-track" ? "No prazo" : p.status === "at-risk" ? "Atenção" : p.status === "delayed" ? "Atrasado" : "Entregue"}
-                    </span>
-                  </div>
+                  <span
+                    className="mt-2 inline-block h-1.5 w-1.5 rounded-full"
+                    style={{ backgroundColor: color }}
+                    aria-hidden="true"
+                  />
                 </div>
               </div>
             );
@@ -469,41 +470,49 @@ function ProjectHealthWidget({ projects }: { projects: ProjectHealth[] }) {
 
 function SprintVelocityWidget({ sprints, average }: { sprints: VelocityBar[]; average: number }) {
   const max = Math.max(1, ...sprints.map((s) => s.value));
+  const lastPrevIndex = (() => {
+    for (let i = sprints.length - 1; i >= 0; i--) if (!sprints[i].isCurrent) return i;
+    return -1;
+  })();
   return (
     <WidgetCard className="!rounded-lg keep-radius">
       <div className="flex items-start justify-between">
-        <WidgetHeader title="Velocidade por sprint" icon={Timer} />
-        <span className="text-xs text-muted-foreground">Média: {average} itens</span>
+        <WidgetHeader title="Velocidade por sprint" />
+        <span className="text-xs font-medium text-[var(--blue-500,#3b82f6)]">
+          Média: {average} pts
+        </span>
       </div>
       {sprints.length === 0 ? (
         <div className="mt-3"><EmptyState title="Sem sprints" description="Nenhuma sprint com itens registrada." /></div>
       ) : (
         <>
-          <div className="mt-4 flex h-40 items-end justify-between gap-2">
-            {sprints.map((s) => {
-              const h = Math.max(6, (s.value / max) * 100);
+          <div className="mt-6 flex h-40 items-end justify-between gap-3">
+            {sprints.map((s, i) => {
+              const h = Math.max(10, (s.value / max) * 100);
+              const bg = s.isCurrent
+                ? "var(--success-500,#10b981)"
+                : i === lastPrevIndex
+                ? "var(--blue-500,#3b82f6)"
+                : "color-mix(in oklab, var(--blue-500,#3b82f6) 35%, transparent)";
               return (
-                <div key={s.id} className="flex flex-1 flex-col items-center gap-1.5">
-                  <span className="text-[10px] font-medium text-muted-foreground">{s.value}</span>
+                <div key={s.id} className="flex flex-1 flex-col items-center gap-2">
+                  <span className="text-[11px] font-semibold text-muted-foreground">{s.value}</span>
                   <div
-                    className={cn(
-                      "w-full rounded-t-md transition-all",
-                      s.isCurrent ? "bg-[var(--success-500,#10b981)]" : "bg-primary/70",
-                    )}
-                    style={{ height: `${h}%` }}
-                    aria-label={`${s.label}: ${s.value} itens`}
+                    className="w-full rounded-lg transition-all"
+                    style={{ height: `${h}%`, backgroundColor: bg }}
+                    aria-label={`${s.label}: ${s.value} pts`}
                   />
                   <span className="text-[10px] text-muted-foreground">{s.label}</span>
                 </div>
               );
             })}
           </div>
-          <div className="mt-3 flex items-center justify-end gap-3 text-[10px] text-muted-foreground">
+          <div className="mt-4 flex items-center justify-end gap-4 text-[11px] text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-sm bg-primary/70" /> Anteriores
+              <span className="h-2.5 w-2.5 rounded-sm bg-[var(--blue-500,#3b82f6)]" /> Anteriores
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-sm bg-[var(--success-500,#10b981)]" /> Atual
+              <span className="h-2.5 w-2.5 rounded-sm bg-[var(--success-500,#10b981)]" /> Atual
             </span>
           </div>
         </>
@@ -511,6 +520,7 @@ function SprintVelocityWidget({ sprints, average }: { sprints: VelocityBar[]; av
     </WidgetCard>
   );
 }
+
 
 function TeamLoadWidget({ members }: { members: TeamLoadRow[] }) {
   return (
