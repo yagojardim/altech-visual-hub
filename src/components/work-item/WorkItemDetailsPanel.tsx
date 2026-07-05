@@ -432,37 +432,45 @@ function ConditionalFields({
   onChange: (i: WorkItemFull) => void;
   onSave: (delta: Partial<WorkItemFull>) => void;
 }) {
-  if (item.type === "story") {
-    return (
-      <section className="space-y-2">
+  // `select("*")` only returns columns that exist. Use presence to hide
+  // fields whose column is missing from this DB, instead of crashing.
+  const has = (k: string) => Object.prototype.hasOwnProperty.call(item, k);
+  const sections: React.ReactNode[] = [];
+
+  if (item.type === "story" && has("acceptance_criteria")) {
+    sections.push(
+      <section key="ac" className="space-y-2">
         <h3 className="text-sm font-medium">Critérios de aceite</h3>
         <Textarea
           rows={4}
           placeholder="Um critério por linha…"
-          value={item.acceptance_criteria ?? ""}
+          value={(item.acceptance_criteria as string | null) ?? ""}
           onChange={(e) => onChange({ ...item, acceptance_criteria: e.target.value })}
           onBlur={(e) => onSave({ acceptance_criteria: e.target.value || null })}
         />
-      </section>
+      </section>,
     );
   }
-  if (item.type === "task" || item.type === "subtask") {
-    return (
-      <section className="space-y-2">
+
+  if ((item.type === "task" || item.type === "subtask") && has("due_date")) {
+    sections.push(
+      <section key="due" className="space-y-2">
         <h3 className="text-sm font-medium">Prazo</h3>
         <Input
           type="date"
           className="w-52"
-          value={item.due_date ?? ""}
+          value={(item.due_date as string | null) ?? ""}
           onChange={(e) => onChange({ ...item, due_date: e.target.value || null })}
           onBlur={(e) => onSave({ due_date: e.target.value || null })}
         />
-      </section>
+      </section>,
     );
   }
-  if (item.type === "epic" || item.type === "feature") {
-    return (
-      <section className="space-y-2">
+
+  if ((item.type === "epic" || item.type === "feature") && has("progress")) {
+    const pct = Math.max(0, Math.min(100, Number(item.progress ?? 0) || 0));
+    sections.push(
+      <section key="prog" className="space-y-2">
         <h3 className="text-sm font-medium">Progresso</h3>
         <div className="flex items-center gap-3">
           <Input
@@ -471,30 +479,26 @@ function ConditionalFields({
             max={100}
             className="w-24"
             value={item.progress ?? 0}
-            onChange={(e) =>
-              onChange({ ...item, progress: Number(e.target.value) })
-            }
+            onChange={(e) => onChange({ ...item, progress: Number(e.target.value) })}
             onBlur={(e) => {
               const n = Math.max(0, Math.min(100, Number(e.target.value) || 0));
               onSave({ progress: n });
             }}
           />
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full bg-primary transition-all"
-              style={{ width: `${Math.max(0, Math.min(100, item.progress ?? 0))}%` }}
-            />
+            <div className="h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
           </div>
         </div>
-      </section>
+      </section>,
     );
   }
-  if (item.type === "bug") {
-    return (
-      <section className="space-y-2">
+
+  if (item.type === "bug" && has("severity")) {
+    sections.push(
+      <section key="sev" className="space-y-2">
         <h3 className="text-sm font-medium">Severidade</h3>
         <Select
-          value={item.severity ?? ""}
+          value={(item.severity as string | null) ?? ""}
           onValueChange={(v) => onSave({ severity: v })}
         >
           <SelectTrigger className="h-8 w-52">
@@ -506,54 +510,71 @@ function ConditionalFields({
             ))}
           </SelectContent>
         </Select>
-      </section>
+      </section>,
     );
   }
+
   if (item.type === "risk") {
-    return (
-      <section className="grid gap-3 md:grid-cols-2">
-        <div className="space-y-1">
-          <h4 className="text-sm font-medium">Probabilidade</h4>
-          <Select
-            value={item.probability ?? ""}
-            onValueChange={(v) => onSave({ probability: v })}
-          >
-            <SelectTrigger className="h-8"><SelectValue placeholder="—" /></SelectTrigger>
-            <SelectContent>
-              {["baixa", "media", "alta"].map((s) => (
-                <SelectItem key={s} value={s}>{s}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-1">
-          <h4 className="text-sm font-medium">Impacto</h4>
-          <Select
-            value={item.impact ?? ""}
-            onValueChange={(v) => onSave({ impact: v })}
-          >
-            <SelectTrigger className="h-8"><SelectValue placeholder="—" /></SelectTrigger>
-            <SelectContent>
-              {["baixo", "medio", "alto"].map((s) => (
-                <SelectItem key={s} value={s}>{s}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-1 md:col-span-2">
-          <h4 className="text-sm font-medium">Plano de mitigação</h4>
-          <Textarea
-            rows={4}
-            value={item.mitigation_plan ?? ""}
-            onChange={(e) => onChange({ ...item, mitigation_plan: e.target.value })}
-            onBlur={(e) => onSave({ mitigation_plan: e.target.value || null })}
-          />
-        </div>
-      </section>
+    const mitigationKey: "mitigation" | "mitigation_plan" | null = has("mitigation")
+      ? "mitigation"
+      : has("mitigation_plan")
+        ? "mitigation_plan"
+        : null;
+    sections.push(
+      <section key="risk" className="grid gap-3 md:grid-cols-2">
+        {has("probability") && (
+          <div className="space-y-1">
+            <h4 className="text-sm font-medium">Probabilidade</h4>
+            <Select
+              value={(item.probability as string | null) ?? ""}
+              onValueChange={(v) => onSave({ probability: v })}
+            >
+              <SelectTrigger className="h-8"><SelectValue placeholder="—" /></SelectTrigger>
+              <SelectContent>
+                {["baixa", "media", "alta"].map((s) => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+        {has("impact") && (
+          <div className="space-y-1">
+            <h4 className="text-sm font-medium">Impacto</h4>
+            <Select
+              value={(item.impact as string | null) ?? ""}
+              onValueChange={(v) => onSave({ impact: v })}
+            >
+              <SelectTrigger className="h-8"><SelectValue placeholder="—" /></SelectTrigger>
+              <SelectContent>
+                {["baixo", "medio", "alto"].map((s) => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+        {mitigationKey && (
+          <div className="space-y-1 md:col-span-2">
+            <h4 className="text-sm font-medium">Plano de mitigação</h4>
+            <Textarea
+              rows={4}
+              value={((item[mitigationKey] as string | null) ?? "") as string}
+              onChange={(e) => onChange({ ...item, [mitigationKey]: e.target.value })}
+              onBlur={(e) =>
+                onSave({ [mitigationKey]: e.target.value || null } as Partial<WorkItemFull>)
+              }
+            />
+          </div>
+        )}
+      </section>,
     );
   }
-  return null;
+
+  if (sections.length === 0) return null;
+  return <>{sections}</>;
 }
+
 
 /* ---------------- Hierarchy ---------------- */
 
