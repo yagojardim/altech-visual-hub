@@ -187,12 +187,13 @@ export function WorkItemDetailsPanel({
   if (error)
     return (
       <ErrorState
-        description={error instanceof Error ? error.message : String(error)}
+        description={formatError(error)}
         onRetry={() => void refetch()}
       />
     );
   if (!item)
     return <EmptyState title="Nada por aqui ainda" description="Work item não encontrado." />;
+
 
   const t = typeMeta(item.type);
   const assignee = item.assignee_id ? assigneeById.get(item.assignee_id) : null;
