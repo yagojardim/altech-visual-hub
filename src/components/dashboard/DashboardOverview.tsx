@@ -271,6 +271,54 @@ function computeMetrics(data: OverviewData | null) {
     .sort((a, b) => b.load - a.load)
     .slice(0, 8);
 
+  // Mini-histograma de projetos criados nos últimos 6 meses
+  const monthlyProjects: number[] = new Array(6).fill(0);
+  const nowDate = new Date();
+  for (const p of data.projects) {
+    if (!p.created_at) continue;
+    const d = new Date(p.created_at);
+    const diffMonths =
+      (nowDate.getFullYear() - d.getFullYear()) * 12 + (nowDate.getMonth() - d.getMonth());
+    if (diffMonths >= 0 && diffMonths < 6) monthlyProjects[5 - diffMonths] += 1;
+  }
+  const projectsThisMonth = monthlyProjects[5];
+  const projectsLastMonth = monthlyProjects[4];
+  const projectsDelta = projectsThisMonth - projectsLastMonth;
+
+  // Velocidade — estabilidade (desvio padrão relativo) e nº de sprints considerados
+  const velocityValues = completedSprints.map((v) => v.value);
+  const velocityStddev = stddev(velocityValues);
+  const stability =
+    velocityValues.length < 2 || avgVelocity == null || avgVelocity === 0
+      ? "—"
+      : velocityStddev / avgVelocity < 0.2
+      ? "Estável"
+      : velocityStddev / avgVelocity < 0.4
+      ? "Consistente"
+      : "Variável";
+  const maxVelocity = Math.max(1, ...velocityBySprint.map((v) => v.value));
+  const velocityRatio = avgVelocity != null ? Math.min(1, avgVelocity / maxVelocity) : 0;
+
+  // Histórias — total e meta (95% do total como referência)
+  const storiesTotal = data.items.filter((i) => (i.type ?? "").toLowerCase() === "story").length;
+  const storiesTarget = Math.max(storiesDone, Math.ceil(storiesTotal * 0.95));
+  const storiesPct = storiesTarget > 0 ? Math.round((storiesDone / storiesTarget) * 100) : 0;
+
+  // Sprints em risco — status por sprint ativa
+  const sprintDots = activeSprints.map((s) => {
+    const its = itemsBySprint.get(s.id) ?? [];
+    const total = its.length || 1;
+    const done = its.filter((i) => isDone(i.status)).length;
+    const progress = done / total;
+    const end = s.end_date ? new Date(s.end_date).getTime() : null;
+    const daysLeft = end ? Math.round((end - now) / 86_400_000) : null;
+    const atRisk =
+      (daysLeft != null && daysLeft < 0) ||
+      (daysLeft != null && daysLeft <= 3 && progress < 0.6) ||
+      progress < 0.3;
+    return atRisk ? "warning" : "success";
+  });
+
   return {
     activeProjects,
     activeSprintsCount,
@@ -280,7 +328,24 @@ function computeMetrics(data: OverviewData | null) {
     velocityBySprint,
     projectHealth,
     teamLoad,
+    // Footer KPI details
+    monthlyProjects,
+    projectsDelta,
+    stability,
+    stabilitySprints: velocityValues.length,
+    velocityRatio,
+    storiesTotal,
+    storiesTarget,
+    storiesPct,
+    sprintDots,
   };
+}
+
+function stddev(vals: number[]) {
+  if (vals.length < 2) return 0;
+  const m = vals.reduce((a, b) => a + b, 0) / vals.length;
+  const v = vals.reduce((a, b) => a + (b - m) ** 2, 0) / vals.length;
+  return Math.sqrt(v);
 }
 
 function shortSprintLabel(name: string) {
