@@ -17,6 +17,7 @@ import { WidgetCard } from "@/components/dashboard/WidgetCard";
 import { WidgetHeader } from "@/components/dashboard/WidgetHeader";
 import { LoadingState, EmptyState } from "@/components/states";
 import { KpiCard } from "@/components/dashboard/KpiCard";
+import { ProjectPortfolioSection } from "@/components/dashboard/ProjectPortfolioSection";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
@@ -160,6 +161,9 @@ export function DashboardOverview() {
 
       {/* Row 3 — Team load */}
       <TeamLoadWidget members={metrics.teamLoad} />
+
+      {/* Row 4 — Portfolio tabs (Projeto / Epic / História / KPI / Risco) */}
+      <ProjectPortfolioSection />
     </div>
   );
 }
