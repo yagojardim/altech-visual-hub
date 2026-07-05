@@ -265,10 +265,9 @@ export async function fetchDashboardMetrics(
   }) ?? null;
 
   let activeSprint: SprintProgress | null = null;
+  const activeSprintLinkedIds = new Set<string>();
   if (activeSprintRow) {
-    // Itens da sprint ativa: via work_items.sprint_id OR sprint_items.
-    const linkedIds = new Set<string>();
-    for (const it of items) if (it.sprintId === activeSprintRow.id) linkedIds.add(it.id);
+    for (const it of items) if (it.sprintId === activeSprintRow.id) activeSprintLinkedIds.add(it.id);
 
     const { data: si, error: siErr } = await supabase
       .from("sprint_items")
@@ -276,10 +275,10 @@ export async function fetchDashboardMetrics(
       .eq("sprint_id", activeSprintRow.id);
     if (siErr) throw siErr;
     for (const row of (si ?? []) as Array<{ work_item_id: string }>) {
-      linkedIds.add(row.work_item_id);
+      activeSprintLinkedIds.add(row.work_item_id);
     }
 
-    const planned = items.filter((it) => linkedIds.has(it.id));
+    const planned = items.filter((it) => activeSprintLinkedIds.has(it.id));
     const done = planned.filter((it) => isDone(it.status)).length;
     const total = planned.length;
     activeSprint = {
@@ -298,6 +297,11 @@ export async function fetchDashboardMetrics(
   const myItems: WorkItem[] = [];
   const criticalBugs: WorkItem[] = [];
   const storiesMissingAcceptance: WorkItem[] = [];
+  const unassigned: WorkItem[] = [];
+  const missingPriority: WorkItem[] = [];
+  const readyForSprint: WorkItem[] = [];
+  const awaitingValidation: WorkItem[] = [];
+  const activeSprintItems: WorkItem[] = [];
   const statusMap = new Map<string, number>();
 
   for (const it of items) {
@@ -306,21 +310,28 @@ export async function fetchDashboardMetrics(
     const assigneeId = (raw.assignee_id as string | null | undefined) ?? null;
     const acceptance = (raw.acceptance_criteria as string | null | undefined) ?? null;
 
-    // Vencendo hoje / atrasados (ignoram concluídos).
     if (dueDate && !isDone(it.status)) {
       if (dueDate === today) dueToday.push(it);
       else if (dueDate < today) overdue.push(it);
     }
 
     if (isBlocked(it.status)) blocked.push(it);
+    if (isReview(it.status) && !isDone(it.status)) awaitingValidation.push(it);
 
     if (scope.assigneeId && assigneeId === scope.assigneeId) myItems.push(it);
+
+    if (!assigneeId && !isDone(it.status)) unassigned.push(it);
+    if (!hasPriority(it.priority) && !isDone(it.status)) missingPriority.push(it);
 
     const t = (it.type || "").toLowerCase();
     if (t === "bug" && isCritical(it.priority)) criticalBugs.push(it);
     if (t === "story" && (!acceptance || acceptance.trim().length === 0)) {
       storiesMissingAcceptance.push(it);
     }
+    if (isValueType(it.type) && isReady(it.status) && !it.sprintId && !activeSprintLinkedIds.has(it.id)) {
+      readyForSprint.push(it);
+    }
+    if (activeSprintLinkedIds.has(it.id)) activeSprintItems.push(it);
 
     const key = (it.status || "sem status").toString();
     statusMap.set(key, (statusMap.get(key) ?? 0) + 1);
@@ -339,6 +350,11 @@ export async function fetchDashboardMetrics(
     activeSprint,
     criticalBugs,
     storiesMissingAcceptance,
+    unassigned,
+    missingPriority,
+    readyForSprint,
+    awaitingValidation,
+    activeSprintItems,
     projectIds,
     totalItems: items.length,
   };
