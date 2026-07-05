@@ -161,6 +161,9 @@ export function DashboardOverview() {
 
       {/* Row 3 — Team load */}
       <TeamLoadWidget members={metrics.teamLoad} />
+
+      {/* Row 4 — Portfolio tabs (Projeto / Epic / História / KPI / Risco) */}
+      <ProjectPortfolioSection />
     </div>
   );
 }
