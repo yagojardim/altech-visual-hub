@@ -23,7 +23,7 @@ const GROUPS: NavGroup[] = [
   {
     label: "Visão",
     items: [
-      { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { to: "/dashboard", label: "Dashboard", concept: "dashboard" },
       { to: "/projects", label: "Projetos", concept: "projeto" },
       { to: "/pessoas", label: "Pessoas", icon: Users },
     ],
@@ -33,14 +33,14 @@ const GROUPS: NavGroup[] = [
     items: [
       { to: "/boards", label: "Boards", concept: "feature" },
       { to: "/sprints", label: "Sprints", concept: "sprint" },
-      { to: "/backlog", label: "Backlog", concept: "historia" },
+      { to: "/backlog", label: "Backlog", concept: "backlog" },
       { to: "/automation", label: "Automação", icon: Zap, badge: "beta" },
     ],
   },
 ];
 
 const SECONDARY: NavItem[] = [
-  { to: "/settings", label: "Configurações", icon: Settings },
+  { to: "/settings", label: "Configurações", concept: "administracao" },
   { to: "/support", label: "Suporte", icon: LifeBuoy },
 ];
 
