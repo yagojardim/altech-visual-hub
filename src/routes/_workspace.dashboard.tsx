@@ -17,6 +17,7 @@ import { supabase } from "@/lib/supabase";
 import { toWorkItems, type WorkItem } from "@/lib/work-item-map";
 import { formatSupabaseError } from "@/lib/supabase-errors";
 import { DashboardContainer } from "@/components/dashboard/DashboardContainer";
+import { PMDashboard, PODashboard } from "@/components/dashboard/RoleDashboards";
 import { DashboardContextHeader } from "@/components/dashboard/DashboardContextHeader";
 import { WidgetGrid } from "@/components/dashboard/WidgetGrid";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
