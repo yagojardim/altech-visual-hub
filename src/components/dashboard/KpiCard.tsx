@@ -18,6 +18,10 @@ export interface KpiCardProps extends React.HTMLAttributes<HTMLDivElement> {
   icon?: LucideIcon;
   severity?: KpiSeverity;
   trend?: KpiTrend;
+  /** Legenda curta abaixo do valor (ex.: "vs. mês anterior"). */
+  caption?: React.ReactNode;
+  /** Indicador visual no rodapé do card (barras, progresso, chips). */
+  footer?: React.ReactNode;
 }
 
 const severityClass: Record<KpiSeverity, string> = {
