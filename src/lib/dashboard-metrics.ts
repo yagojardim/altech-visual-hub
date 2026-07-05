@@ -84,7 +84,37 @@ const BLOCKED_STATUSES = new Set([
   "impedido",
 ]);
 
+const READY_STATUSES = new Set([
+  "pronto",
+  "pronta",
+  "pronto para sprint",
+  "pronta para sprint",
+  "ready",
+  "ready for sprint",
+  "refinado",
+  "refinada",
+]);
+
+const REVIEW_STATUSES = new Set([
+  "em validação",
+  "em validacao",
+  "validação",
+  "validacao",
+  "aguardando validação",
+  "aguardando validacao",
+  "review",
+  "code review",
+  "em revisão",
+  "em revisao",
+  "qa",
+  "em qa",
+  "testing",
+  "em teste",
+]);
+
 const CRITICAL_PRIORITIES = new Set(["critica", "crítica", "critical"]);
+const EMPTY_PRIORITIES = new Set(["", "sem prioridade", "none", "nenhuma", "-"]);
+const VALUE_TYPES = new Set(["story", "epic", "feature", "história", "historia", "épico", "epico"]);
 
 function isDone(status?: string | null): boolean {
   return !!status && DONE_STATUSES.has(status.toLowerCase());
@@ -94,8 +124,25 @@ function isBlocked(status?: string | null): boolean {
   return !!status && BLOCKED_STATUSES.has(status.toLowerCase());
 }
 
+function isReady(status?: string | null): boolean {
+  return !!status && READY_STATUSES.has(status.toLowerCase());
+}
+
+function isReview(status?: string | null): boolean {
+  return !!status && REVIEW_STATUSES.has(status.toLowerCase());
+}
+
 function isCritical(priority?: string | null): boolean {
   return !!priority && CRITICAL_PRIORITIES.has(priority.toLowerCase());
+}
+
+function hasPriority(priority?: string | null): boolean {
+  if (!priority) return false;
+  return !EMPTY_PRIORITIES.has(priority.toLowerCase().trim());
+}
+
+function isValueType(type?: string | null): boolean {
+  return !!type && VALUE_TYPES.has(type.toLowerCase());
 }
 
 /** YYYY-MM-DD no fuso local (compatível com coluna `date`). */
