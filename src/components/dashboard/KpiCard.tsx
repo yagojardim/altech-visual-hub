@@ -50,6 +50,8 @@ export function KpiCard({
   icon: Icon,
   severity = "default",
   trend,
+  caption,
+  footer,
   className,
   ...props
 }: KpiCardProps) {
