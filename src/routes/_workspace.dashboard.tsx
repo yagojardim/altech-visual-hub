@@ -312,7 +312,7 @@ function DashboardPage() {
           <LoadingState label="Carregando dashboard…" variant="skeleton" rows={4} />
         )}
 
-        {!loading && state && (
+        {role !== "PM" && role !== "PO" && !loading && state && (
           <>
             <WidgetGrid columns={4}>
               <KpiCard label="Projetos ativos" result={state.activeProjects} icon={FolderKanban} />
