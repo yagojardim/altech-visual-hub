@@ -198,12 +198,35 @@ export interface RelationRow {
 export async function listRelations(itemId: string): Promise<RelationRow[]> {
   const { data, error } = await supabase
     .from("work_item_relations")
-    .select("id, relation_type, target:work_items!work_item_relations_target_id_fkey(id, title, type)")
+    .select("id, relation_type, target_id")
     .eq("source_id", itemId)
     .order("created_at", { ascending: false });
-  if (error) throw error;
-  return (data ?? []) as unknown as RelationRow[];
+  if (error) {
+    // Table may not exist yet in this environment — degrade gracefully.
+    console.warn("[work-item-behavior] relations:", (error as { message?: string }).message);
+    return [];
+  }
+  const rows = (data ?? []) as Array<{ id: string; relation_type: RelationType; target_id: string }>;
+  if (rows.length === 0) return [];
+  const targetIds = Array.from(new Set(rows.map((r) => r.target_id)));
+  const { data: targets, error: tErr } = await supabase
+    .from("work_items")
+    .select("id, title, type")
+    .in("id", targetIds);
+  if (tErr) throw toError(tErr, "Erro ao carregar relações.");
+  const byId = new Map(
+    ((targets ?? []) as Array<{ id: string; title: string; type: WorkItemType }>).map((t) => [
+      t.id,
+      t,
+    ]),
+  );
+  return rows.map((r) => ({
+    id: r.id,
+    relation_type: r.relation_type,
+    target: byId.get(r.target_id) ?? null,
+  }));
 }
+
 
 export async function addRelation(
   sourceId: string,
