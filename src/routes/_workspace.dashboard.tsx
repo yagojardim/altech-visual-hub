@@ -305,7 +305,12 @@ function DashboardPage() {
           para navegar.
         </p>
 
-        {loading && <LoadingState label="Carregando dashboard…" variant="skeleton" rows={4} />}
+        {role === "PM" && <PMDashboard />}
+        {role === "PO" && <PODashboard />}
+
+        {role !== "PM" && role !== "PO" && loading && (
+          <LoadingState label="Carregando dashboard…" variant="skeleton" rows={4} />
+        )}
 
         {!loading && state && (
           <>
