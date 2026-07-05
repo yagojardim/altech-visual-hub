@@ -483,7 +483,7 @@ function EpicCard({
   return (
     <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
       <div className="flex items-center gap-2">
-        <Sparkles className="h-4 w-4" style={{ color }} />
+        <ConceptIcon name="epic" size={16} style={{ color }} />
         <Pill tone={pillTone}>{pillLabel}</Pill>
       </div>
       <h3 className="mt-3 text-lg font-semibold leading-tight text-foreground">{row.title}</h3>
