@@ -28,7 +28,7 @@ function isDone(s?: string | null) {
   return !!s && DONE.has(s.toLowerCase());
 }
 
-interface Project { id: string; name: string; status: string | null }
+interface Project { id: string; name: string; status: string | null; created_at: string | null }
 interface Sprint { id: string; name: string; status: string | null; project_id: string | null; start_date: string | null; end_date: string | null }
 interface Item { id: string; project_id: string | null; status: string | null; type: string | null; assignee_id: string | null }
 interface Member { id: string; name: string; avatar_color: string | null }
@@ -54,7 +54,7 @@ export function DashboardOverview() {
       setError(null);
       try {
         const [p, s, w, m, si] = await Promise.all([
-          supabase.from("projects").select("id, name, status"),
+          supabase.from("projects").select("id, name, status, created_at"),
           supabase.from("sprints").select("id, name, status, project_id, start_date, end_date").order("start_date", { ascending: true }),
           supabase.from("work_items").select("id, project_id, status, type, assignee_id"),
           supabase.from("team_members").select("id, name, avatar_color"),
@@ -94,24 +94,61 @@ export function DashboardOverview() {
           value={metrics.activeProjects}
           icon={FolderKanban}
           severity="info"
+          trend={
+            metrics.projectsDelta !== 0
+              ? {
+                  value: Math.abs(metrics.projectsDelta),
+                  direction: metrics.projectsDelta > 0 ? "up" : "down",
+                }
+              : undefined
+          }
+          caption="vs. mês anterior"
+          footer={<MiniBars values={metrics.monthlyProjects} />}
         />
         <KpiCard
           label="Velocidade média"
           value={metrics.avgVelocity != null ? `${metrics.avgVelocity}` : "—"}
           icon={Gauge}
           severity="default"
+          caption={
+            metrics.stabilitySprints > 0
+              ? `${metrics.stability} — ${metrics.stabilitySprints} sprints`
+              : "Sem histórico ainda"
+          }
+          footer={<MiniProgress value={metrics.velocityRatio} />}
         />
         <KpiCard
           label="Histórias entregues"
           value={metrics.storiesDone}
           icon={ListChecks}
           severity="success"
+          trend={
+            metrics.storiesTotal > 0
+              ? { value: metrics.storiesPct, direction: "up" }
+              : undefined
+          }
+          caption="este trimestre"
+          footer={
+            metrics.storiesTotal > 0 ? (
+              <span className="inline-flex items-center rounded-md bg-[var(--success-500,#10b981)]/15 px-2 py-0.5 text-[11px] font-medium text-[var(--success-500,#10b981)]">
+                Meta: {metrics.storiesTarget} — {metrics.storiesPct}%
+              </span>
+            ) : null
+          }
         />
         <KpiCard
           label="Sprints em risco"
           value={`${metrics.sprintsAtRisk} de ${metrics.activeSprintsCount}`}
           icon={AlertTriangle}
           severity={metrics.sprintsAtRisk > 0 ? "warning" : "success"}
+          caption={
+            metrics.activeSprintsCount === 0
+              ? "Sem sprints ativas"
+              : metrics.sprintsAtRisk > 0
+              ? "Requer atenção"
+              : "Tudo dentro do prazo"
+          }
+          footer={<DotBars dots={metrics.sprintDots} />}
         />
       </div>
 
@@ -271,6 +308,54 @@ function computeMetrics(data: OverviewData | null) {
     .sort((a, b) => b.load - a.load)
     .slice(0, 8);
 
+  // Mini-histograma de projetos criados nos últimos 6 meses
+  const monthlyProjects: number[] = new Array(6).fill(0);
+  const nowDate = new Date();
+  for (const p of data.projects) {
+    if (!p.created_at) continue;
+    const d = new Date(p.created_at);
+    const diffMonths =
+      (nowDate.getFullYear() - d.getFullYear()) * 12 + (nowDate.getMonth() - d.getMonth());
+    if (diffMonths >= 0 && diffMonths < 6) monthlyProjects[5 - diffMonths] += 1;
+  }
+  const projectsThisMonth = monthlyProjects[5];
+  const projectsLastMonth = monthlyProjects[4];
+  const projectsDelta = projectsThisMonth - projectsLastMonth;
+
+  // Velocidade — estabilidade (desvio padrão relativo) e nº de sprints considerados
+  const velocityValues = completedSprints.map((v) => v.value);
+  const velocityStddev = stddev(velocityValues);
+  const stability =
+    velocityValues.length < 2 || avgVelocity == null || avgVelocity === 0
+      ? "—"
+      : velocityStddev / avgVelocity < 0.2
+      ? "Estável"
+      : velocityStddev / avgVelocity < 0.4
+      ? "Consistente"
+      : "Variável";
+  const maxVelocity = Math.max(1, ...velocityBySprint.map((v) => v.value));
+  const velocityRatio = avgVelocity != null ? Math.min(1, avgVelocity / maxVelocity) : 0;
+
+  // Histórias — total e meta (95% do total como referência)
+  const storiesTotal = data.items.filter((i) => (i.type ?? "").toLowerCase() === "story").length;
+  const storiesTarget = Math.max(storiesDone, Math.ceil(storiesTotal * 0.95));
+  const storiesPct = storiesTarget > 0 ? Math.round((storiesDone / storiesTarget) * 100) : 0;
+
+  // Sprints em risco — status por sprint ativa
+  const sprintDots = activeSprints.map((s) => {
+    const its = itemsBySprint.get(s.id) ?? [];
+    const total = its.length || 1;
+    const done = its.filter((i) => isDone(i.status)).length;
+    const progress = done / total;
+    const end = s.end_date ? new Date(s.end_date).getTime() : null;
+    const daysLeft = end ? Math.round((end - now) / 86_400_000) : null;
+    const atRisk =
+      (daysLeft != null && daysLeft < 0) ||
+      (daysLeft != null && daysLeft <= 3 && progress < 0.6) ||
+      progress < 0.3;
+    return atRisk ? "warning" : "success";
+  });
+
   return {
     activeProjects,
     activeSprintsCount,
@@ -280,7 +365,24 @@ function computeMetrics(data: OverviewData | null) {
     velocityBySprint,
     projectHealth,
     teamLoad,
+    // Footer KPI details
+    monthlyProjects,
+    projectsDelta,
+    stability,
+    stabilitySprints: velocityValues.length,
+    velocityRatio,
+    storiesTotal,
+    storiesTarget,
+    storiesPct,
+    sprintDots,
   };
+}
+
+function stddev(vals: number[]) {
+  if (vals.length < 2) return 0;
+  const m = vals.reduce((a, b) => a + b, 0) / vals.length;
+  const v = vals.reduce((a, b) => a + (b - m) ** 2, 0) / vals.length;
+  return Math.sqrt(v);
 }
 
 function shortSprintLabel(name: string) {
@@ -444,5 +546,76 @@ function TeamLoadWidget({ members }: { members: TeamLoadRow[] }) {
         </ul>
       )}
     </WidgetCard>
+  );
+}
+
+// ----------------------------------------------------------------------------
+// KPI footer helpers
+// ----------------------------------------------------------------------------
+
+function MiniBars({ values }: { values: number[] }) {
+  const max = Math.max(1, ...values);
+  return (
+    <div className="flex h-6 items-end gap-1">
+      {values.map((v, i) => {
+        const isLast = i === values.length - 1;
+        const h = Math.max(15, (v / max) * 100);
+        return (
+          <div
+            key={i}
+            className={cn(
+              "w-3 rounded-sm",
+              isLast ? "bg-[var(--blue-500,#3b82f6)]" : "bg-[var(--blue-500,#3b82f6)]/25",
+            )}
+            style={{ height: `${h}%` }}
+            aria-hidden="true"
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function MiniProgress({ value }: { value: number }) {
+  const pct = Math.max(0, Math.min(1, value)) * 100;
+  return (
+    <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-panel">
+      <div
+        className="absolute inset-y-0 left-0 rounded-full"
+        style={{
+          width: `${pct}%`,
+          background:
+            "linear-gradient(90deg, var(--blue-500,#3b82f6), var(--success-500,#10b981))",
+        }}
+      />
+    </div>
+  );
+}
+
+function DotBars({ dots }: { dots: Array<"success" | "warning"> }) {
+  if (dots.length === 0) {
+    return (
+      <div className="flex h-1.5 items-center gap-1">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="h-1.5 flex-1 rounded-full bg-panel" />
+        ))}
+      </div>
+    );
+  }
+  return (
+    <div className="flex h-1.5 items-center gap-1">
+      {dots.map((d, i) => (
+        <div
+          key={i}
+          className="h-1.5 flex-1 rounded-full"
+          style={{
+            backgroundColor:
+              d === "warning"
+                ? "var(--warning-500, #f59e0b)"
+                : "var(--success-500, #10b981)",
+          }}
+        />
+      ))}
+    </div>
   );
 }

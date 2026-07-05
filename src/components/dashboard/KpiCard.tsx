@@ -18,6 +18,10 @@ export interface KpiCardProps extends React.HTMLAttributes<HTMLDivElement> {
   icon?: LucideIcon;
   severity?: KpiSeverity;
   trend?: KpiTrend;
+  /** Legenda curta abaixo do valor (ex.: "vs. mês anterior"). */
+  caption?: React.ReactNode;
+  /** Indicador visual no rodapé do card (barras, progresso, chips). */
+  footer?: React.ReactNode;
 }
 
 const severityClass: Record<KpiSeverity, string> = {
@@ -46,6 +50,8 @@ export function KpiCard({
   icon: Icon,
   severity = "default",
   trend,
+  caption,
+  footer,
   className,
   ...props
 }: KpiCardProps) {
@@ -78,7 +84,16 @@ export function KpiCard({
             </div>
           )}
         </div>
+        {(caption || footer) && (
+          <div className="mt-4 space-y-2 border-t border-border/60 pt-3">
+            {caption && (
+              <div className="text-[11px] text-muted-foreground">{caption}</div>
+            )}
+            {footer && <div>{footer}</div>}
+          </div>
+        )}
       </div>
     </WidgetCard>
   );
 }
+
