@@ -66,12 +66,31 @@ export interface WorkItemFull {
   probability: string | null;
   impact: string | null;
   mitigation_plan: string | null;
+  mitigation?: string | null;
   position: number | null;
   created_at?: string;
+  /** Preserved so the UI can detect which optional columns exist in the row. */
+  [key: string]: unknown;
 }
 
-const FULL_SELECT =
-  "id, project_id, board_id, column_id, title, description, type, priority, status, assignee_id, parent_id, acceptance_criteria, due_date, progress, severity, probability, impact, mitigation_plan, position, created_at";
+/** Normalize Supabase / arbitrary errors to a real Error with a useful message. */
+function toError(e: unknown, fallback = "Erro inesperado"): Error {
+  if (e instanceof Error) return e;
+  if (e && typeof e === "object") {
+    const obj = e as { message?: unknown; hint?: unknown; details?: unknown; code?: unknown };
+    const msg =
+      (typeof obj.message === "string" && obj.message) ||
+      (typeof obj.details === "string" && obj.details) ||
+      (typeof obj.hint === "string" && obj.hint) ||
+      (typeof obj.code === "string" && `Erro ${obj.code}`) ||
+      fallback;
+    return new Error(String(msg));
+  }
+  return new Error(typeof e === "string" ? e : fallback);
+}
+
+/** Read every real column that exists — avoids listing non-existent ones. */
+const FULL_SELECT = "*";
 
 export async function fetchWorkItem(id: string): Promise<WorkItemFull | null> {
   const { data, error } = await supabase
@@ -79,22 +98,51 @@ export async function fetchWorkItem(id: string): Promise<WorkItemFull | null> {
     .select(FULL_SELECT)
     .eq("id", id)
     .maybeSingle();
-  if (error) throw error;
+  if (error) throw toError(error, "Erro ao carregar work item.");
   return (data as WorkItemFull | null) ?? null;
+}
+
+/** Match Postgres "column X does not exist" errors. */
+function missingColumn(err: unknown): string | null {
+  const obj = err as { code?: string; message?: string } | null;
+  if (!obj) return null;
+  const msg = obj.message ?? "";
+  if (obj.code === "42703" || /column .* does not exist/i.test(msg)) {
+    const m = msg.match(/column\s+(?:\S+\.)?"?([a-z0-9_]+)"?/i);
+    return m?.[1] ?? "unknown";
+  }
+  return null;
 }
 
 export async function patchWorkItem(
   id: string,
   patch: Partial<WorkItemFull>,
 ): Promise<WorkItemFull> {
-  const { data, error } = await supabase
-    .from("work_items")
-    .update(patch)
-    .eq("id", id)
-    .select(FULL_SELECT)
-    .single();
-  if (error) throw error;
-  return data as WorkItemFull;
+  // Mirror alternate schema: some DBs have "mitigation", others "mitigation_plan".
+  const payload: Record<string, unknown> = { ...patch };
+  if ("mitigation_plan" in payload && !("mitigation" in payload)) {
+    payload.mitigation = payload.mitigation_plan;
+  }
+
+  let attempt: Record<string, unknown> = { ...payload };
+  for (let i = 0; i < 4; i++) {
+    const { data, error } = await supabase
+      .from("work_items")
+      .update(attempt)
+      .eq("id", id)
+      .select(FULL_SELECT)
+      .single();
+    if (!error) return data as WorkItemFull;
+    const missing = missingColumn(error);
+    if (missing && missing in attempt) {
+      const next = { ...attempt };
+      delete next[missing];
+      attempt = next;
+      continue;
+    }
+    throw toError(error, "Erro ao salvar work item.");
+  }
+  throw new Error("Erro ao salvar work item.");
 }
 
 export async function listChildren(parentId: string): Promise<WorkItemFull[]> {
@@ -103,7 +151,7 @@ export async function listChildren(parentId: string): Promise<WorkItemFull[]> {
     .select(FULL_SELECT)
     .eq("parent_id", parentId)
     .order("position", { ascending: true });
-  if (error) throw error;
+  if (error) throw toError(error, "Erro ao carregar itens filhos.");
   return (data ?? []) as WorkItemFull[];
 }
 
