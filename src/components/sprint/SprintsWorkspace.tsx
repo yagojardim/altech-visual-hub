@@ -455,7 +455,7 @@ function SprintDetails({
         supabase
           .from("sprints")
           .select(
-            "id, project_id, tenant_id, nome, meta, data_inicio, data_fim, status, created_at, updated_at",
+            "id, project_id, name, goal, start_date, end_date, status, created_at",
           )
           .eq("id", sprintId)
           .maybeSingle(),

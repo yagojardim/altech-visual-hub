@@ -8,7 +8,7 @@
  * Sem UI. Sem Lovable Cloud. Nomes de coluna reais (EN quando existirem).
  *
  * Colunas relevantes em `work_items` (schema atual):
- *   id, project_id, tenant_id, title|titulo, type|tipo, priority|prioridade,
+ *   id, project_id, title, type, priority,
  *   status, assignee_id, parent_id, due_date, acceptance_criteria,
  *   sprint_id, created_at, updated_at
  */
@@ -157,18 +157,15 @@ function todayISO(): string {
 /** Descobre os project_ids do escopo: tenant + (opcional) project_members. */
 async function resolveProjectIds(scope: DashboardScope): Promise<string[]> {
   // Base: todos os projetos do tenant.
-  // `projects` não tem tenant_id no schema base — usamos `work_items.tenant_id`
-  // para descobrir projetos relevantes.
+  // O schema real não tem tenant_id — o escopo base é a lista de projetos.
   const { data: tenantProjects, error: tpErr } = await supabase
-    .from("work_items")
-    .select("project_id")
-    .eq("tenant_id", scope.tenantId)
-    .not("project_id", "is", null);
+    .from("projects")
+    .select("id");
   if (tpErr) throw tpErr;
 
   const tenantSet = new Set<string>(
-    ((tenantProjects ?? []) as Array<{ project_id: string | null }>)
-      .map((r) => r.project_id)
+    ((tenantProjects ?? []) as Array<{ id: string | null }>)
+      .map((r) => r.id)
       .filter((v): v is string => !!v),
   );
 
@@ -228,7 +225,6 @@ export async function fetchDashboardMetrics(
   const { data: rawItems, error: itemsErr } = await supabase
     .from("work_items")
     .select("*")
-    .eq("tenant_id", scope.tenantId)
     .in("project_id", projectIds);
   if (itemsErr) throw itemsErr;
 

@@ -26,7 +26,6 @@ export interface ProjectRow {
   descricao: string | null;
   data_inicio: string | null;
   data_fim: string | null;
-  tenant_id: string | null;
   created_at?: string;
 }
 
@@ -39,10 +38,7 @@ export interface ProjectInput {
   descricao?: string | null;
   data_inicio?: string | null;
   data_fim?: string | null;
-  tenant_id?: string | null;
 }
-
-export const DEFAULT_TENANT_ID = "00000000-0000-0000-0000-000000000001";
 
 const STATUS_TO_DB: Record<string, ProjectDBRow["status"]> = {
   "Planejamento": "planejamento",
@@ -76,7 +72,6 @@ function fromDb(row: ProjectDBRow): ProjectRow {
     descricao: row.description,
     data_inicio: row.start_date,
     data_fim: row.end_date,
-    tenant_id: DEFAULT_TENANT_ID,
     created_at: row.created_at,
   };
 }

@@ -19,6 +19,7 @@ import { FlowMap, type FlowItem } from "@/components/signature/FlowMap";
 import { HealthScore } from "@/components/signature/HealthScore";
 import { ImpactMap } from "@/components/signature/ImpactMap";
 import { getProjectBySlug } from "@/lib/projects-api";
+import { typeLabel } from "@/lib/work-items-api";
 import { listWorkItemsByProject } from "@/lib/work-items-api";
 import { listSprintsByProject, isDoneStatus } from "@/lib/sprints-api";
 import { qk } from "@/lib/query-keys";
@@ -135,7 +136,7 @@ export function ProjectOverviewGrid({ projectId }: { projectId?: string } = {}) 
   const pending = items.filter((i) => STATUS_PENDING.has((i.status ?? "").toLowerCase())).length;
   const activeSprint = sprints.find((s) => (s.status ?? "").toLowerCase() === "ativa");
   const lastUpdate = [...items, ...sprints]
-    .map((r) => r.updated_at)
+    .map((r) => (r as { updated_at?: string; created_at?: string }).updated_at ?? (r as { created_at?: string }).created_at)
     .filter((s): s is string => !!s)
     .sort()
     .pop();
@@ -177,8 +178,8 @@ export function ProjectOverviewGrid({ projectId }: { projectId?: string } = {}) 
       <FlowMap
         items={items.slice(0, 21).map<FlowItem>((i) => ({
           id: i.id,
-          title: (i as { titulo?: string; title?: string }).titulo ?? (i as { title?: string }).title ?? "—",
-          meta: i.item_key ?? undefined,
+          title: i.title ?? "—",
+          meta: typeLabel(i.type),
           status: i.status,
         }))}
       />

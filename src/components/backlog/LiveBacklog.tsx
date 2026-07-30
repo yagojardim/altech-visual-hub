@@ -252,12 +252,12 @@ export function LiveBacklog({ projectId }: { projectId: string }) {
       {
         key: "type",
         label: "Tipo",
-        options: TIPO_OPTIONS.map((t) => ({ value: t, label: t })),
+        options: TIPO_OPTIONS.map((t) => ({ value: t.value, label: t.label })),
       },
       {
         key: "priority",
         label: "Prioridade",
-        options: PRIORIDADE_OPTIONS.map((p) => ({ value: p, label: p })),
+        options: PRIORIDADE_OPTIONS.map((p) => ({ value: p.value, label: p.label })),
       },
       {
         key: "assignee",

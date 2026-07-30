@@ -38,11 +38,10 @@ export interface CreateWorkItemDialogProps {
 }
 
 const empty = (defaultStatus?: string, defaultTipo?: string) => ({
-  titulo: "",
-  tipo: defaultTipo ?? "Tarefa",
+  title: "",
+  type: defaultTipo ?? "task",
   status: defaultStatus ?? "A Fazer",
-  responsavel: "",
-  descricao: "",
+  description: "",
 });
 
 export function CreateWorkItemDialog({
@@ -62,7 +61,7 @@ export function CreateWorkItemDialog({
   }, [open, defaultStatus, defaultTipo]);
 
   const submit = async () => {
-    if (!form.titulo.trim()) {
+    if (!form.title.trim()) {
       toast.error("Informe o título do work item.");
       return;
     }
@@ -70,11 +69,10 @@ export function CreateWorkItemDialog({
     try {
       const created = await createWorkItem({
         project_id: projectId,
-        titulo: form.titulo,
-        tipo: form.tipo,
+        title: form.title,
+        type: form.type,
         status: form.status,
-        responsavel: form.responsavel.trim() || null,
-        descricao: form.descricao.trim() || null,
+        description: form.description.trim() || null,
       });
       await queryClient.invalidateQueries({ queryKey: qk.workItemsByProject(projectId) });
       await queryClient.invalidateQueries({ queryKey: qk.workItems() });
@@ -102,21 +100,21 @@ export function CreateWorkItemDialog({
             <Label htmlFor="wi-title">Título</Label>
             <Input
               id="wi-title"
-              value={form.titulo}
-              onChange={(e) => setForm({ ...form, titulo: e.target.value })}
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
               placeholder="Ex.: Ajustar cabeçalho da sprint"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Tipo</Label>
-              <Select value={form.tipo} onValueChange={(v) => setForm({ ...form, tipo: v })}>
+              <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {TIPO_OPTIONS.map((t) => (
-                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -136,21 +134,12 @@ export function CreateWorkItemDialog({
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="wi-owner">Responsável</Label>
-            <Input
-              id="wi-owner"
-              value={form.responsavel}
-              onChange={(e) => setForm({ ...form, responsavel: e.target.value })}
-              placeholder="Nome do responsável"
-            />
-          </div>
-          <div className="space-y-1.5">
             <Label htmlFor="wi-desc">Descrição</Label>
             <Textarea
               id="wi-desc"
               rows={3}
-              value={form.descricao}
-              onChange={(e) => setForm({ ...form, descricao: e.target.value })}
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
               placeholder="Descreva o objetivo do item…"
             />
           </div>

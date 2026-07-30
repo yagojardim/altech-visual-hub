@@ -37,7 +37,7 @@ export function WorkItemAttachmentsLive({ workItemId }: { workItemId: string }) 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [scope, setScope] = useState<{ tenant_id: string; project_id: string } | null>(null);
+  const [scope, setScope] = useState<{ project_id: string } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
@@ -51,15 +51,15 @@ export function WorkItemAttachmentsLive({ workItemId }: { workItemId: string }) 
         .order("created_at", { ascending: false }),
       supabase
         .from("work_items")
-        .select("tenant_id, project_id")
+        .select("project_id")
         .eq("id", workItemId)
         .maybeSingle(),
     ]);
     if (attRes.error) setError(attRes.error.message);
     else setItems((attRes.data ?? []) as Attachment[]);
-    const wi = wiRes.data as { tenant_id?: string; project_id?: string } | null;
-    if (wi?.tenant_id && wi?.project_id) {
-      setScope({ tenant_id: wi.tenant_id, project_id: wi.project_id });
+    const wi = wiRes.data as { project_id?: string } | null;
+    if (wi?.project_id) {
+      setScope({ project_id: wi.project_id });
     }
     setLoading(false);
   }, [workItemId]);
@@ -84,7 +84,7 @@ export function WorkItemAttachmentsLive({ workItemId }: { workItemId: string }) 
       setUploading(true);
       const safeName = file.name.replace(/[^\w.\-]+/g, "_");
       const path = scope
-        ? `${scope.tenant_id}/${scope.project_id}/${workItemId}/${Date.now()}-${safeName}`
+        ? `${scope.project_id}/${workItemId}/${Date.now()}-${safeName}`
         : `${workItemId}/${Date.now()}-${safeName}`;
       const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, {
         contentType: file.type || "application/octet-stream",

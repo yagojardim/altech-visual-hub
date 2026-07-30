@@ -1,4 +1,5 @@
-import { DEFAULT_TENANT_ID } from "./projects-api";
+// Namespace único de cache do piloto (Inspection Mode, sem multi-tenant no schema).
+const DEFAULT_TENANT_ID = "default";
 
 /**
  * Central TanStack Query keys, scoped by tenant so future multi-tenant

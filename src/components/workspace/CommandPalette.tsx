@@ -21,11 +21,10 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
-type ProjectHit = { id: string; nome: string | null; slug?: string | null };
+type ProjectHit = { id: string; name: string | null; slug?: string | null };
 type WorkItemHit = {
   id: string;
-  item_key: string | null;
-  titulo: string;
+  title: string;
   project_id: string | null;
 };
 
@@ -69,17 +68,17 @@ export function CommandPalette({
       setLoading(true);
       const q = query.trim();
       const projectQuery = q
-        ? supabase.from("projects").select("id, nome, slug").ilike("nome", `%${q}%`).limit(6)
-        : supabase.from("projects").select("id, nome, slug").order("nome").limit(6);
+        ? supabase.from("projects").select("id, name, slug").ilike("name", `%${q}%`).limit(6)
+        : supabase.from("projects").select("id, name, slug").order("name").limit(6);
       const itemQuery = q
         ? supabase
             .from("work_items")
-            .select("id, item_key, titulo, project_id")
-            .or(`titulo.ilike.%${q}%,item_key.ilike.%${q}%`)
+            .select("id, title, project_id")
+            .ilike("title", `%${q}%`)
             .limit(8)
         : supabase
             .from("work_items")
-            .select("id, item_key, titulo, project_id")
+            .select("id, title, project_id")
             .order("updated_at", { ascending: false })
             .limit(6);
 
@@ -141,11 +140,11 @@ export function CommandPalette({
               {projects.map((p) => (
                 <CommandItem
                   key={p.id}
-                  value={`proj-${p.nome}-${p.id}`}
+                  value={`proj-${p.name}-${p.id}`}
                   onSelect={() => openProject(p)}
                 >
                   <FolderKanban className="mr-2 h-4 w-4" aria-hidden="true" />
-                  <span className="truncate">{p.nome ?? "Sem nome"}</span>
+                  <span className="truncate">{p.name ?? "Sem nome"}</span>
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -159,21 +158,21 @@ export function CommandPalette({
               {items.map((it) => (
                 <CommandItem
                   key={it.id}
-                  value={`wi-${it.item_key}-${it.titulo}-${it.id}`}
+                  value={`wi-${it.title}-${it.id}`}
                   onSelect={() => {
                     onOpenChange(false);
                     navigate({
                       to: "/work-items/$itemId",
-                      params: { itemId: it.item_key ?? it.id },
+                      params: { itemId: it.id },
                       search: { from: currentPath },
                     });
                   }}
                 >
                   <FileText className="mr-2 h-4 w-4" aria-hidden="true" />
                   <span className="mr-2 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
-                    {it.item_key ?? it.id.slice(0, 6)}
+                    {it.id.slice(0, 6)}
                   </span>
-                  <span className="truncate">{it.titulo}</span>
+                  <span className="truncate">{it.title}</span>
                 </CommandItem>
               ))}
 
