@@ -53,6 +53,9 @@
   --status-critical: #EF4444;
   --status-backlog: #5C5C7A;
 
+  /* Roxo do DS (usado por chips/ícones de navegação) */
+  --purple: #8B5CF6;
+
   /* ---- Escalas legadas (mantidas como aliases da nova paleta) ---- */
   --white: #FFFFFF;
   --paper: #16161D;
