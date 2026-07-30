@@ -1,4 +1,5 @@
 import type { SVGProps } from "react";
+import { TYPE_COLOR, SEMANTIC_COLOR } from "@/lib/work-item-type-style";
 
 export type ConceptIconName =
   // Navegação
@@ -19,23 +20,41 @@ export type ConceptIconName =
   | "release"
   | "resultado";
 
+/**
+ * Cores de conceitos que NÃO são work items (ícones de navegação).
+ * Centralizadas aqui, sempre a partir de tokens CSS — nenhum hex solto.
+ */
+export const NAV_CONCEPT_COLOR = {
+  dashboard: SEMANTIC_COLOR.inprogress,
+  projeto: "var(--purple)",
+  discovery: "var(--purple)",
+  backlog: SEMANTIC_COLOR.backlog,
+  roadmap: SEMANTIC_COLOR.warning,
+  relatorios: SEMANTIC_COLOR.inprogress,
+  administracao: SEMANTIC_COLOR.backlog,
+  pmo: SEMANTIC_COLOR.warning,
+  resultado: SEMANTIC_COLOR.warning,
+} as const;
+
+/** Mesma fonte de verdade que work-item-type-style.ts para conceitos de work item. */
 export const CONCEPT_COLORS: Record<ConceptIconName, string> = {
-  dashboard: "#2F6BFF",
-  projeto: "#7C4DFF",
-  discovery: "#7C4DFF",
-  backlog: "#0F1E3A",
-  sprint: "#06C18A",
-  roadmap: "#F5A524",
-  relatorios: "#2F6BFF",
-  administracao: "#0F1E3A",
-  epic: "#2F6BFF",
-  feature: "#2F6BFF",
-  historia: "#2F6BFF",
-  risco: "#F0455A",
-  pmo: "#F5A524",
-  release: "#06C18A",
-  resultado: "#F5A524",
+  dashboard: NAV_CONCEPT_COLOR.dashboard,
+  projeto: NAV_CONCEPT_COLOR.projeto,
+  discovery: NAV_CONCEPT_COLOR.discovery,
+  backlog: NAV_CONCEPT_COLOR.backlog,
+  sprint: SEMANTIC_COLOR.healthy,
+  roadmap: NAV_CONCEPT_COLOR.roadmap,
+  relatorios: NAV_CONCEPT_COLOR.relatorios,
+  administracao: NAV_CONCEPT_COLOR.administracao,
+  epic: TYPE_COLOR.epic,
+  feature: TYPE_COLOR.feature,
+  historia: TYPE_COLOR.story,
+  risco: TYPE_COLOR.risk,
+  pmo: NAV_CONCEPT_COLOR.pmo,
+  release: SEMANTIC_COLOR.healthy,
+  resultado: NAV_CONCEPT_COLOR.resultado,
 };
+
 
 const BASE = {
   viewBox: "0 0 24 24",
