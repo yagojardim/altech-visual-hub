@@ -548,15 +548,7 @@ function TimelinePage() {
             />
           ) : loading ? (
             <LoadingState label="Carregando timeline…" />
-          ) : false ? (
-            <ErrorState
-              description={formatSupabaseError(error)}
-              onRetry={() => {
-                void itemsQ.refetch();
-                void epicsQ.refetch();
-              }}
-            />
-          ) : groups.length === 0 ? (
+                    ) : groups.length === 0 ? (
             <EmptyState
               title="Nada para exibir nesta janela"
               description="Nenhum work item com start_date e due_date dentro dos próximos 30 dias para os filtros atuais."
