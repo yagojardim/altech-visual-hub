@@ -13,7 +13,3 @@ export type BoardRow = {
   project_id: string | null;
   name: string | null;
 };
-  id: string;
-  project_id: string | null;
-  name: string | null;
-};
