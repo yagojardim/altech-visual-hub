@@ -17,6 +17,7 @@ import { Route as WorkspaceSupportRouteImport } from './routes/_workspace.suppor
 import { Route as WorkspaceSprintsRouteImport } from './routes/_workspace.sprints'
 import { Route as WorkspaceSettingsRouteImport } from './routes/_workspace.settings'
 import { Route as WorkspacePessoasRouteImport } from './routes/_workspace.pessoas'
+import { Route as WorkspaceEpicsRouteImport } from './routes/_workspace.epics'
 import { Route as WorkspaceDashboardRouteImport } from './routes/_workspace.dashboard'
 import { Route as WorkspaceBoardsRouteImport } from './routes/_workspace.boards'
 import { Route as WorkspaceBacklogRouteImport } from './routes/_workspace.backlog'
@@ -66,6 +67,11 @@ const WorkspaceSettingsRoute = WorkspaceSettingsRouteImport.update({
 const WorkspacePessoasRoute = WorkspacePessoasRouteImport.update({
   id: '/pessoas',
   path: '/pessoas',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
+const WorkspaceEpicsRoute = WorkspaceEpicsRouteImport.update({
+  id: '/epics',
+  path: '/epics',
   getParentRoute: () => WorkspaceRoute,
 } as any)
 const WorkspaceDashboardRoute = WorkspaceDashboardRouteImport.update({
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/backlog': typeof WorkspaceBacklogRoute
   '/boards': typeof WorkspaceBoardsRouteWithChildren
   '/dashboard': typeof WorkspaceDashboardRoute
+  '/epics': typeof WorkspaceEpicsRoute
   '/pessoas': typeof WorkspacePessoasRoute
   '/settings': typeof WorkspaceSettingsRouteWithChildren
   '/sprints': typeof WorkspaceSprintsRouteWithChildren
@@ -156,6 +163,7 @@ export interface FileRoutesByTo {
   '/backlog': typeof WorkspaceBacklogRoute
   '/boards': typeof WorkspaceBoardsRouteWithChildren
   '/dashboard': typeof WorkspaceDashboardRoute
+  '/epics': typeof WorkspaceEpicsRoute
   '/pessoas': typeof WorkspacePessoasRoute
   '/sprints': typeof WorkspaceSprintsRouteWithChildren
   '/support': typeof WorkspaceSupportRoute
@@ -177,6 +185,7 @@ export interface FileRoutesById {
   '/_workspace/backlog': typeof WorkspaceBacklogRoute
   '/_workspace/boards': typeof WorkspaceBoardsRouteWithChildren
   '/_workspace/dashboard': typeof WorkspaceDashboardRoute
+  '/_workspace/epics': typeof WorkspaceEpicsRoute
   '/_workspace/pessoas': typeof WorkspacePessoasRoute
   '/_workspace/settings': typeof WorkspaceSettingsRouteWithChildren
   '/_workspace/sprints': typeof WorkspaceSprintsRouteWithChildren
@@ -199,6 +208,7 @@ export interface FileRouteTypes {
     | '/backlog'
     | '/boards'
     | '/dashboard'
+    | '/epics'
     | '/pessoas'
     | '/settings'
     | '/sprints'
@@ -219,6 +229,7 @@ export interface FileRouteTypes {
     | '/backlog'
     | '/boards'
     | '/dashboard'
+    | '/epics'
     | '/pessoas'
     | '/sprints'
     | '/support'
@@ -239,6 +250,7 @@ export interface FileRouteTypes {
     | '/_workspace/backlog'
     | '/_workspace/boards'
     | '/_workspace/dashboard'
+    | '/_workspace/epics'
     | '/_workspace/pessoas'
     | '/_workspace/settings'
     | '/_workspace/sprints'
@@ -315,6 +327,13 @@ declare module '@tanstack/react-router' {
       path: '/pessoas'
       fullPath: '/pessoas'
       preLoaderRoute: typeof WorkspacePessoasRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/_workspace/epics': {
+      id: '/_workspace/epics'
+      path: '/epics'
+      fullPath: '/epics'
+      preLoaderRoute: typeof WorkspaceEpicsRouteImport
       parentRoute: typeof WorkspaceRoute
     }
     '/_workspace/dashboard': {
@@ -438,6 +457,7 @@ interface WorkspaceRouteChildren {
   WorkspaceBacklogRoute: typeof WorkspaceBacklogRoute
   WorkspaceBoardsRoute: typeof WorkspaceBoardsRouteWithChildren
   WorkspaceDashboardRoute: typeof WorkspaceDashboardRoute
+  WorkspaceEpicsRoute: typeof WorkspaceEpicsRoute
   WorkspacePessoasRoute: typeof WorkspacePessoasRoute
   WorkspaceSettingsRoute: typeof WorkspaceSettingsRouteWithChildren
   WorkspaceSprintsRoute: typeof WorkspaceSprintsRouteWithChildren
@@ -452,6 +472,7 @@ const WorkspaceRouteChildren: WorkspaceRouteChildren = {
   WorkspaceBacklogRoute: WorkspaceBacklogRoute,
   WorkspaceBoardsRoute: WorkspaceBoardsRouteWithChildren,
   WorkspaceDashboardRoute: WorkspaceDashboardRoute,
+  WorkspaceEpicsRoute: WorkspaceEpicsRoute,
   WorkspacePessoasRoute: WorkspacePessoasRoute,
   WorkspaceSettingsRoute: WorkspaceSettingsRouteWithChildren,
   WorkspaceSprintsRoute: WorkspaceSprintsRouteWithChildren,
