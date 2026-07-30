@@ -34,6 +34,7 @@ const GROUPS: NavGroup[] = [
       { to: "/boards", label: "Boards", concept: "feature" },
       { to: "/sprints", label: "Sprints", concept: "sprint" },
       { to: "/backlog", label: "Backlog", concept: "backlog" },
+      { to: "/epics", label: "Épicos", concept: "epic" },
       { to: "/automation", label: "Automação", icon: Zap, badge: "beta" },
     ],
   },
