@@ -134,6 +134,11 @@ export function WorkItemDrawer({
     queryFn: listProjects,
     enabled: open,
   });
+  const membersQ = useQuery({
+    queryKey: ["team_members"],
+    queryFn: listTeamMembers,
+    enabled: open,
+  });
 
   const [form, setForm] = useState<FormState>(() => emptyForm(defaultProjectId ?? ""));
   const [saving, setSaving] = useState(false);
