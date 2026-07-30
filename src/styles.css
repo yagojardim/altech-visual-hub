@@ -43,6 +43,15 @@
   --color-ring: var(--ring-color);
   --color-panel: var(--panel);
   --color-panel-elevated: var(--panel-elevated);
+  --color-healthy: var(--healthy);
+  --color-blocked: var(--blocked);
+  --color-inprogress: var(--inprogress);
+  --color-backlog: var(--backlog);
+  --color-type-epic: var(--type-epic);
+  --color-type-feature: var(--type-feature);
+  --color-type-task: var(--type-task);
+  --color-type-subtask: var(--type-subtask);
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
