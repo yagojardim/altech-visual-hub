@@ -220,11 +220,11 @@ export async function listTimelineWorkItems(
     .eq("project_id", projectId)
     .order("created_at", { ascending: true });
   if (error) {
+    if (isMissingStartDate(error)) throw new Error(TIMELINE_MISSING_HINT);
     if (isMissingRelation(error)) {
       logSupabaseError("work-items-api:listTimelineWorkItems", error);
       return [];
     }
-    if (isMissingStartDate(error)) throw new Error(TIMELINE_MISSING_HINT);
     throw new Error(error.message || "Erro ao carregar a timeline.");
   }
   return (data ?? []) as TimelineWorkItem[];
