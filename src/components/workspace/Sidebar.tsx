@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 type IconRender = React.ComponentType<{ className?: string }>;
 
 interface NavItem {
-  to: "/dashboard" | "/projects" | "/pessoas" | "/boards" | "/sprints" | "/backlog" | "/settings" | "/support" | "/automation";
+  to: "/dashboard" | "/projects" | "/pessoas" | "/boards" | "/sprints" | "/backlog" | "/epics" | "/settings" | "/support" | "/automation";
   label: string;
   icon?: IconRender;
   concept?: ConceptIconName;
@@ -34,6 +34,7 @@ const GROUPS: NavGroup[] = [
       { to: "/boards", label: "Boards", concept: "feature" },
       { to: "/sprints", label: "Sprints", concept: "sprint" },
       { to: "/backlog", label: "Backlog", concept: "backlog" },
+      { to: "/epics", label: "Épicos", concept: "epic" },
       { to: "/automation", label: "Automação", icon: Zap, badge: "beta" },
     ],
   },
