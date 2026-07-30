@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 type IconRender = React.ComponentType<{ className?: string }>;
 
 interface NavItem {
-  to: "/dashboard" | "/projects" | "/pessoas" | "/boards" | "/sprints" | "/backlog" | "/epics" | "/settings" | "/support" | "/automation";
+  to: "/dashboard" | "/projects" | "/pessoas" | "/boards" | "/sprints" | "/backlog" | "/epics" | "/releases" | "/settings" | "/support" | "/automation";
   label: string;
   icon?: IconRender;
   concept?: ConceptIconName;
