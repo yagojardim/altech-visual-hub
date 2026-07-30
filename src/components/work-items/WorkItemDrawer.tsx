@@ -6,6 +6,8 @@ import { supabase } from "@/lib/supabase";
 import { formatSupabaseError, logSupabaseError } from "@/lib/supabase-errors";
 import {
   STATUS_COLUMNS,
+  typeLabel,
+  priorityLabel,
   TIPO_OPTIONS,
   PRIORIDADE_OPTIONS,
   type WorkItemRow,
@@ -64,35 +66,37 @@ function fmtDateTime(s?: string | null): string {
 }
 
 interface FormState {
-  titulo: string;
-  tipo: string;
-  prioridade: string;
+  title: string;
+  type: string;
+  priority: string;
   status: string;
-  responsavel: string;
-  descricao: string;
+  assignee_id: string;
+  description: string;
   project_id: string;
 }
 
+const NO_ASSIGNEE = "__none__";
+
 function emptyForm(defaultProjectId: string): FormState {
   return {
-    titulo: "",
-    tipo: TIPO_OPTIONS[2],
-    prioridade: PRIORIDADE_OPTIONS[1],
+    title: "",
+    type: "story",
+    priority: "media",
     status: STATUS_COLUMNS[0],
-    responsavel: "",
-    descricao: "",
+    assignee_id: NO_ASSIGNEE,
+    description: "",
     project_id: defaultProjectId,
   };
 }
 
 function fromRow(row: WorkItemRow): FormState {
   return {
-    titulo: row.titulo ?? "",
-    tipo: row.tipo ?? TIPO_OPTIONS[2],
-    prioridade: row.prioridade ?? PRIORIDADE_OPTIONS[1],
+    title: row.title ?? "",
+    type: row.type ?? "story",
+    priority: row.priority ?? "media",
     status: row.status ?? STATUS_COLUMNS[0],
-    responsavel: row.responsavel ?? "",
-    descricao: row.descricao ?? "",
+    assignee_id: row.assignee_id ?? NO_ASSIGNEE,
+    description: row.description ?? "",
     project_id: row.project_id,
   };
 }
@@ -156,39 +160,39 @@ export function WorkItemDrawer({
   const patch = (p: Partial<FormState>) => setForm((s) => ({ ...s, ...p }));
 
   async function handleSave() {
-    const titulo = form.titulo.trim();
-    if (!titulo) { toast.error("Informe um título."); return; }
+    const title = form.title.trim();
+    if (!title) { toast.error("Informe um título."); return; }
     if (isCreate && !form.project_id) { toast.error("Selecione um projeto."); return; }
     setSaving(true);
     try {
       if (isCreate) {
         const { data: last } = await supabase
           .from("work_items")
-          .select("ordem")
+          .select("position")
           .eq("project_id", form.project_id)
-          .order("ordem", { ascending: false })
+          .order("position", { ascending: false })
           .limit(1);
-        const nextOrdem = ((last?.[0]?.ordem as number | undefined) ?? 0) + 1;
+        const nextPosition = ((last?.[0]?.position as number | undefined) ?? 0) + 1;
         const { error } = await supabase.from("work_items").insert({
           project_id: form.project_id,
-          titulo,
-          tipo: form.tipo,
-          prioridade: form.prioridade,
+          title,
+          type: form.type,
+          priority: form.priority,
           status: form.status,
-          responsavel: form.responsavel.trim() || null,
-          descricao: form.descricao.trim() || null,
-          ordem: nextOrdem,
+          assignee_id: form.assignee_id === NO_ASSIGNEE ? null : form.assignee_id,
+          description: form.description.trim() || null,
+          position: nextPosition,
         });
         if (error) throw error;
         toast.success("Work item criado.");
       } else if (itemId) {
         const { error } = await supabase.from("work_items").update({
-          titulo,
-          tipo: form.tipo,
-          prioridade: form.prioridade,
+          title,
+          type: form.type,
+          priority: form.priority,
           status: form.status,
-          responsavel: form.responsavel.trim() || null,
-          descricao: form.descricao.trim() || null,
+          assignee_id: form.assignee_id === NO_ASSIGNEE ? null : form.assignee_id,
+          description: form.description.trim() || null,
         }).eq("id", itemId);
         if (error) throw error;
         toast.success("Work item atualizado.");
@@ -262,8 +266,8 @@ export function WorkItemDrawer({
               </SheetDescription>
               {!isCreate && item ? (
                 <div className="flex flex-wrap gap-2 pt-1">
-                  <Badge variant="outline" className="text-[10px] uppercase">{form.tipo}</Badge>
-                  <Badge variant="outline" className="text-[10px] uppercase">{form.prioridade}</Badge>
+                  <Badge variant="outline" className="text-[10px] uppercase">{typeLabel(form.type)}</Badge>
+                  <Badge variant="outline" className="text-[10px] uppercase">{priorityLabel(form.priority)}</Badge>
                   <Badge variant="outline" className="text-[10px] uppercase">{form.status}</Badge>
                 </div>
               ) : null}
@@ -274,8 +278,8 @@ export function WorkItemDrawer({
                 <Label htmlFor="wi-titulo">Título</Label>
                 <Input
                   id="wi-titulo"
-                  value={form.titulo}
-                  onChange={(e) => patch({ titulo: e.target.value })}
+                  value={form.title}
+                  onChange={(e) => patch({ title: e.target.value })}
                   maxLength={200}
                   placeholder="Título do work item"
                   disabled={saving}
@@ -285,19 +289,19 @@ export function WorkItemDrawer({
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label>Tipo</Label>
-                  <Select value={form.tipo} onValueChange={(v) => patch({ tipo: v })} disabled={saving}>
+                  <Select value={form.type} onValueChange={(v) => patch({ type: v })} disabled={saving}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {TIPO_OPTIONS.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                      {TIPO_OPTIONS.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1.5">
                   <Label>Prioridade</Label>
-                  <Select value={form.prioridade} onValueChange={(v) => patch({ prioridade: v })} disabled={saving}>
+                  <Select value={form.priority} onValueChange={(v) => patch({ priority: v })} disabled={saving}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {PRIORIDADE_OPTIONS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                      {PRIORIDADE_OPTIONS.map((p) => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
@@ -314,15 +318,16 @@ export function WorkItemDrawer({
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="wi-assignee">Responsável</Label>
-                  <Input
-                    id="wi-assignee"
-                    value={form.responsavel}
-                    onChange={(e) => patch({ responsavel: e.target.value })}
-                    maxLength={120}
-                    placeholder="Nome do responsável"
-                    disabled={saving}
-                  />
+                  <Label>Responsável</Label>
+                  <Select value={form.assignee_id} onValueChange={(v) => patch({ assignee_id: v })} disabled={saving}>
+                    <SelectTrigger><SelectValue placeholder="Sem responsável" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NO_ASSIGNEE}>Sem responsável</SelectItem>
+                      {(membersQ.data ?? []).map((m) => (
+                        <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -351,8 +356,8 @@ export function WorkItemDrawer({
                 <Label htmlFor="wi-desc">Descrição</Label>
                 <Textarea
                   id="wi-desc"
-                  value={form.descricao}
-                  onChange={(e) => patch({ descricao: e.target.value })}
+                  value={form.description}
+                  onChange={(e) => patch({ description: e.target.value })}
                   maxLength={5000}
                   rows={5}
                   placeholder="Descreva o trabalho a ser feito..."
