@@ -10,6 +10,8 @@
 export interface WorkItem {
   id: string;
   projectId: string;
+  /** Não existe coluna item_key no schema real — sempre null (UI usa fallback). */
+  itemKey: string | null;
   title: string;
   type: string;
   status: string;
@@ -77,6 +79,7 @@ export function toWorkItem(raw: unknown): WorkItem {
   return {
     id: pickString(row, "id"),
     projectId: pickString(row, "project_id", "projectId"),
+    itemKey: null,
     title: pickString(row, "title") || "(sem título)",
     type: pickString(row, "type") || "task",
     status: pickString(row, "status") || "A Fazer",
