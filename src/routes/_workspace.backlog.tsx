@@ -16,6 +16,7 @@ import {
   X,
   Layers,
 } from "lucide-react";
+import { TYPE_BADGE_CLASS, TYPE_TEXT_CLASS } from "@/lib/work-item-type-classes";
 import { supabase } from "@/lib/supabase";
 import { isMissingRelation, logSupabaseError, formatSupabaseError } from "@/lib/supabase-errors";
 import { qk } from "@/lib/query-keys";
@@ -69,13 +70,13 @@ const TYPE_META: Record<
   WIType,
   { label: string; icon: React.ComponentType<{ className?: string }>; badge: string; color: string }
 > = {
-  epic:    { label: "Épico",     icon: Target,       badge: "bg-purple-500/15 text-purple-300 border-purple-500/30",   color: "text-purple-300" },
-  feature: { label: "Feature",   icon: Puzzle,       badge: "bg-blue-500/15 text-blue-300 border-blue-500/30",         color: "text-blue-300" },
-  story:   { label: "História",  icon: BookOpen,     badge: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30", color: "text-emerald-300" },
-  task:    { label: "Tarefa",    icon: CheckSquare,  badge: "bg-slate-500/15 text-slate-200 border-slate-500/30",      color: "text-slate-200" },
-  subtask: { label: "Subtarefa", icon: ListChecks,   badge: "bg-slate-500/10 text-slate-300 border-slate-500/20",      color: "text-slate-300" },
-  bug:     { label: "Bug",       icon: Bug,          badge: "bg-red-500/15 text-red-300 border-red-500/30",            color: "text-red-300" },
-  risk:    { label: "Risco",     icon: AlertTriangle,badge: "bg-amber-500/15 text-amber-300 border-amber-500/30",      color: "text-amber-300" },
+  epic:    { label: "Épico",     icon: Target,       badge: TYPE_BADGE_CLASS.epic, color: TYPE_TEXT_CLASS.epic },
+  feature: { label: "Feature",   icon: Puzzle,       badge: TYPE_BADGE_CLASS.feature, color: TYPE_TEXT_CLASS.feature },
+  story:   { label: "História",  icon: BookOpen,     badge: TYPE_BADGE_CLASS.story, color: TYPE_TEXT_CLASS.story },
+  task:    { label: "Tarefa",    icon: CheckSquare,  badge: TYPE_BADGE_CLASS.task, color: TYPE_TEXT_CLASS.task },
+  subtask: { label: "Subtarefa", icon: ListChecks,   badge: TYPE_BADGE_CLASS.subtask, color: TYPE_TEXT_CLASS.subtask },
+  bug:     { label: "Bug",       icon: Bug,          badge: TYPE_BADGE_CLASS.bug, color: TYPE_TEXT_CLASS.bug },
+  risk:    { label: "Risco",     icon: AlertTriangle,badge: TYPE_BADGE_CLASS.risk, color: TYPE_TEXT_CLASS.risk },
 };
 
 const DONE_STATUSES = new Set(["done", "concluido", "concluído", "completed", "closed", "resolved"]);
@@ -240,8 +241,8 @@ function EpicChip({
       aria-pressed={active}
     >
       <div className="flex items-center gap-2">
-        <Target className="h-3.5 w-3.5 text-purple-300 shrink-0" />
-        <Badge variant="outline" className="text-[10px] uppercase bg-purple-500/15 text-purple-300 border-purple-500/30">
+        <Target className={cn("h-3.5 w-3.5 shrink-0", TYPE_TEXT_CLASS.epic)} />
+        <Badge variant="outline" className={cn("text-[10px] uppercase", TYPE_BADGE_CLASS.epic)}>
           Épico
         </Badge>
       </div>

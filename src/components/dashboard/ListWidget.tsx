@@ -80,7 +80,8 @@ function ItemRow({
         {priority && (
           <Badge
             variant="outline"
-            className={cn("text-[10px] uppercase", priority.className)}
+            style={priority.style}
+            className="text-[10px] uppercase"
           >
             {priority.label}
           </Badge>

@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import { listTeamMembers, type TeamMember } from "./team-members-api";
+import { TYPE_BADGE_CLASS, TYPE_DOT_CLASS } from "./work-item-type-classes";
 
 export const WORK_ITEM_TYPES = [
   "epic",
@@ -16,13 +17,13 @@ export const TYPE_META: Record<
   WorkItemType,
   { label: string; badge: string; dot: string }
 > = {
-  epic:    { label: "Épico",     badge: "bg-purple-500/15 text-purple-300 border-purple-500/30", dot: "bg-purple-400" },
-  feature: { label: "Feature",   badge: "bg-blue-500/15 text-blue-300 border-blue-500/30",       dot: "bg-blue-400" },
-  story:   { label: "História",  badge: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30", dot: "bg-emerald-400" },
-  task:    { label: "Tarefa",    badge: "bg-slate-500/15 text-slate-200 border-slate-500/30",    dot: "bg-slate-400" },
-  subtask: { label: "Subtarefa", badge: "bg-slate-500/10 text-slate-300 border-slate-500/20",    dot: "bg-slate-500" },
-  bug:     { label: "Bug",       badge: "bg-red-500/15 text-red-300 border-red-500/30",          dot: "bg-red-400" },
-  risk:    { label: "Risco",     badge: "bg-amber-500/15 text-amber-300 border-amber-500/30",    dot: "bg-amber-400" },
+  epic:    { label: "Épico",     badge: TYPE_BADGE_CLASS.epic, dot: TYPE_DOT_CLASS.epic },
+  feature: { label: "Feature",   badge: TYPE_BADGE_CLASS.feature, dot: TYPE_DOT_CLASS.feature },
+  story:   { label: "História",  badge: TYPE_BADGE_CLASS.story, dot: TYPE_DOT_CLASS.story },
+  task:    { label: "Tarefa",    badge: TYPE_BADGE_CLASS.task, dot: TYPE_DOT_CLASS.task },
+  subtask: { label: "Subtarefa", badge: TYPE_BADGE_CLASS.subtask, dot: TYPE_DOT_CLASS.subtask },
+  bug:     { label: "Bug",       badge: TYPE_BADGE_CLASS.bug, dot: TYPE_DOT_CLASS.bug },
+  risk:    { label: "Risco",     badge: TYPE_BADGE_CLASS.risk, dot: TYPE_DOT_CLASS.risk },
 };
 
 export function typeMeta(t?: string | null) {

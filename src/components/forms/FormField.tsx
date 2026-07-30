@@ -88,7 +88,7 @@ export function FormField({
             resolvedState === "error" &&
               "[&_input]:border-destructive [&_textarea]:border-destructive [&_button]:border-destructive [&_input]:focus-visible:ring-destructive [&_textarea]:focus-visible:ring-destructive",
             resolvedState === "success" &&
-              "[&_input]:border-emerald-500 [&_textarea]:border-emerald-500 [&_button]:border-emerald-500",
+              "[&_input]:border-healthy [&_textarea]:border-healthy [&_button]:border-healthy",
           )}
         >
           {children}
@@ -106,7 +106,7 @@ export function FormField({
           <span>{error}</span>
         </p>
       ) : success ? (
-        <p className="flex items-start gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+        <p className="flex items-start gap-1.5 text-xs font-medium text-healthy">
           <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>{success}</span>
         </p>
