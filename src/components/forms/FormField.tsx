@@ -88,7 +88,7 @@ export function FormField({
             resolvedState === "error" &&
               "[&_input]:border-destructive [&_textarea]:border-destructive [&_button]:border-destructive [&_input]:focus-visible:ring-destructive [&_textarea]:focus-visible:ring-destructive",
             resolvedState === "success" &&
-              "[&_input]:border-emerald-500 [&_textarea]:border-emerald-500 [&_button]:border-emerald-500",
+              "[&_input]:border-healthy [&_textarea]:border-healthy [&_button]:border-healthy",
           )}
         >
           {children}
