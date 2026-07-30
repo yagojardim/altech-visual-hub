@@ -13,6 +13,7 @@ import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as WorkspaceRouteImport } from './routes/_workspace'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WorkspaceTimelineRouteImport } from './routes/_workspace.timeline'
 import { Route as WorkspaceSupportRouteImport } from './routes/_workspace.support'
 import { Route as WorkspaceSprintsRouteImport } from './routes/_workspace.sprints'
 import { Route as WorkspaceSettingsRouteImport } from './routes/_workspace.settings'
@@ -49,6 +50,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const WorkspaceTimelineRoute = WorkspaceTimelineRouteImport.update({
+  id: '/timeline',
+  path: '/timeline',
+  getParentRoute: () => WorkspaceRoute,
 } as any)
 const WorkspaceSupportRoute = WorkspaceSupportRouteImport.update({
   id: '/support',
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof WorkspaceSettingsRouteWithChildren
   '/sprints': typeof WorkspaceSprintsRouteWithChildren
   '/support': typeof WorkspaceSupportRoute
+  '/timeline': typeof WorkspaceTimelineRoute
   '/boards/$boardId': typeof WorkspaceBoardsBoardIdRoute
   '/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
   '/settings/members': typeof WorkspaceSettingsMembersRoute
@@ -175,6 +182,7 @@ export interface FileRoutesByTo {
   '/releases': typeof WorkspaceReleasesRoute
   '/sprints': typeof WorkspaceSprintsRouteWithChildren
   '/support': typeof WorkspaceSupportRoute
+  '/timeline': typeof WorkspaceTimelineRoute
   '/boards/$boardId': typeof WorkspaceBoardsBoardIdRoute
   '/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
   '/settings/members': typeof WorkspaceSettingsMembersRoute
@@ -199,6 +207,7 @@ export interface FileRoutesById {
   '/_workspace/settings': typeof WorkspaceSettingsRouteWithChildren
   '/_workspace/sprints': typeof WorkspaceSprintsRouteWithChildren
   '/_workspace/support': typeof WorkspaceSupportRoute
+  '/_workspace/timeline': typeof WorkspaceTimelineRoute
   '/_workspace/boards/$boardId': typeof WorkspaceBoardsBoardIdRoute
   '/_workspace/projects/$projectId': typeof WorkspaceProjectsProjectIdRoute
   '/_workspace/settings/members': typeof WorkspaceSettingsMembersRoute
@@ -223,6 +232,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sprints'
     | '/support'
+    | '/timeline'
     | '/boards/$boardId'
     | '/projects/$projectId'
     | '/settings/members'
@@ -244,6 +254,7 @@ export interface FileRouteTypes {
     | '/releases'
     | '/sprints'
     | '/support'
+    | '/timeline'
     | '/boards/$boardId'
     | '/projects/$projectId'
     | '/settings/members'
@@ -267,6 +278,7 @@ export interface FileRouteTypes {
     | '/_workspace/settings'
     | '/_workspace/sprints'
     | '/_workspace/support'
+    | '/_workspace/timeline'
     | '/_workspace/boards/$boardId'
     | '/_workspace/projects/$projectId'
     | '/_workspace/settings/members'
@@ -312,6 +324,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_workspace/timeline': {
+      id: '/_workspace/timeline'
+      path: '/timeline'
+      fullPath: '/timeline'
+      preLoaderRoute: typeof WorkspaceTimelineRouteImport
+      parentRoute: typeof WorkspaceRoute
     }
     '/_workspace/support': {
       id: '/_workspace/support'
@@ -482,6 +501,7 @@ interface WorkspaceRouteChildren {
   WorkspaceSettingsRoute: typeof WorkspaceSettingsRouteWithChildren
   WorkspaceSprintsRoute: typeof WorkspaceSprintsRouteWithChildren
   WorkspaceSupportRoute: typeof WorkspaceSupportRoute
+  WorkspaceTimelineRoute: typeof WorkspaceTimelineRoute
   WorkspaceProjectsProjectIdRoute: typeof WorkspaceProjectsProjectIdRoute
   WorkspaceWorkItemsItemIdRoute: typeof WorkspaceWorkItemsItemIdRoute
   WorkspaceProjectsIndexRoute: typeof WorkspaceProjectsIndexRoute
@@ -498,6 +518,7 @@ const WorkspaceRouteChildren: WorkspaceRouteChildren = {
   WorkspaceSettingsRoute: WorkspaceSettingsRouteWithChildren,
   WorkspaceSprintsRoute: WorkspaceSprintsRouteWithChildren,
   WorkspaceSupportRoute: WorkspaceSupportRoute,
+  WorkspaceTimelineRoute: WorkspaceTimelineRoute,
   WorkspaceProjectsProjectIdRoute: WorkspaceProjectsProjectIdRoute,
   WorkspaceWorkItemsItemIdRoute: WorkspaceWorkItemsItemIdRoute,
   WorkspaceProjectsIndexRoute: WorkspaceProjectsIndexRoute,

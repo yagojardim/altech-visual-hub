@@ -176,3 +176,73 @@ export async function deleteWorkItem(id: string): Promise<void> {
   const { error } = await supabase.from("work_items").delete().eq("id", id);
   if (error) throw error;
 }
+
+/* ------------------------------------------------------------------ */
+/* Timeline / Gantt                                                     */
+/* ------------------------------------------------------------------ */
+
+export interface TimelineWorkItem {
+  id: string;
+  project_id: string;
+  title: string;
+  type: string | null;
+  status: string | null;
+  priority: string | null;
+  assignee_id: string | null;
+  epic_id: string | null;
+  sprint_id: string | null;
+  start_date: string | null;
+  due_date: string | null;
+  progress: number | null;
+}
+
+const TIMELINE_SELECT =
+  "id, project_id, title, type, status, priority, assignee_id, epic_id, sprint_id, start_date, due_date, progress";
+
+export const TIMELINE_MISSING_HINT =
+  "A timeline depende de colunas que ainda não existem em work_items (start_date, sprint_id, epic_id). Rode supabase/sql/sprints.sql, supabase/sql/epics.sql e supabase/sql/timeline.sql no SQL Editor do Supabase.";
+
+/** 42703 = undefined_column — coluna ainda não migrada. */
+function isMissingColumn(err: unknown): boolean {
+  const e = err as { code?: unknown; message?: unknown } | null;
+  const code = typeof e?.code === "string" ? e.code : "";
+  const message = typeof e?.message === "string" ? e.message : "";
+  return code === "42703" || /column .* does not exist/i.test(message);
+}
+
+/** Work items do projeto com os campos necessários para a timeline. */
+export async function listTimelineWorkItems(
+  projectRef: string,
+): Promise<TimelineWorkItem[]> {
+  const projectId = await resolveProjectId(projectRef);
+  const { data, error } = await supabase
+    .from("work_items")
+    .select(TIMELINE_SELECT)
+    .eq("project_id", projectId)
+    .order("created_at", { ascending: true });
+  if (error) {
+    if (isMissingColumn(error)) throw new Error(TIMELINE_MISSING_HINT);
+    if (isMissingRelation(error)) {
+      logSupabaseError("work-items-api:listTimelineWorkItems", error);
+      return [];
+    }
+    throw new Error(error.message || "Erro ao carregar a timeline.");
+  }
+  return (data ?? []) as TimelineWorkItem[];
+}
+
+/** Grava start_date/due_date ao soltar a barra na timeline. */
+export async function updateWorkItemDates(
+  id: string,
+  dates: { start_date: string; due_date: string },
+): Promise<void> {
+  const { error } = await supabase
+    .from("work_items")
+    .update({ start_date: dates.start_date, due_date: dates.due_date })
+    .eq("id", id);
+  if (error) {
+    if (isMissingColumn(error)) throw new Error(TIMELINE_MISSING_HINT);
+    throw new Error(error.message || "Erro ao atualizar as datas do work item.");
+  }
+}
+
