@@ -52,9 +52,10 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: "Sora", "Manrope", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: system-ui, -apple-system, "Inter", "Segoe UI", sans-serif;
+  --font-display: system-ui, -apple-system, "Inter", "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
 
   --shadow-card: 0 1px 2px rgba(11, 17, 32, 0.04), 0 1px 3px rgba(11, 17, 32, 0.06);
   --shadow-card-hover: 0 4px 12px rgba(11, 17, 32, 0.08), 0 2px 4px rgba(11, 17, 32, 0.06);
@@ -91,34 +92,25 @@
   --space-8: 32px;
   --radius-full: 9999px;
 
-  /* Theme surface tokens (light) */
-  --bg-primary: #ffffff;
-  --bg-secondary: #F7F9FC;
-  --text-primary: #0B1120;
-  --text-secondary: #586579;
-  --border-color: #CDD6E3;
-}
-
-/* Dark mode — system preference (only when user has no explicit choice) */
-@media (prefers-color-scheme: dark) {
-  :root:not(.light):not(.dark) {
-    --bg-primary: #0F1117;
-    --bg-secondary: #1C1F26;
-    --text-primary: #E6EDF3;
-    --text-secondary: #8B949E;
-    --border-color: #30363D;
-  }
-}
-
-/* Dark mode — explicit .dark class on html (user toggle wins) */
-html.dark {
-  --bg-primary: #0F1117;
-  --bg-secondary: #1C1F26;
-  --text-primary: #E6EDF3;
-  --text-secondary: #8B949E;
-  --border-color: #30363D;
+  /* Theme surface tokens — a aplicação é sempre dark */
+  --bg-primary: var(--bg-page);
+  --bg-secondary: var(--bg-surface);
+  --text-primary: var(--text-strong);
+  --text-secondary: var(--text-muted);
+  --border-color: var(--border-default);
   color-scheme: dark;
 }
+
+html.dark,
+html.light {
+  --bg-primary: var(--bg-page);
+  --bg-secondary: var(--bg-surface);
+  --text-primary: var(--text-strong);
+  --text-secondary: var(--text-muted);
+  --border-color: var(--border-default);
+  color-scheme: dark;
+}
+
 
 @layer base {
   * {
@@ -128,24 +120,23 @@ html.dark {
     height: 100%;
   }
   body {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-strong);
+    font-family: var(--font-sans);
     font-weight: 400;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: "Sora", "Manrope", ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-display);
     font-weight: 600;
     letter-spacing: -0.02em;
-    color: var(--text-primary);
+    color: var(--text-strong);
   }
   code, kbd, samp, pre {
-    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-family: var(--font-mono);
   }
   button, input, textarea, select {
-    font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-family: var(--font-sans);
     font-weight: 400;
   }
   /* Spacing + radius defaults (only apply when component didn't set its own) */
@@ -246,22 +237,22 @@ select,
   border-radius: 8px !important;
 }
 
-/* Dark theme surface bridge for shadcn tokens */
-html.dark {
-  --background: var(--bg-primary);
-  --foreground: var(--text-primary);
-  --card: var(--bg-secondary);
-  --card-foreground: var(--text-primary);
-  --popover: var(--bg-secondary);
-  --popover-foreground: var(--text-primary);
-  --border: var(--border-color);
-  --input: var(--border-color);
-  --muted: color-mix(in srgb, var(--bg-secondary) 80%, #ffffff 4%);
-  --muted-foreground: var(--text-secondary);
-  --secondary: color-mix(in srgb, var(--bg-secondary) 85%, #ffffff 6%);
-  --secondary-foreground: var(--text-primary);
-  --accent-color: color-mix(in srgb, var(--bg-secondary) 80%, #ffffff 8%);
-  --accent-foreground: var(--text-primary);
+/* Dark theme surface bridge for shadcn tokens (app é sempre dark) */
+html.dark, html.light, :root {
+  --background: var(--bg-page);
+  --foreground: var(--text-strong);
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-strong);
+  --popover: var(--bg-surface);
+  --popover-foreground: var(--text-strong);
+  --border: var(--border-default);
+  --input: var(--border-default);
+  --muted: var(--bg-surface-2);
+  --muted-foreground: var(--text-muted);
+  --secondary: var(--bg-surface-2);
+  --secondary-foreground: var(--text-strong);
+  --accent-color: var(--bg-surface-2);
+  --accent-foreground: var(--text-strong);
 }
 
 
