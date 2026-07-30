@@ -200,13 +200,14 @@ const TIMELINE_SELECT =
   "id, project_id, title, type, status, priority, assignee_id, epic_id, sprint_id, start_date, due_date, progress";
 
 export const TIMELINE_MISSING_HINT =
-  "Coluna work_items.start_date ainda não existe. Rode supabase/sql/timeline.sql no SQL Editor do Supabase.";
+  "A timeline depende de colunas que ainda não existem em work_items (start_date, sprint_id, epic_id). Rode supabase/sql/sprints.sql, supabase/sql/epics.sql e supabase/sql/timeline.sql no SQL Editor do Supabase.";
 
-function isMissingStartDate(err: unknown): boolean {
+/** 42703 = undefined_column — coluna ainda não migrada. */
+function isMissingColumn(err: unknown): boolean {
   const e = err as { code?: unknown; message?: unknown } | null;
   const code = typeof e?.code === "string" ? e.code : "";
   const message = typeof e?.message === "string" ? e.message : "";
-  return code === "42703" || /start_date/i.test(message);
+  return code === "42703" || /column .* does not exist/i.test(message);
 }
 
 /** Work items do projeto com os campos necessários para a timeline. */
@@ -220,7 +221,7 @@ export async function listTimelineWorkItems(
     .eq("project_id", projectId)
     .order("created_at", { ascending: true });
   if (error) {
-    if (isMissingStartDate(error)) throw new Error(TIMELINE_MISSING_HINT);
+    if (isMissingColumn(error)) throw new Error(TIMELINE_MISSING_HINT);
     if (isMissingRelation(error)) {
       logSupabaseError("work-items-api:listTimelineWorkItems", error);
       return [];
@@ -240,7 +241,7 @@ export async function updateWorkItemDates(
     .update({ start_date: dates.start_date, due_date: dates.due_date })
     .eq("id", id);
   if (error) {
-    if (isMissingStartDate(error)) throw new Error(TIMELINE_MISSING_HINT);
+    if (isMissingColumn(error)) throw new Error(TIMELINE_MISSING_HINT);
     throw new Error(error.message || "Erro ao atualizar as datas do work item.");
   }
 }
