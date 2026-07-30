@@ -47,7 +47,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { LoadingState, ErrorState } from "@/components/states";
 
-const SELECT = "id, project_id, tenant_id, item_key, titulo, tipo, status, responsavel, descricao, prioridade, ordem, sprint_id, created_at, updated_at";
+const SELECT =
+  "id, board_id, column_id, project_id, title, description, type, priority, assignee_id, status, position, created_at";
 
 async function getWorkItem(id: string): Promise<WorkItemRow | null> {
   const { data, error } = await supabase
