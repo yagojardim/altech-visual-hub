@@ -355,7 +355,7 @@ function ItemCard({
           </Badge>
         )}
         {pMeta && (
-          <Badge variant="outline" className={cn("text-[10px] capitalize", pMeta.className)}>
+          <Badge variant="outline" style={pMeta.style} className="text-[10px] capitalize">
             {pMeta.label}
           </Badge>
         )}

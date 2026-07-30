@@ -181,7 +181,7 @@ function SprintDetailBody({ sprint, projectName }: { sprint: SprintRow; projectN
                               </div>
                               <div className="mt-2 flex flex-wrap items-center gap-1.5">
                                 {pMeta && (
-                                  <Badge variant="outline" className={cn("text-[10px] capitalize", pMeta.className)}>
+                                  <Badge variant="outline" style={pMeta.style} className="text-[10px] capitalize">
                                     {pMeta.label}
                                   </Badge>
                                 )}
