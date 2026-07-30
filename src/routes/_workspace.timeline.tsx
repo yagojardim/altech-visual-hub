@@ -270,6 +270,7 @@ function TimelinePage() {
     queryKey: ["timeline", activeProject, "items"],
     queryFn: () => listTimelineWorkItems(activeProject),
     enabled: Boolean(activeProject),
+    retry: false,
   });
   const epicsQ = useQuery({
     queryKey: ["timeline", activeProject, "epics"],
@@ -537,9 +538,17 @@ function TimelinePage() {
             </p>
           ) : null}
 
-          {loading ? (
+          {error ? (
+            <ErrorState
+              description={formatSupabaseError(error)}
+              onRetry={() => {
+                void itemsQ.refetch();
+                void epicsQ.refetch();
+              }}
+            />
+          ) : loading ? (
             <LoadingState label="Carregando timeline…" />
-          ) : error ? (
+          ) : false ? (
             <ErrorState
               description={formatSupabaseError(error)}
               onRetry={() => {
