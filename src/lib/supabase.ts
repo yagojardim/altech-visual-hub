@@ -8,27 +8,6 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-export type BoardColumn = {
-  id: string;
-  board_id: string;
-  name: string;
-  position: number;
-  wip_limit: number | null;
-};
-
-export type WorkItem = {
-  id: string;
-  board_id: string;
-  column_id: string | null;
-  item_key: string | null;
-  title: string;
-  type: string | null;
-  priority: string | null;
-  status: string | null;
-  assignee: string | null;
-  assignee_name?: string | null;
-};
-
 export type BoardRow = {
   id: string;
   project_id: string | null;
