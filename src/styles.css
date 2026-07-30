@@ -120,24 +120,23 @@ html.light {
     height: 100%;
   }
   body {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-strong);
+    font-family: var(--font-sans);
     font-weight: 400;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: "Sora", "Manrope", ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-display);
     font-weight: 600;
     letter-spacing: -0.02em;
-    color: var(--text-primary);
+    color: var(--text-strong);
   }
   code, kbd, samp, pre {
-    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-family: var(--font-mono);
   }
   button, input, textarea, select {
-    font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-family: var(--font-sans);
     font-weight: 400;
   }
   /* Spacing + radius defaults (only apply when component didn't set its own) */
