@@ -73,7 +73,21 @@
 /* Extensões que não fazem parte dos tokens Altech base */
 :root {
   --panel: var(--bg-surface);
-  --panel-elevated: var(--bg-surface);
+  --panel-elevated: var(--bg-surface-2);
+
+  /* Cores semânticas de status (aliases dos tokens Altech) */
+  --healthy: var(--status-healthy);
+  --blocked: var(--status-blocked);
+  --inprogress: var(--status-inprogress);
+  --backlog: var(--status-backlog);
+
+  /* Cores de tipo não-semântico (centralizadas aqui) */
+  --type-epic: #8B5CF6;
+  --type-feature: var(--status-inprogress);
+  --type-task: #38BDF8;
+  --type-subtask: #22D3EE;
+
+
 
   --warning: var(--warning-500);
   --warning-foreground: var(--ink-900);
