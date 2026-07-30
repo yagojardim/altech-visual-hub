@@ -1,7 +1,14 @@
 import { supabase } from "./supabase";
-import { DEFAULT_TENANT_ID } from "./projects-api";
 import { isMissingRelation, logSupabaseError } from "./supabase-errors";
 
+/**
+ * API de work_items alinhada ao schema real (00_full_schema.sql + 03_work_item_behavior.sql):
+ *   id, board_id, column_id, project_id, title, description, type, priority,
+ *   assignee_id, status, position, created_at
+ * Não existem tenant_id, item_key nem colunas em português nesta tabela.
+ */
+
+// `status` é texto livre no schema — mantemos os rótulos em PT-BR usados na UI.
 export const STATUS_COLUMNS = [
   "A Fazer",
   "Em Progresso",
@@ -10,66 +17,86 @@ export const STATUS_COLUMNS = [
 ] as const;
 export type WorkItemStatus = (typeof STATUS_COLUMNS)[number];
 
-export const TIPO_OPTIONS = ["Épico", "História", "Tarefa", "Bug"] as const;
-export type WorkItemTipo = (typeof TIPO_OPTIONS)[number];
+// `type` tem check constraint em inglês — label PT-BR só para exibição.
+export const TIPO_OPTIONS = [
+  { value: "epic", label: "Épico" },
+  { value: "feature", label: "Feature" },
+  { value: "story", label: "História" },
+  { value: "task", label: "Tarefa" },
+  { value: "subtask", label: "Subtarefa" },
+  { value: "bug", label: "Bug" },
+  { value: "risk", label: "Risco" },
+] as const;
+export type WorkItemType = (typeof TIPO_OPTIONS)[number]["value"];
 
-export const PRIORIDADE_OPTIONS = ["Baixa", "Média", "Alta", "Crítica"] as const;
-export type WorkItemPrioridade = (typeof PRIORIDADE_OPTIONS)[number];
+// `priority` tem check constraint: baixa|media|alta|critica.
+export const PRIORIDADE_OPTIONS = [
+  { value: "baixa", label: "Baixa" },
+  { value: "media", label: "Média" },
+  { value: "alta", label: "Alta" },
+  { value: "critica", label: "Crítica" },
+] as const;
+export type WorkItemPriority = (typeof PRIORIDADE_OPTIONS)[number]["value"];
+
+export function typeLabel(value: string | null | undefined): string {
+  return TIPO_OPTIONS.find((t) => t.value === value)?.label ?? value ?? "—";
+}
+
+export function priorityLabel(value: string | null | undefined): string {
+  return PRIORIDADE_OPTIONS.find((p) => p.value === value)?.label ?? value ?? "—";
+}
 
 export interface WorkItemRow {
   id: string;
+  board_id: string | null;
+  column_id: string | null;
   project_id: string;
-  tenant_id: string | null;
-  item_key: string | null;
-  titulo: string;
-  tipo: string;
-  status: string;
-  responsavel: string | null;
-  descricao: string | null;
-  prioridade: string;
-  ordem: number;
-  sprint_id: string | null;
+  title: string;
+  description: string | null;
+  type: string;
+  priority: string;
+  assignee_id: string | null;
+  status: string | null;
+  position: number | null;
   created_at?: string;
-  updated_at?: string;
 }
 
 export interface WorkItemInput {
   project_id: string;
-  titulo: string;
-  tipo?: string;
-  status?: string;
-  responsavel?: string | null;
-  descricao?: string | null;
-  prioridade?: string;
-  ordem?: number;
-  sprint_id?: string | null;
-  item_key?: string | null;
-  tenant_id?: string | null;
+  title: string;
+  description?: string | null;
+  type?: string;
+  priority?: string;
+  assignee_id?: string | null;
+  status?: string | null;
+  position?: number;
+  board_id?: string | null;
+  column_id?: string | null;
 }
 
-const SELECT = "id, project_id, tenant_id, item_key, titulo, tipo, status, responsavel, descricao, prioridade, ordem, sprint_id, created_at, updated_at";
+const SELECT =
+  "id, board_id, column_id, project_id, title, description, type, priority, assignee_id, status, position, created_at";
 
-async function resolveProjectUuid(projectRef: string): Promise<string> {
-  // Accept either uuid or slug
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(projectRef);
-  if (isUuid) return projectRef;
+/** `projects.id` é um slug de texto — aceitamos id ou slug e devolvemos o id real. */
+async function resolveProjectId(projectRef: string): Promise<string> {
   const { data, error } = await supabase
     .from("projects")
     .select("id")
-    .eq("slug", projectRef)
+    .or(`id.eq.${projectRef},slug.eq.${projectRef}`)
+    .limit(1)
     .maybeSingle();
-  if (error) throw error;
+  if (error) throw new Error(error.message || "Erro ao resolver projeto.");
   if (!data) throw new Error(`Projeto “${projectRef}” não encontrado.`);
   return data.id as string;
 }
 
 export async function listWorkItemsByProject(projectRef: string): Promise<WorkItemRow[]> {
-  const projectId = await resolveProjectUuid(projectRef);
+  const projectId = await resolveProjectId(projectRef);
   const { data, error } = await supabase
     .from("work_items")
     .select(SELECT)
     .eq("project_id", projectId)
-    .order("ordem", { ascending: true })
+    .order("position", { ascending: true })
     .order("created_at", { ascending: true });
   if (error) {
     if (isMissingRelation(error)) {
@@ -98,30 +125,29 @@ export async function getWorkItem(id: string): Promise<WorkItemRow | null> {
 }
 
 export async function createWorkItem(input: WorkItemInput): Promise<WorkItemRow> {
-  const projectId = await resolveProjectUuid(input.project_id);
-  // Compute next ordem for this project
+  const projectId = await resolveProjectId(input.project_id);
+
   const { data: last, error: lastErr } = await supabase
     .from("work_items")
-    .select("ordem")
+    .select("position")
     .eq("project_id", projectId)
-    .order("ordem", { ascending: false })
+    .order("position", { ascending: false })
     .limit(1);
   if (lastErr) throw lastErr;
-  const nextOrdem =
-    input.ordem ?? ((last?.[0]?.ordem as number | undefined) ?? 0) + 1;
+  const nextPosition =
+    input.position ?? ((last?.[0]?.position as number | undefined) ?? 0) + 1;
 
   const payload = {
     project_id: projectId,
-    tenant_id: input.tenant_id ?? DEFAULT_TENANT_ID,
-    item_key: input.item_key ?? null,
-    titulo: input.titulo.trim(),
-    tipo: input.tipo ?? "Tarefa",
-    status: input.status ?? "A Fazer",
-    responsavel: input.responsavel ?? null,
-    descricao: input.descricao ?? null,
-    prioridade: input.prioridade ?? "Média",
-    sprint_id: input.sprint_id ?? null,
-    ordem: nextOrdem,
+    board_id: input.board_id ?? null,
+    column_id: input.column_id ?? null,
+    title: input.title.trim(),
+    description: input.description ?? null,
+    type: input.type ?? "task",
+    priority: input.priority ?? "media",
+    assignee_id: input.assignee_id ?? null,
+    status: input.status ?? STATUS_COLUMNS[0],
+    position: nextPosition,
   };
   const { data, error } = await supabase
     .from("work_items")
@@ -134,7 +160,7 @@ export async function createWorkItem(input: WorkItemInput): Promise<WorkItemRow>
 
 export async function updateWorkItem(
   id: string,
-  patch: Partial<Omit<WorkItemInput, "project_id">> & { status?: string; ordem?: number },
+  patch: Partial<Omit<WorkItemInput, "project_id">>,
 ): Promise<WorkItemRow> {
   const { data, error } = await supabase
     .from("work_items")
