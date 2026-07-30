@@ -190,6 +190,7 @@ export interface TimelineWorkItem {
   priority: string | null;
   assignee_id: string | null;
   epic_id: string | null;
+  /** Resolvido via sprint_items (N:N), não é coluna de work_items. */
   sprint_id: string | null;
   start_date: string | null;
   due_date: string | null;
@@ -197,10 +198,10 @@ export interface TimelineWorkItem {
 }
 
 const TIMELINE_SELECT =
-  "id, project_id, title, type, status, priority, assignee_id, epic_id, sprint_id, start_date, due_date, progress";
+  "id, project_id, title, type, status, priority, assignee_id, epic_id, start_date, due_date, progress";
 
 export const TIMELINE_MISSING_HINT =
-  "A timeline depende de colunas que ainda não existem em work_items (start_date, sprint_id, epic_id). Rode supabase/sql/sprints.sql, supabase/sql/epics.sql e supabase/sql/timeline.sql no SQL Editor do Supabase.";
+  "A timeline depende de colunas que ainda não existem em work_items (start_date, epic_id). Rode supabase/sql/00_full_schema.sql, supabase/sql/03_work_item_behavior.sql, supabase/sql/epics.sql e supabase/sql/timeline.sql no SQL Editor do Supabase.";
 
 /** 42703 = undefined_column — coluna ainda não migrada. */
 function isMissingColumn(err: unknown): boolean {
@@ -228,8 +229,36 @@ export async function listTimelineWorkItems(
     }
     throw new Error(error.message || "Erro ao carregar a timeline.");
   }
-  return (data ?? []) as TimelineWorkItem[];
+
+  const rows = (data ?? []) as Omit<TimelineWorkItem, "sprint_id">[];
+  const bySprint = await fetchSprintLinks(rows.map((r) => r.id));
+  return rows.map((r) => ({ ...r, sprint_id: bySprint.get(r.id) ?? null }));
 }
+
+/** work_item_id -> sprint_id, via tabela de vínculo sprint_items (primeiro vínculo). */
+async function fetchSprintLinks(
+  itemIds: string[],
+): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  if (itemIds.length === 0) return map;
+  const { data, error } = await supabase
+    .from("sprint_items")
+    .select("work_item_id, sprint_id")
+    .in("work_item_id", itemIds);
+  if (error) {
+    logSupabaseError("work-items-api:fetchSprintLinks", error);
+    return map;
+  }
+  for (const row of (data ?? []) as {
+    work_item_id: string | null;
+    sprint_id: string | null;
+  }[]) {
+    if (!row.work_item_id || !row.sprint_id) continue;
+    if (!map.has(row.work_item_id)) map.set(row.work_item_id, row.sprint_id);
+  }
+  return map;
+}
+
 
 /** Grava start_date/due_date ao soltar a barra na timeline. */
 export async function updateWorkItemDates(
