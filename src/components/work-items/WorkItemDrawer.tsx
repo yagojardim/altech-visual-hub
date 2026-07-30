@@ -13,6 +13,7 @@ import {
   type WorkItemRow,
 } from "@/lib/work-items-api";
 import { listProjects, type ProjectRow } from "@/lib/projects-api";
+import { listTeamMembers } from "@/lib/team-members-api";
 import { qk } from "@/lib/query-keys";
 import {
   Sheet,
