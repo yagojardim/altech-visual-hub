@@ -16,6 +16,7 @@ import {
   X,
   Layers,
 } from "lucide-react";
+import { TYPE_BADGE_CLASS, TYPE_TEXT_CLASS } from "@/lib/work-item-type-classes";
 import { supabase } from "@/lib/supabase";
 import { isMissingRelation, logSupabaseError, formatSupabaseError } from "@/lib/supabase-errors";
 import { qk } from "@/lib/query-keys";
