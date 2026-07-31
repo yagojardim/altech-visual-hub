@@ -50,6 +50,27 @@ function plural(n: number, one: string, many: string) {
   return `${n} ${n === 1 ? one : many}`;
 }
 
+function BoardActivityBars({ archived }: { archived: boolean }) {
+  const heights = ["40%", "70%", "100%", "60%", "80%"];
+  return (
+    <span
+      className="hidden h-5 shrink-0 items-end gap-0.5 sm:inline-flex"
+      aria-hidden="true"
+    >
+      {heights.map((h, i) => (
+        <span
+          key={i}
+          className={cn(
+            "w-1 rounded-full",
+            archived ? "bg-muted-foreground/25" : "bg-primary",
+          )}
+          style={{ height: h }}
+        />
+      ))}
+    </span>
+  );
+}
+
 function BoardsPage() {
   const canView = useCan("board.view");
   const { project: projectFilter } = Route.useSearch();
