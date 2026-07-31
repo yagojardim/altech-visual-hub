@@ -9,7 +9,7 @@ import { getBoard } from "@/lib/boards-api";
 import { listProjects } from "@/lib/projects-api";
 import { useAuth } from "@/lib/auth";
 import { auditLog } from "@/lib/audit-log";
-import { Chip, StatusBadge } from "@/components/ui/chip";
+import { Chip } from "@/components/ui/chip";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

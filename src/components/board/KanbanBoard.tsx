@@ -22,7 +22,7 @@ import { qk } from "@/lib/query-keys";
 import { toWorkItems, toWorkItemPatch, type WorkItem } from "@/lib/work-item-map";
 import { LoadingState, ErrorState, EmptyState } from "@/components/states";
 import { KanbanSquare } from "lucide-react";
-import { Chip } from "@/components/ui/chip";
+import { Chip, StatusBadge } from "@/components/ui/chip";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -114,7 +114,7 @@ function Column({
       )}
     >
       <header className="flex items-center justify-between gap-2 rounded-t-xl border-b border-border px-3 py-2">
-        <h3 className="text-sm font-medium text-foreground">{status}</h3>
+        <StatusBadge status={status} size="sm" />
         <span className="rounded-full bg-panel px-2 py-0.5 text-[11px] text-muted-foreground">
           {items.length}
         </span>
