@@ -227,10 +227,10 @@ function BoardsPage() {
         <div className="space-y-6">
           {groups.map(([key, group]) => (
             <section key={key} className="space-y-2">
-              <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-foreground">
+              <h2 className="flex items-center gap-2 text-xs font-semibold tracking-wider text-foreground">
                 <span className="h-2 w-2 rounded-full bg-primary" />
-                {group.label}
-                <span className="font-normal text-muted-foreground">
+                <span className="uppercase">{group.label}</span>
+                <span className="font-normal normal-case text-muted-foreground">
                   — {plural(group.boards.length, "board", "boards")}
                 </span>
               </h2>
