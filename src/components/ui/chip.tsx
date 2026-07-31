@@ -168,9 +168,27 @@ const STATUS_MAP: Record<WorkItemStatus, { label: string; variant: ChipVariant }
   cancelled: { label: "Cancelado", variant: "default" },
 };
 
+const STATUS_ALIAS: Record<string, WorkItemStatus> = {
+  backlog: "backlog",
+  "a-fazer": "todo",
+  "em-progresso": "in-progress",
+  "em-revisão": "in-review",
+  "em-revisao": "in-review",
+  revisão: "in-review",
+  revisao: "in-review",
+  concluído: "done",
+  concluido: "done",
+  pronto: "ready",
+  "pronto-p-sprint": "ready",
+  "em-teste": "testing",
+  bloqueado: "blocked",
+  cancelado: "cancelled",
+};
+
 function normalizeStatus(status?: string | null): WorkItemStatus | null {
   const key = (status ?? "").toLowerCase().trim().replace(/[\s_]+/g, "-");
-  return (key in STATUS_MAP ? (key as WorkItemStatus) : null);
+  if (key in STATUS_ALIAS) return STATUS_ALIAS[key];
+  return key in STATUS_MAP ? (key as WorkItemStatus) : null;
 }
 
 export function StatusBadge({
