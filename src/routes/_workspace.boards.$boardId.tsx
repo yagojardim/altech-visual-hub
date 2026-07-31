@@ -82,7 +82,7 @@ async function listMembers(): Promise<Member[]> {
   return (data ?? []) as Member[];
 }
 
-import { typeMeta, typeBadgeStyle, priorityMeta } from "@/lib/work-item-type-style";
+import { typeMeta, priorityMeta } from "@/lib/work-item-type-style";
 
 function initials(name: string | null | undefined): string {
   if (!name) return "—";
