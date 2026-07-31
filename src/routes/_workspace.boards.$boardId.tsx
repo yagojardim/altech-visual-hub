@@ -265,7 +265,7 @@ function BoardColumnView({
   return (
     <section className="flex w-72 shrink-0 flex-col gap-3 rounded-xl border border-border bg-panel p-3">
       <header className="flex items-center justify-between">
-        <h2 className="text-sm font-medium text-foreground">{column.name}</h2>
+        <StatusBadge status={column.name} size="sm" />
         <span className="rounded-full bg-panel-elevated px-2 py-0.5 text-[11px] text-muted-foreground">
           {loading ? "…" : items.length}
         </span>
