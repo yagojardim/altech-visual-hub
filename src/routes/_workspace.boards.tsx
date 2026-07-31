@@ -61,6 +61,7 @@ function BoardsPage() {
   }, [boardsQ.data, projectFilter, projectBySlug]);
 
   if (!canView) return <UnauthorizedState />;
+  if (!isBoardsIndex) return <Outlet />;
 
   const loading = boardsQ.isLoading || projectsQ.isLoading;
   const error =
