@@ -35,6 +35,8 @@ function BoardsPage() {
   const canView = useCan("board.view");
   const navigate = Route.useNavigate();
   const { project: projectFilter } = Route.useSearch();
+  const { location } = useRouterState();
+  const isBoardsIndex = location.pathname === "/boards";
 
   const projectsQ = useQuery({ queryKey: qk.projects(), queryFn: listProjects });
   const boardsQ = useQuery({ queryKey: ["boards", "all"], queryFn: listBoards });
