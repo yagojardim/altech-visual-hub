@@ -273,6 +273,8 @@ function BoardsPage() {
                         </div>
                       </div>
 
+                      <BoardActivityBars archived={archived} />
+
                       <span className="hidden shrink-0 text-xs text-muted-foreground sm:block">
                         {timeAgo(b.created_at)}
                       </span>
