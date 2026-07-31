@@ -1,6 +1,6 @@
 -- Altech Project: comments on work_items
 -- Run in the Supabase SQL Editor (project bjoudcfydahanbcirqcl).
--- Depends on work_items.sql.
+-- Depends on 00_full_schema.sql (public.work_items).
 
 create table if not exists public.comments (
   id uuid primary key default gen_random_uuid(),

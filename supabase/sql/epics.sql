@@ -1,6 +1,6 @@
 -- Altech Project: epics
 -- Rodar no SQL Editor do Supabase (projeto bjoudcfydahanbcirqcl).
--- Depende de projects.sql, team_members e work_items.
+-- Depende de 00_full_schema.sql (public.projects, public.team_members, public.work_items).
 -- Obs.: public.projects.id é TEXT (slug) neste schema.
 
 create table if not exists public.epics (
