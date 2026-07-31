@@ -150,9 +150,7 @@ function BoardsPage() {
                       </code>
                       <h3 className="truncate text-base font-semibold text-foreground">{b.name}</h3>
                     </div>
-                    <Badge variant="secondary" className="shrink-0">
-                      <KanbanSquare className="mr-1 h-3 w-3" /> Board
-                    </Badge>
+                    <Chip label="Board" variant="accent" size="sm" icon={<KanbanSquare className="h-3 w-3" />} className="shrink-0" />
                   </div>
                   <p className="line-clamp-2 text-sm text-muted-foreground">
                     {b.description ?? "Board do workspace Altech Project."}
