@@ -1,6 +1,6 @@
 -- Altech Project: releases
 -- Rodar no SQL Editor do Supabase (projeto bjoudcfydahanbcirqcl).
--- Depende de projects.sql e work_items.
+-- Depende de 00_full_schema.sql (public.projects, public.work_items).
 -- Obs.: public.projects.id é TEXT (slug) neste schema.
 
 create table if not exists public.releases (
