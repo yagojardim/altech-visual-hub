@@ -9,7 +9,7 @@ import { getBoard } from "@/lib/boards-api";
 import { listProjects } from "@/lib/projects-api";
 import { useAuth } from "@/lib/auth";
 import { auditLog } from "@/lib/audit-log";
-import { Badge } from "@/components/ui/badge";
+import { Chip, StatusBadge } from "@/components/ui/chip";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -82,7 +82,7 @@ async function listMembers(): Promise<Member[]> {
   return (data ?? []) as Member[];
 }
 
-import { typeMeta, typeBadgeStyle, priorityMeta } from "@/lib/work-item-type-style";
+import { typeMeta, priorityMeta } from "@/lib/work-item-type-style";
 
 function initials(name: string | null | undefined): string {
   if (!name) return "—";
@@ -219,7 +219,7 @@ function BoardKanbanPage() {
           <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
             {board?.name ?? <Skeleton className="inline-block h-6 w-40" />}
           </h1>
-          <Badge variant="secondary"><KanbanSquare className="mr-1 h-3 w-3" /> Board</Badge>
+          <Chip label="Board" variant="accent" size="sm" icon={<KanbanSquare className="h-3 w-3" />} />
         </div>
         <p className="text-sm text-muted-foreground">
           {project ? `Projeto: ${project.nome}` : "Kanban do Altech Project."}
@@ -265,7 +265,7 @@ function BoardColumnView({
   return (
     <section className="flex w-72 shrink-0 flex-col gap-3 rounded-xl border border-border bg-panel p-3">
       <header className="flex items-center justify-between">
-        <h2 className="text-sm font-medium text-foreground">{column.name}</h2>
+        <StatusBadge status={column.name} size="sm" />
         <span className="rounded-full bg-panel-elevated px-2 py-0.5 text-[11px] text-muted-foreground">
           {loading ? "…" : items.length}
         </span>
@@ -346,18 +346,17 @@ function ItemCard({
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-1.5">
         {item.type && (
-          <Badge
-            variant="outline"
-            className="text-[10px] font-medium uppercase tracking-wide"
-            style={typeBadgeStyle(item.type)}
-          >
-            {tMeta.label}
-          </Badge>
+          <Chip
+            label={tMeta.label}
+            variant="custom"
+            color={tMeta.color}
+            size="xs"
+            dot
+            className="uppercase tracking-wide"
+          />
         )}
         {pMeta && (
-          <Badge variant="outline" style={pMeta.style} className="text-[10px] capitalize">
-            {pMeta.label}
-          </Badge>
+          <Chip label={pMeta.label} variant="custom" color={pMeta.color} size="xs" dot />
         )}
       </div>
       <div className="mt-3 flex items-center gap-2">

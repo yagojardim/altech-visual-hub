@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { KanbanSquare, ChevronRight } from "lucide-react";
@@ -7,7 +7,7 @@ import { z } from "zod";
 import { useCan } from "@/lib/auth";
 import { UnauthorizedState, LoadingState, EmptyState, ErrorState } from "@/components/states";
 import { WidgetCard } from "@/components/dashboard/WidgetCard";
-import { Badge } from "@/components/ui/badge";
+import { Chip } from "@/components/ui/chip";
 import {
   Select,
   SelectContent,
@@ -35,6 +35,8 @@ function BoardsPage() {
   const canView = useCan("board.view");
   const navigate = Route.useNavigate();
   const { project: projectFilter } = Route.useSearch();
+  const { location } = useRouterState();
+  const isBoardsIndex = location.pathname === "/boards";
 
   const projectsQ = useQuery({ queryKey: qk.projects(), queryFn: listProjects });
   const boardsQ = useQuery({ queryKey: ["boards", "all"], queryFn: listBoards });
@@ -59,6 +61,7 @@ function BoardsPage() {
   }, [boardsQ.data, projectFilter, projectBySlug]);
 
   if (!canView) return <UnauthorizedState />;
+  if (!isBoardsIndex) return <Outlet />;
 
   const loading = boardsQ.isLoading || projectsQ.isLoading;
   const error =
@@ -150,9 +153,7 @@ function BoardsPage() {
                       </code>
                       <h3 className="truncate text-base font-semibold text-foreground">{b.name}</h3>
                     </div>
-                    <Badge variant="secondary" className="shrink-0">
-                      <KanbanSquare className="mr-1 h-3 w-3" /> Board
-                    </Badge>
+                    <Chip label="Board" variant="accent" size="sm" icon={<KanbanSquare className="h-3 w-3" />} className="shrink-0" />
                   </div>
                   <p className="line-clamp-2 text-sm text-muted-foreground">
                     {b.description ?? "Board do workspace Altech Project."}
